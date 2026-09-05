@@ -25,6 +25,7 @@ function validateAndBuildCustomer(body) {
     const product = typeof item?.product === 'string' ? item.product.trim() : '';
     const pieces = item?.pieces;
     const pricePerItem = item?.pricePerItem;
+    const expiryDate = typeof item?.expiryDate === 'string' ? item.expiryDate.trim() : '';
 
     if (!product) {
       throw validationError(`Product/SKU cannot be empty at index ${index}`, `products[${index}].product`);
@@ -38,10 +39,15 @@ function validateAndBuildCustomer(body) {
       throw validationError(`Price per item cannot be negative at index ${index}`, `products[${index}].pricePerItem`);
     }
 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || Number.isNaN(Date.parse(`${expiryDate}T00:00:00Z`))) {
+      throw validationError(`Expiry date must be a valid date at index ${index}`, `products[${index}].expiryDate`);
+    }
+
     return {
       product,
       pieces,
       pricePerItem,
+      expiryDate,
       total: roundCurrency(pieces * pricePerItem)
     };
   });

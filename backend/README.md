@@ -46,8 +46,8 @@ Example request body:
 {
   "customerName": "Mama Jane Shop",
   "products": [
-    { "product": "Blue Band 500g", "pieces": 20, "pricePerItem": 200 },
-    { "product": "Rama 500g", "pieces": 10, "pricePerItem": 150 }
+    { "product": "Blue Band 500g", "pieces": 20, "pricePerItem": 200, "expiryDate": "2027-12-31" },
+    { "product": "Rama 500g", "pieces": 10, "pricePerItem": 150, "expiryDate": "2028-06-30" }
   ]
 }
 ```

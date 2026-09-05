@@ -137,6 +137,7 @@
 							<label>Product / SKU<input id="productName" placeholder="e.g. Blue Band 500g" required></label>
 							<label>Pieces<input id="productPieces" type="number" min="1" step="1" placeholder="0" required></label>
 							<label>Price per item (KES)<input id="productPrice" type="number" min="0" step="0.01" placeholder="0" required></label>
+							<label>Expiry date<input id="productExpiry" type="date" required></label>
 							<label>Total price (KES)<input id="customerTotal" type="text" value="KES 0" readonly></label>
 						</div>
 						<p id="customerMessage" class="message" aria-live="polite"></p>
@@ -176,7 +177,7 @@
 			$('customerCount').textContent = customers.length;
 			$('pieceCount').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
 			$('salesTotal').textContent = money(customers.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0));
-			$('customerList').innerHTML = customers.length ? customers.map((customer) => `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${new Date(customer.createdAt).toLocaleDateString()}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`).join('') : '<div class="empty">No customer records yet.</div>';
+			$('customerList').innerHTML = customers.length ? customers.map((customer) => { const product = customer.products?.[0]; const expiry = product?.expiryDate ? `Expires ${product.expiryDate}` : 'Expiry not recorded'; return `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${product?.product || 'Product'} · ${expiry}</span><span>${new Date(customer.createdAt).toLocaleDateString()}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`; }).join('') : '<div class="empty">No customer records yet.</div>';
 			document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
 		}
 		async function loadCustomers() {
@@ -188,7 +189,7 @@
 		async function addCustomer(event) {
 			event.preventDefault();
 			const message = $('customerMessage');
-			const customer = { customerName: $('customerName').value.trim(), products: [{ product: $('productName').value.trim(), pieces: Number($('productPieces').value), pricePerItem: Number($('productPrice').value) }] };
+			const customer = { customerName: $('customerName').value.trim(), products: [{ product: $('productName').value.trim(), pieces: Number($('productPieces').value), pricePerItem: Number($('productPrice').value), expiryDate: $('productExpiry').value }] };
 			try {
 				const response = await fetch(`${API_URL}/customers`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(customer) });
 				const data = await response.json();
