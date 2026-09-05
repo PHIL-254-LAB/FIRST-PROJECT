@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: dahlia-blueband-sort
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    plan: starter
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        value: '*'
+    disk:
+      name: dahlia-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 1

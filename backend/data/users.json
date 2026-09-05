@@ -1,0 +1,11 @@
+[
+  {
+    "id": "seed-phillip",
+    "username": "phillip",
+    "passwordHash": "$2b$12$vJbZbws3yea.JKQt3SyIxumlIPrFwpDXvxwLVfMSiXb5ZRCaSx2MC",
+    "name": "Phillip",
+    "email": "phillip@newday.com",
+    "role": "user",
+    "createdAt": "2026-09-05T00:00:00.000Z"
+  }
+]
