@@ -25,4 +25,22 @@ async function create(user) {
   return user;
 }
 
-module.exports = { findByUsername, create };
+async function ensureSeedUsers() {
+  const users = await readUsers();
+  const adminExists = users.some((user) => user.username === 'admin');
+
+  if (!adminExists) {
+    users.push({
+      id: 'seed-admin',
+      username: 'admin',
+      passwordHash: '$2b$12$BWzxZFOIgT6Vba1t6RXck.hnfAoGcXVgB215qGp2pGf8J2N81SwU2',
+      name: 'Dahlia Administrator',
+      email: 'admin@dahliabluebandsort.com',
+      role: 'admin',
+      createdAt: '2026-09-05T00:00:00.000Z'
+    });
+    await writeUsers(users);
+  }
+}
+
+module.exports = { findByUsername, create, ensureSeedUsers };

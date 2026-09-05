@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const userModel = require('./models/userModel');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -28,8 +29,10 @@ app.use((request, response) => {
 app.use(errorHandler);
 
 if (require.main === module) {
-  app.listen(port, () => {
-    console.log(`NEW DAY API listening on http://localhost:${port}`);
+  userModel.ensureSeedUsers().then(() => {
+    app.listen(port, () => {
+      console.log(`NEW DAY API listening on http://localhost:${port}`);
+    });
   });
 }
 
