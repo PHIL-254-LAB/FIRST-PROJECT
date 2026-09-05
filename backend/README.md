@@ -38,7 +38,7 @@ The API runs at `http://localhost:3000` by default. Set `PORT` and `FRONTEND_ORI
 - `POST /api/auth/login` signs in with a username and password and returns a JWT.
 - `GET /api/auth/me` returns the authenticated user. Send `Authorization: Bearer <token>`.
 
-Customer endpoints require the same `Authorization: Bearer <token>` header. Customer records are currently shared between authenticated users.
+Customer endpoints require the same `Authorization: Bearer <token>` header. New customer records start with `status: "pending"`; customer records are currently shared between authenticated users.
 
 Example request body:
 

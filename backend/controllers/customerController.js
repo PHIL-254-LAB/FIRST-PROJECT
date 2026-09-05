@@ -56,6 +56,7 @@ function validateAndBuildCustomer(body) {
     id: crypto.randomUUID(),
     customerName,
     products,
+    status: 'pending',
     totalPieces: products.reduce((sum, item) => sum + item.pieces, 0),
     totalAmount: roundCurrency(products.reduce((sum, item) => sum + item.total, 0)),
     createdAt: new Date().toISOString()
@@ -83,7 +84,10 @@ async function createCustomer(request, response, next) {
 
 async function getCustomers(request, response, next) {
   try {
-    const customers = await customerModel.getAll();
+    const customers = (await customerModel.getAll()).map((customer) => ({
+      ...customer,
+      status: customer.status || 'pending'
+    }));
     response.json({ success: true, customers });
   } catch (error) {
     next(error);
@@ -98,7 +102,7 @@ async function getCustomer(request, response, next) {
       return response.status(404).json({ success: false, message: 'Customer not found' });
     }
 
-    response.json({ success: true, customer });
+    response.json({ success: true, customer: { ...customer, status: customer.status || 'pending' } });
   } catch (error) {
     next(error);
   }

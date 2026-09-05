@@ -76,6 +76,20 @@
 		main.customers-page .topbar, main.customers-page .stats, main.customers-page #profilePanel { display: none; }
 		main.customers-page .content-grid { display: block; }
 		main.customers-page #customersPanel { min-height: calc(100vh - 68px); }
+		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel { display: none; }
+		main.details-page .content-grid { display: block; }
+		main.details-page #detailsPanel { display: block; min-height: calc(100vh - 68px); }
+		.status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+		.status-tab { border: 1px solid var(--line); padding: 9px 13px; border-radius: 5px; color: var(--muted); background: var(--white); font: 700 11px Arial, sans-serif; }
+		.status-tab.active, .status-tab:hover { color: var(--teal-dark); border-color: var(--teal); background: var(--mint); }
+		.history-list { display: grid; gap: 10px; }
+		.history-item { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 17px; border: 1px solid var(--line); border-radius: 6px; font-family: Arial, sans-serif; }
+		.history-item strong { display: block; margin-bottom: 6px; font-size: 14px; }
+		.history-item span { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
+		.status-badge { padding: 7px 10px; border-radius: 20px; font: 700 10px Arial, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+		.status-badge.pending { color: #8a6418; background: #fff4cf; }
+		.status-badge.approved { color: #176b63; background: var(--mint); }
+		.status-badge.declined { color: #a34b3a; background: #fff1ed; }
 		.login-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 15% 20%, #d9eee3 0, transparent 32%), var(--teal-dark); }
 		.login-card { width: min(440px, 100%); padding: 42px; background: var(--white); box-shadow: var(--shadow); border-radius: 8px; }
 		.login-card h1 { margin: 0 0 10px; font-size: 42px; font-weight: 500; letter-spacing: -.04em; }
@@ -111,6 +125,7 @@
 			<nav class="nav" aria-label="Primary navigation">
 				<button class="active" type="button" data-page="overview">Overview</button>
 				<button type="button" data-page="customers">Customers</button>
+				<button type="button" data-page="details">Details</button>
 			</nav>
 			<div class="side-note">A calmer way to keep every customer conversation moving.</div>
 		</aside>
@@ -145,6 +160,11 @@
 					</form>
 					<div id="customerList" class="customer-list"><div class="empty">Loading customer records...</div></div>
 				</section>
+				<section id="detailsPanel" class="panel hidden">
+					<div class="panel-heading"><div><h2>Customer details</h2><small id="historyStatus">History of created customers and approval status.</small></div><button id="historyRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<div class="status-tabs" aria-label="Customer status filters"><button class="status-tab active" type="button" data-status-filter="all">All</button><button class="status-tab" type="button" data-status-filter="pending">Pending</button><button class="status-tab" type="button" data-status-filter="approved">Approved</button><button class="status-tab" type="button" data-status-filter="declined">Declined</button></div>
+					<div id="historyList" class="history-list"><div class="empty">Loading customer history...</div></div>
+				</section>
 			</div>
 		</main>
 	</div>
@@ -155,6 +175,8 @@
 			: '/api';
 		const defaultUser = { name: 'Phillip', email: 'phillip@newday.com', role: 'Team user' };
 		let authMode = 'login';
+		let customerHistory = [];
+		let historyFilter = 'all';
 		const demoCustomers = [
 			{ id: 'demo-1', customerName: 'Mama Jane Shop', totalPieces: 30, totalAmount: 5500, createdAt: '2026-09-04T09:30:00.000Z' },
 			{ id: 'demo-2', customerName: 'Greenline Market', totalPieces: 18, totalAmount: 3240, createdAt: '2026-09-03T14:10:00.000Z' },
@@ -174,11 +196,17 @@
 		}
 		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); }
 		function renderCustomers(customers) {
+			customerHistory = customers;
 			$('customerCount').textContent = customers.length;
 			$('pieceCount').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
 			$('salesTotal').textContent = money(customers.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0));
 			$('customerList').innerHTML = customers.length ? customers.map((customer) => { const product = customer.products?.[0]; const expiry = product?.expiryDate ? `Expires ${product.expiryDate}` : 'Expiry not recorded'; return `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${product?.product || 'Product'} · ${expiry}</span><span>${new Date(customer.createdAt).toLocaleDateString()}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`; }).join('') : '<div class="empty">No customer records yet.</div>';
 			document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
+			renderHistory();
+		}
+		function renderHistory() {
+			const filtered = historyFilter === 'all' ? customerHistory : customerHistory.filter((customer) => (customer.status || 'pending') === historyFilter);
+			$('historyList').innerHTML = filtered.length ? filtered.map((customer) => { const product = customer.products?.[0]; const status = customer.status || 'pending'; return `<article class="history-item"><div><strong>${customer.customerName}</strong><span>${product?.product || 'Product'} · ${customer.totalPieces || 0} pieces · ${money(customer.totalAmount)}</span><span>Created ${new Date(customer.createdAt).toLocaleString()} · Expires ${product?.expiryDate || 'Not recorded'}</span></div><span class="status-badge ${status}">${status}</span></article>`; }).join('') : '<div class="empty">No customer history matches this status.</div>';
 		}
 		async function loadCustomers() {
 			try { const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() }); if (!response.ok) throw new Error('API unavailable'); const data = await response.json(); renderCustomers(data.customers || []); $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; }
@@ -213,6 +241,8 @@
 		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Create an account to access customer sales and records.' : 'Sign in to manage customer sales, see activity, and keep your team details close at hand.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / 2002'; $('loginMessage').textContent = ''; });
 		$('logoutButton').addEventListener('click', () => { localStorage.removeItem('newDayToken'); localStorage.removeItem('newDayUser'); $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); $('loginForm').reset(); });
 		$('refreshButton').addEventListener('click', loadCustomers);
+		$('historyRefreshButton').addEventListener('click', loadCustomers);
+		document.querySelectorAll('[data-status-filter]').forEach((button) => button.addEventListener('click', () => { historyFilter = button.dataset.statusFilter; document.querySelectorAll('[data-status-filter]').forEach((tab) => tab.classList.toggle('active', tab === button)); renderHistory(); }));
 		$('addCustomerButton').addEventListener('click', () => { $('customerForm').classList.remove('hidden'); $('customerName').focus(); });
 		$('cancelCustomerButton').addEventListener('click', () => { $('customerForm').reset(); $('customerForm').classList.add('hidden'); $('customerMessage').textContent = ''; });
 		$('customerForm').addEventListener('submit', addCustomer);
@@ -222,8 +252,11 @@
 			const main = document.querySelector('main');
 			const buttons = document.querySelectorAll('[data-page]');
 			main.classList.toggle('customers-page', page === 'customers');
+			main.classList.toggle('details-page', page === 'details');
+			$('detailsPanel').classList.toggle('hidden', page !== 'details');
 			buttons.forEach((button) => button.classList.toggle('active', button.dataset.page === page));
 			if (page === 'customers') { $('customerForm').classList.remove('hidden'); $('customersPanel').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('customerName').focus(), 350); }
+			if (page === 'details') { $('detailsPanel').scrollIntoView({ behavior: 'smooth' }); renderHistory(); }
 			if (page === 'overview') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 		}
 		document.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => switchPage(button.dataset.page)));
