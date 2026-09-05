@@ -18,4 +18,12 @@ function requireAuth(request, response, next) {
   }
 }
 
-module.exports = { jwtSecret, requireAuth };
+function requireAdmin(request, response, next) {
+  if (request.user?.role !== 'admin') {
+    return response.status(403).json({ success: false, message: 'Administrator access required' });
+  }
+
+  next();
+}
+
+module.exports = { jwtSecret, requireAuth, requireAdmin };

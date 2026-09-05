@@ -3,9 +3,10 @@ const {
   createCustomer,
   getCustomers,
   getCustomer,
-  deleteCustomer
+  deleteCustomer,
+  updateCustomerStatus
 } = require('../controllers/customerController');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.post('/', createCustomer);
 router.get('/', getCustomers);
 router.get('/:id', getCustomer);
 router.delete('/:id', deleteCustomer);
+router.patch('/:id/status', requireAdmin, updateCustomerStatus);
 
 module.exports = router;

@@ -122,9 +122,43 @@ async function deleteCustomer(request, response, next) {
   }
 }
 
+async function updateCustomerStatus(request, response, next) {
+  try {
+    const status = typeof request.body?.status === 'string' ? request.body.status : '';
+    const operatingDeadline = typeof request.body?.operatingDeadline === 'string'
+      ? request.body.operatingDeadline.trim()
+      : '';
+
+    if (!['pending', 'approved', 'declined'].includes(status)) {
+      const error = validationError('Status must be pending, approved, or declined', 'status');
+      throw error;
+    }
+
+    if (operatingDeadline && (!/^\d{4}-\d{2}-\d{2}$/.test(operatingDeadline) || Number.isNaN(Date.parse(`${operatingDeadline}T00:00:00Z`)))) {
+      throw validationError('Operating deadline must be a valid date', 'operatingDeadline');
+    }
+
+    const customer = await customerModel.updateStatus(request.params.id, {
+      status,
+      operatingDeadline: operatingDeadline || null,
+      reviewedAt: new Date().toISOString(),
+      reviewedBy: request.user.username
+    });
+
+    if (!customer) {
+      return response.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    response.json({ success: true, message: `Customer ${status}`, customer });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createCustomer,
   getCustomers,
   getCustomer,
-  deleteCustomer
+  deleteCustomer,
+  updateCustomerStatus
 };

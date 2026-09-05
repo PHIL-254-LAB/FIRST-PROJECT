@@ -41,9 +41,23 @@ async function remove(id) {
   return true;
 }
 
+async function updateStatus(id, updates) {
+  const customers = await readCustomers();
+  const customer = customers.find((item) => item.id === id);
+
+  if (!customer) {
+    return null;
+  }
+
+  Object.assign(customer, updates);
+  await writeCustomers(customers);
+  return customer;
+}
+
 module.exports = {
   getAll,
   getById,
   create,
-  remove
+  remove,
+  updateStatus
 };

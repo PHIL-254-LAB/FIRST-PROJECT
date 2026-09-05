@@ -15,6 +15,8 @@ npm start
 
 Set a unique `JWT_SECRET` in `.env` before sharing the app. Users can create accounts from the frontend; passwords are stored as bcrypt hashes and are never stored as plain text.
 
+The seeded administrator can sign in with username `admin` and password `admin2002`. Administrators can approve or decline customer requests and set operating deadlines; regular users cannot access those actions.
+
 ## Permanent Render deployment
 
 The repository root includes `render.yaml`. Push the project to GitHub, then choose **New > Blueprint** in Render and select that repository. Render will create the web service, generate `JWT_SECRET`, serve the frontend and API together, and mount persistent storage for `data/users.json` and `data/customers.json`. A paid Render plan is required for the persistent disk.

@@ -7,5 +7,14 @@
     "email": "phillip@newday.com",
     "role": "user",
     "createdAt": "2026-09-05T00:00:00.000Z"
+  },
+  {
+    "id": "seed-admin",
+    "username": "admin",
+    "passwordHash": "$2b$12$BWzxZFOIgT6Vba1t6RXck.hnfAoGcXVgB215qGp2pGf8J2N81SwU2",
+    "name": "Dahlia Administrator",
+    "email": "admin@dahliabluebandsort.com",
+    "role": "admin",
+    "createdAt": "2026-09-05T00:00:00.000Z"
   }
 ]
