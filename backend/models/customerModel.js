@@ -1,15 +1,22 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-const dataFile = path.join(__dirname, '..', 'data', 'customers.json');
+const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, '..', 'data');
+const dataFile = path.join(dataDir, 'customers.json');
 
 async function readCustomers() {
-  const fileContents = await fs.readFile(dataFile, 'utf8');
-  const customers = JSON.parse(fileContents);
-  return Array.isArray(customers) ? customers : [];
+  try {
+    const fileContents = await fs.readFile(dataFile, 'utf8');
+    const customers = JSON.parse(fileContents);
+    return Array.isArray(customers) ? customers : [];
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
 }
 
 async function writeCustomers(customers) {
+  await fs.mkdir(dataDir, { recursive: true });
   await fs.writeFile(dataFile, `${JSON.stringify(customers, null, 2)}\n`, 'utf8');
 }
 
@@ -25,6 +32,20 @@ async function getById(id) {
 async function create(customer) {
   const customers = await readCustomers();
   customers.push(customer);
+  await writeCustomers(customers);
+  return customer;
+}
+
+async function update(id, updates) {
+  const customers = await readCustomers();
+  const customer = customers.find((item) => item.id === id);
+
+  if (!customer) {
+    return null;
+  }
+
+  Object.assign(customer, updates);
+  customer.id = id;
   await writeCustomers(customers);
   return customer;
 }
@@ -58,6 +79,7 @@ module.exports = {
   getAll,
   getById,
   create,
+  update,
   remove,
   updateStatus
 };

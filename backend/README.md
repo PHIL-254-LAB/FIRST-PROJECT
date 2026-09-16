@@ -15,7 +15,7 @@ npm start
 
 Set a unique `JWT_SECRET` in `.env` before sharing the app. Users can create accounts from the frontend; passwords are stored as bcrypt hashes and are never stored as plain text.
 
-The seeded administrator can sign in with username `admin` and password `admin2002`. Administrators can approve or decline customer requests and set operating deadlines; regular users cannot access those actions.
+The seeded administrator account is `admin`. Use the initial password supplied to the project owner, then change it before sharing the account. Administrators can approve or decline customer requests and set operating deadlines; regular users cannot access those actions.
 
 ## Permanent Render deployment
 
@@ -40,7 +40,7 @@ The API runs at `http://localhost:3000` by default. Set `PORT` and `FRONTEND_ORI
 - `POST /api/auth/login` signs in with a username and password and returns a JWT.
 - `GET /api/auth/me` returns the authenticated user. Send `Authorization: Bearer <token>`.
 
-Customer endpoints require the same `Authorization: Bearer <token>` header. New customer records start with `status: "pending"`; customer records are currently shared between authenticated users.
+Customer endpoints require the same `Authorization: Bearer <token>` header. New customer records start with `status: "pending"`; customer records are currently shared between authenticated users. Each customer can contain multiple products/SKUs, each with pieces, KES price, and expiry date.
 
 Example request body:
 

@@ -1,5 +1,6 @@
 const crypto = require('node:crypto');
 const customerModel = require('../models/customerModel');
+const settingsModel = require('../models/settingsModel');
 
 function validationError(message, field) {
   const error = new Error(message);
@@ -69,7 +70,13 @@ function roundCurrency(value) {
 
 async function createCustomer(request, response, next) {
   try {
-    const customer = validateAndBuildCustomer(request.body);
+    const settings = await settingsModel.get();
+    if (!settingsModel.isWithinWindow(settings)) {
+      const error = new Error('Customer requests are currently closed');
+      error.statusCode = 403;
+      throw error;
+    }
+    const customer = { ...validateAndBuildCustomer(request.body), region: request.user.region || 'Unassigned' };
     const savedCustomer = await customerModel.create(customer);
 
     response.status(201).json({
@@ -77,6 +84,15 @@ async function createCustomer(request, response, next) {
       message: 'Customer saved successfully',
       customer: savedCustomer
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getRequestWindow(request, response, next) {
+  try {
+    const settings = await settingsModel.get();
+    response.json({ success: true, requestsOpen: settingsModel.isWithinWindow(settings), startDate: settings.startDate, endDate: settings.endDate });
   } catch (error) {
     next(error);
   }
@@ -106,6 +122,38 @@ async function getCustomer(request, response, next) {
   } catch (error) {
     next(error);
   }
+}
+
+async function updateCustomer(request, response, next) {
+  try {
+    const existing = await customerModel.getById(request.params.id);
+    if (!existing) return response.status(404).json({ success: false, message: 'Customer not found' });
+    const validated = validateAndBuildCustomer(request.body);
+    const customer = await customerModel.update(request.params.id, {
+      customerName: validated.customerName,
+      products: validated.products,
+      totalPieces: validated.totalPieces,
+      totalAmount: validated.totalAmount,
+      updatedAt: new Date().toISOString(),
+      updatedBy: request.user.username
+    });
+    response.json({ success: true, message: 'Customer updated successfully', customer });
+  } catch (error) { next(error); }
+}
+
+async function addCustomerNote(request, response, next) {
+  try {
+    const note = typeof request.body?.note === 'string' ? request.body.note.trim() : '';
+    if (!note) throw validationError('Note cannot be empty', 'note');
+    if (note.length > 500) throw validationError('Note must be 500 characters or fewer', 'note');
+    const existing = await customerModel.getById(request.params.id);
+    if (!existing) return response.status(404).json({ success: false, message: 'Customer not found' });
+    const notes = Array.isArray(existing.notes) ? existing.notes : [];
+    const customer = await customerModel.update(request.params.id, {
+      notes: [...notes, { id: crypto.randomUUID(), text: note, author: request.user.username, createdAt: new Date().toISOString() }]
+    });
+    response.status(201).json({ success: true, message: 'Note saved', customer });
+  } catch (error) { next(error); }
 }
 
 async function deleteCustomer(request, response, next) {
@@ -157,8 +205,11 @@ async function updateCustomerStatus(request, response, next) {
 
 module.exports = {
   createCustomer,
+  getRequestWindow,
   getCustomers,
   getCustomer,
+  updateCustomer,
+  addCustomerNote,
   deleteCustomer,
   updateCustomerStatus
 };

@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const userModel = require('./models/userModel');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -22,6 +23,7 @@ app.get('/api/health', (request, response) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((request, response) => {
   response.status(404).json({ success: false, message: 'Route not found' });

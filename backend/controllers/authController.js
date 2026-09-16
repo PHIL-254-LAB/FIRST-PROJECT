@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const { jwtSecret } = require('../middleware/auth');
+const allowedRegions = ['Kakamega', 'Webuye', 'Busia', 'Luanda'];
 
 function validationError(message, field) {
   const error = new Error(message);
@@ -16,7 +17,7 @@ function normalizeUsername(value) {
 }
 
 function publicUser(user) {
-  return { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role };
+  return { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role, region: user.region || 'Unassigned' };
 }
 
 function createToken(user) {
@@ -29,10 +30,12 @@ async function register(request, response, next) {
     const password = typeof request.body?.password === 'string' ? request.body.password : '';
     const name = typeof request.body?.name === 'string' ? request.body.name.trim() : username;
     const email = typeof request.body?.email === 'string' ? request.body.email.trim().toLowerCase() : '';
+    const region = typeof request.body?.region === 'string' ? request.body.region.trim() : '';
 
     if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw validationError('Username must be 3-30 characters using letters, numbers, dots, underscores, or hyphens', 'username');
     if (password.length < 6) throw validationError('Password must be at least 6 characters', 'password');
     if (!name) throw validationError('Name cannot be empty', 'name');
+    if (!allowedRegions.includes(region)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
 
     if (await userModel.findByUsername(username)) {
       const error = new Error('Username is already registered');
@@ -48,6 +51,7 @@ async function register(request, response, next) {
       name,
       email,
       role: 'user',
+      region,
       createdAt: new Date().toISOString()
     };
     await userModel.create(user);
@@ -61,20 +65,37 @@ async function login(request, response, next) {
   try {
     const username = normalizeUsername(request.body?.username);
     const password = typeof request.body?.password === 'string' ? request.body.password : '';
+    const selectedRegion = typeof request.body?.region === 'string' ? request.body.region.trim() : '';
+    if (!allowedRegions.includes(selectedRegion)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
     const user = await userModel.findByUsername(username);
 
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return response.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
-    response.json({ success: true, user: publicUser(user), token: createToken(user) });
+    const sessionUser = { ...user, region: user.region || selectedRegion };
+    response.json({ success: true, user: publicUser(sessionUser), token: createToken(sessionUser) });
   } catch (error) {
     next(error);
   }
+}
+
+async function changePassword(request, response, next) {
+  try {
+    const currentPassword = typeof request.body?.currentPassword === 'string' ? request.body.currentPassword : '';
+    const newPassword = typeof request.body?.newPassword === 'string' ? request.body.newPassword : '';
+    if (newPassword.length < 6) throw validationError('New password must be at least 6 characters', 'newPassword');
+    const user = await userModel.findByUsername(request.user.username);
+    if (!user || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      return response.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+    await userModel.updatePassword(user.id, await bcrypt.hash(newPassword, 12));
+    response.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) { next(error); }
 }
 
 function me(request, response) {
   response.json({ success: true, user: request.user });
 }
 
-module.exports = { register, login, me };
+module.exports = { register, login, me, changePassword };

@@ -55,6 +55,8 @@
 		input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(23,107,99,.12); }
 		select { width: 100%; border: 1px solid var(--line); padding: 13px 14px; border-radius: 5px; color: var(--ink); background: #fbfcfa; outline: 0; }
 		select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(23,107,99,.12); }
+		textarea { width: 100%; min-height: 92px; border: 1px solid var(--line); padding: 13px 14px; border-radius: 5px; color: var(--ink); background: #fbfcfa; outline: 0; resize: vertical; font: inherit; }
+		textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(23,107,99,.12); }
 		.button { border: 0; padding: 13px 18px; border-radius: 5px; color: var(--white); background: var(--teal); font: 700 12px Arial, sans-serif; }
 		.button:hover { background: var(--teal-dark); }
 		.button.secondary { color: var(--teal-dark); background: var(--mint); }
@@ -63,6 +65,17 @@
 		.add-form { display: grid; gap: 14px; margin-bottom: 22px; padding: 18px; background: #f5faf6; border: 1px solid var(--line); border-radius: 6px; }
 		.add-form h3 { margin: 0; font-size: 17px; font-weight: 500; }
 		.add-form-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 12px; }
+		.sku-list { display: grid; gap: 12px; }
+		.sku-row { display: grid; grid-template-columns: 1.4fr .7fr .9fr 1fr auto; gap: 10px; align-items: end; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+		.sku-row .button { padding: 11px 12px; }
+		.sku-heading { display: flex; justify-content: space-between; align-items: center; }
+		.sku-heading h4 { margin: 0; font: 700 11px Arial, sans-serif; color: #52645d; text-transform: uppercase; letter-spacing: .08em; }
+		.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+		.setting-card { padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: #f5faf6; }
+		.setting-card h3 { margin: 0 0 14px; font-size: 17px; font-weight: 500; }
+		.user-table { width: 100%; border-collapse: collapse; font: 12px Arial, sans-serif; }
+		.user-table th, .user-table td { padding: 12px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+		.user-table th { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
 		.message { min-height: 16px; margin: 1px 0 0; font: 12px Arial, sans-serif; }
 		.message.error { color: #b24b38; }
 		.message.success { color: var(--teal); }
@@ -105,8 +118,8 @@
 		.demo { margin-top: 22px; padding: 13px; color: #537068; background: #f1f8f3; border-left: 3px solid var(--coral); font: 12px/1.5 Arial, sans-serif; }
 		.text-button { border: 0; padding: 0; color: var(--teal); background: transparent; font: 700 12px Arial, sans-serif; }
 		.hidden { display: none !important; }
-		@media (max-width: 850px) { .shell { grid-template-columns: 1fr; } .sidebar { padding: 18px 20px; } .nav { margin-top: 22px; grid-template-columns: repeat(3, 1fr); } .side-note { display: none; } .main { padding: 28px 20px 40px; } .content-grid { grid-template-columns: 1fr; } .add-form-grid { grid-template-columns: 1fr 1fr; } }
-		@media (max-width: 560px) { .topbar { align-items: start; } .profile { display: none; } .stats { grid-template-columns: 1fr; } .nav { grid-template-columns: 1fr 1fr 1fr; } .nav button { padding: 10px 7px; font-size: 11px; } .panel { padding: 20px; } .customer-row { grid-template-columns: 1fr 1fr; } .customer-row .button { grid-column: 2; justify-self: end; } .add-form-grid { grid-template-columns: 1fr; } .login-card { padding: 28px 22px; } }
+		@media (max-width: 850px) { .shell { grid-template-columns: 1fr; } .sidebar { padding: 18px 20px; } .nav { margin-top: 22px; grid-template-columns: repeat(4, 1fr); } .side-note { display: none; } .main { padding: 28px 20px 40px; } .content-grid { grid-template-columns: 1fr; } .add-form-grid, .settings-grid { grid-template-columns: 1fr 1fr; } }
+		@media (max-width: 560px) { .topbar { align-items: start; } .profile { display: none; } .stats { grid-template-columns: 1fr; } .nav { grid-template-columns: repeat(2, 1fr); } .nav button { padding: 10px 7px; font-size: 11px; } .panel { padding: 20px; } .customer-row { grid-template-columns: 1fr 1fr; } .customer-row .button { grid-column: 2; justify-self: end; } .add-form-grid, .settings-grid, .sku-row { grid-template-columns: 1fr; } .login-card { padding: 28px 22px; } }
 	</style>
 </head>
 <body>
@@ -119,6 +132,7 @@
 				<label>Username<input id="loginUsername" type="text" autocomplete="username" placeholder="Phillip" required></label>
 				<label id="nameField" class="hidden">Full name<input id="loginName" type="text" autocomplete="name" placeholder="Your name"></label>
 				<label id="emailField" class="hidden">Email address<input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
+				<label id="regionField">Region<select id="loginRegion" required><option value="">Choose your region</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option></select></label>
 				<label>Password<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required></label>
 				<p id="loginMessage" class="message" aria-live="polite"></p>
 				<button id="authSubmit" class="button" type="submit">Sign in to workspace</button>
@@ -151,19 +165,23 @@
 				<article class="stat"><span>Sales value (KES)</span><strong id="salesTotal">KES 0</strong></article>
 			</section>
 
+			<section id="profilePanel" class="panel">
+				<div class="panel-heading"><div><h2>Signed-in account</h2><small id="profileStatus">Your region and role control which records and actions are available.</small></div></div>
+				<div class="settings-grid">
+					<div class="setting-card"><h3>Profile</h3><p class="approval-meta"><strong id="profileAccount">—</strong><br>Username: <span id="profileUsername">—</span><br>Region: <span id="profileRegion">—</span><br>Role: <span id="profileRole">—</span></p></div>
+					<div class="setting-card"><h3>Workspace</h3><p class="approval-meta">Customer requests are saved with a pending status and reviewed by an administrator. Administrators can approve or decline requests, set the request window, export the customer register, and manage account roles.</p></div>
+				</div>
+			</section>
+
 			<div class="content-grid">
 				<section id="customersPanel" class="panel">
 					<div class="panel-heading"><div><h2>Recent customers</h2><small id="customerStatus">Connecting to your customer records...</small></div><div class="form-actions"><button id="addCustomerButton" class="button" type="button">+ Add customer</button><button id="refreshButton" class="button secondary" type="button">Refresh</button></div></div>
 					<form id="customerForm" class="add-form hidden">
 						<h3>Add customer sale</h3>
 						<label>Customer name<input id="customerName" placeholder="e.g. Mama Jane Shop" required></label>
-						<div class="add-form-grid">
-							<label>Product / SKU<input id="productName" placeholder="e.g. Blue Band 500g" required></label>
-							<label>Pieces<input id="productPieces" type="number" min="1" step="1" placeholder="0" required></label>
-							<label>Price per item (KES)<input id="productPrice" type="number" min="0" step="0.01" placeholder="0" required></label>
-							<label>Expiry date<input id="productExpiry" type="date" required></label>
-							<label>Total price (KES)<input id="customerTotal" type="text" value="KES 0" readonly></label>
-						</div>
+						<div class="sku-heading"><h4>Products / SKUs</h4><button id="addSkuButton" class="button secondary" type="button">+ Add SKU</button></div>
+						<div id="skuList" class="sku-list"></div>
+						<label>Total price (KES)<input id="customerTotal" type="text" value="KES 0" readonly></label>
 						<p id="customerMessage" class="message" aria-live="polite"></p>
 						<div class="form-actions"><button class="button" type="submit">Save customer</button><button id="cancelCustomerButton" class="button secondary" type="button">Cancel</button></div>
 					</form>
@@ -177,14 +195,18 @@
 				<section id="adminPanel" class="panel hidden">
 					<div class="panel-heading"><div><h2>Approval requests</h2><small id="adminStatus">Review pending customer requests and set their operating deadline.</small></div><button id="adminRefreshButton" class="button secondary" type="button">Refresh</button></div>
 					<div id="approvalList"><div class="empty">Loading approval requests...</div></div>
+					<div class="settings-grid">
+						<div class="setting-card"><h3>Request window</h3><form id="settingsForm" class="form-grid"><label>Requests enabled<select id="requestsOpen"><option value="true">Open</option><option value="false">Closed</option></select></label><label>Start date<input id="requestStart" type="date"></label><label>End date<input id="requestEnd" type="date"></label><p id="settingsMessage" class="message" aria-live="polite"></p><button class="button" type="submit">Save request rules</button></form></div>
+						<div class="setting-card"><h3>Registered users</h3><div id="userList"><div class="empty">Loading users...</div></div></div>
+					</div>
 				</section>
 			</div>
 		</main>
 	</div>
 
 	<script>
-		const API_URL = window.location.port === '5500' || window.location.protocol === 'file:'
-			? `${window.location.protocol}//${window.location.hostname || 'localhost'}:3000/api`
+		const API_URL = window.location.protocol === 'file:' || window.location.port === '5500'
+			? 'http://localhost:3000/api'
 			: '/api';
 		const defaultUser = { name: 'Phillip', email: 'phillip@newday.com', role: 'Team user' };
 		let authMode = 'login';
@@ -209,25 +231,30 @@
 			$('greeting').textContent = getGreeting(); $('welcomeName').textContent = user.name.split(' ')[0]; $('profileName').textContent = user.name;
 			$('profileEmail').textContent = user.email; $('avatar').textContent = initials(user.name);
 			$('adminNav').classList.toggle('hidden', user.role !== 'admin');
+			$('profileAccount').textContent = user.name || 'Signed-in user';
+			$('profileUsername').textContent = user.username || '—';
+			$('profileRegion').textContent = user.region || 'Unassigned';
+			$('profileRole').textContent = user.role || 'user';
 		}
 		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); }
+		async function loadRequestWindow() { try { const response = await fetch(`${API_URL}/customers/request-window`, { headers: authHeaders() }); const data = await response.json(); if (response.ok && !data.requestsOpen) { $('customerStatus').textContent = `Requests closed${data.startDate || data.endDate ? ` · window ${data.startDate || 'now'} to ${data.endDate || 'open-ended'}` : ''}`; $('addCustomerButton').disabled = true; } else if (response.ok) { $('addCustomerButton').disabled = false; } } catch (error) { /* The API status handles connectivity feedback. */ } }
 		function renderCustomers(customers) {
 			customerHistory = customers;
 			$('customerCount').textContent = customers.length;
 			$('pieceCount').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
 			$('salesTotal').textContent = money(customers.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0));
-			$('customerList').innerHTML = customers.length ? customers.map((customer) => { const product = customer.products?.[0]; const expiry = product?.expiryDate ? `Expires ${product.expiryDate}` : 'Expiry not recorded'; return `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${product?.product || 'Product'} · ${expiry}</span><span>${new Date(customer.createdAt).toLocaleDateString()}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`; }).join('') : '<div class="empty">No customer records yet.</div>';
+			$('customerList').innerHTML = customers.length ? customers.map((customer) => { const products = customer.products || []; const productSummary = products.map((product) => `${product.product} · ${product.pieces} pcs · exp ${product.expiryDate}`).join('<br>'); return `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${productSummary}</span><span>${new Date(customer.createdAt).toLocaleDateString()} · ${customer.status || 'pending'}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`; }).join('') : '<div class="empty">No customer records yet.</div>';
 			document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
 			renderHistory();
 			if (currentUser?.role === 'admin') renderApprovals();
 		}
 		function renderHistory() {
 			const filtered = historyFilter === 'all' ? customerHistory : customerHistory.filter((customer) => (customer.status || 'pending') === historyFilter);
-			$('historyList').innerHTML = filtered.length ? filtered.map((customer) => { const product = customer.products?.[0]; const status = customer.status || 'pending'; return `<article class="history-item"><div><strong>${customer.customerName}</strong><span>${product?.product || 'Product'} · ${customer.totalPieces || 0} pieces · ${money(customer.totalAmount)}</span><span>Created ${new Date(customer.createdAt).toLocaleString()} · Expires ${product?.expiryDate || 'Not recorded'}</span></div><span class="status-badge ${status}">${status}</span></article>`; }).join('') : '<div class="empty">No customer history matches this status.</div>';
+			$('historyList').innerHTML = filtered.length ? filtered.map((customer) => { const status = customer.status || 'pending'; const products = (customer.products || []).map((product) => `${product.product} · ${product.pieces} pieces · expires ${product.expiryDate}`).join('<br>'); return `<article class="history-item"><div><strong>${customer.customerName}</strong><span>${products}</span><span>Created ${new Date(customer.createdAt).toLocaleString()} · Total ${money(customer.totalAmount)}</span></div><span class="status-badge ${status}">${status}</span></article>`; }).join('') : '<div class="empty">No customer history matches this status.</div>';
 		}
 		function renderApprovals() {
 			const pending = customerHistory.filter((customer) => (customer.status || 'pending') === 'pending');
-			$('approvalList').innerHTML = pending.length ? pending.map((customer) => { const product = customer.products?.[0]; return `<article class="approval-card"><h3>${customer.customerName}</h3><div class="approval-meta">${product?.product || 'Product'} · ${customer.totalPieces || 0} pieces · ${money(customer.totalAmount)} · Expires ${product?.expiryDate || 'Not recorded'}<br>Requested ${new Date(customer.createdAt).toLocaleString()}</div><div class="approval-actions"><label>Operating deadline<input type="date" data-deadline="${customer.id}" required></label><button class="button" data-approve="${customer.id}" type="button">Approve</button><button class="button danger" data-decline="${customer.id}" type="button">Decline</button></div></article>`; }).join('') : '<div class="empty">There are no pending approval requests.</div>';
+			$('approvalList').innerHTML = pending.length ? pending.map((customer) => { const products = (customer.products || []).map((product) => `${product.product} · ${product.pieces} pieces · expires ${product.expiryDate}`).join('<br>'); return `<article class="approval-card"><h3>${customer.customerName}</h3><div class="approval-meta">${products}<br>Total ${money(customer.totalAmount)} · Requested ${new Date(customer.createdAt).toLocaleString()}</div><div class="approval-actions"><label>Operating deadline<input type="date" data-deadline="${customer.id}" required></label><button class="button" data-approve="${customer.id}" type="button">Approve</button><button class="button danger" data-decline="${customer.id}" type="button">Decline</button></div></article>`; }).join('') : '<div class="empty">There are no pending approval requests.</div>';
 			document.querySelectorAll('[data-approve]').forEach((button) => button.addEventListener('click', () => reviewCustomer(button.dataset.approve, 'approved')));
 			document.querySelectorAll('[data-decline]').forEach((button) => button.addEventListener('click', () => reviewCustomer(button.dataset.decline, 'declined')));
 		}
@@ -236,29 +263,67 @@
 			if (status === 'approved' && !deadline) { $('adminStatus').textContent = 'Set an operating deadline before approving a request.'; $('adminStatus').className = 'message error'; return; }
 			try { const response = await fetch(`${API_URL}/customers/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ status, operatingDeadline: deadline }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to update approval'); $('adminStatus').textContent = `Request ${status}.`; $('adminStatus').className = ''; loadCustomers(); } catch (error) { $('adminStatus').textContent = error.message; $('adminStatus').className = 'message error'; }
 		}
-		async function loadCustomers() {
-			try { const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() }); if (!response.ok) throw new Error('API unavailable'); const data = await response.json(); renderCustomers(data.customers || []); $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; }
-			catch (error) { renderCustomers(demoCustomers); $('customerStatus').textContent = 'Preview records (start the backend for live data)'; }
+		function createSkuRow() {
+			const row = document.createElement('div');
+			row.className = 'sku-row';
+			row.innerHTML = '<label>Product / SKU<input class="sku-product" placeholder="e.g. Blue Band 500g" required></label><label>Pieces<input class="sku-pieces" type="number" min="1" step="1" placeholder="0" required></label><label>Price per item (KES)<input class="sku-price" type="number" min="0" step="0.01" placeholder="0" required></label><label>Expiry date<input class="sku-expiry" type="date" required></label><button class="button danger remove-sku" type="button" title="Remove this SKU">Remove</button>';
+			row.querySelectorAll('input').forEach((input) => input.addEventListener('input', updateCustomerTotal));
+			row.querySelector('.remove-sku').addEventListener('click', () => { if (document.querySelectorAll('.sku-row').length > 1) { row.remove(); updateCustomerTotal(); } });
+			$('skuList').appendChild(row);
 		}
-		async function deleteCustomer(id) { if (id.startsWith('demo-')) return; await fetch(`${API_URL}/customers/${id}`, { method: 'DELETE', headers: authHeaders() }); loadCustomers(); }
-		function updateCustomerTotal() { const pieces = Number($('productPieces').value) || 0; const price = Number($('productPrice').value) || 0; $('customerTotal').value = money(pieces * price); }
+		function collectProducts() {
+			return [...document.querySelectorAll('.sku-row')].map((row) => ({
+				product: row.querySelector('.sku-product').value.trim(),
+				pieces: Number(row.querySelector('.sku-pieces').value),
+				pricePerItem: Number(row.querySelector('.sku-price').value),
+				expiryDate: row.querySelector('.sku-expiry').value
+			}));
+		}
+		async function loadAdminData() {
+			if (currentUser?.role !== 'admin') return;
+			try {
+				const [settingsResponse, usersResponse] = await Promise.all([fetch(`${API_URL}/admin/settings`, { headers: authHeaders() }), fetch(`${API_URL}/admin/users`, { headers: authHeaders() })]);
+			const settingsData = await settingsResponse.json();
+			const usersData = await usersResponse.json();
+			if (settingsResponse.ok) { $('requestsOpen').value = String(settingsData.settings.requestsOpen); $('requestStart').value = settingsData.settings.startDate || ''; $('requestEnd').value = settingsData.settings.endDate || ''; }
+			if (usersResponse.ok) { $('userList').innerHTML = `<table class="user-table"><thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead><tbody>${usersData.users.map((user) => `<tr><td>${user.name}<br><span>${user.username}</span></td><td>${user.role}</td><td>${new Date(user.createdAt).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`; }
+			} catch (error) { $('adminStatus').textContent = 'Unable to load admin settings.'; }
+		}
+		async function loadCustomers() {
+			try { const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() }); if (!response.ok) throw new Error('API unavailable'); const data = await response.json(); renderCustomers(data.customers || []); $('customerStatus').className = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadRequestWindow(); }
+			catch (error) { renderCustomers(demoCustomers); $('customerStatus').className = ''; $('customerStatus').textContent = 'Preview records (start the backend for live data)'; }
+		}
+		async function deleteCustomer(id) {
+			if (String(id).startsWith('demo-')) return;
+			if (!confirm('Delete this customer record? This cannot be undone.')) return;
+			try {
+				const response = await fetch(`${API_URL}/customers/${id}`, { method: 'DELETE', headers: authHeaders() });
+				const data = await response.json().catch(() => ({}));
+				if (!response.ok) throw new Error(data.message || 'Unable to delete customer');
+				loadCustomers();
+			} catch (error) {
+				$('customerStatus').className = 'message error';
+				$('customerStatus').textContent = error.message;
+			}
+		}
+		function updateCustomerTotal() { $('customerTotal').value = money(collectProducts().reduce((sum, item) => sum + ((item.pieces || 0) * (item.pricePerItem || 0)), 0)); }
 		async function addCustomer(event) {
 			event.preventDefault();
 			const message = $('customerMessage');
-			const customer = { customerName: $('customerName').value.trim(), products: [{ product: $('productName').value.trim(), pieces: Number($('productPieces').value), pricePerItem: Number($('productPrice').value), expiryDate: $('productExpiry').value }] };
+			const customer = { customerName: $('customerName').value.trim(), products: collectProducts() };
 			try {
 				const response = await fetch(`${API_URL}/customers`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(customer) });
 				const data = await response.json();
 				if (!response.ok) throw new Error(data.message || 'Unable to save customer');
-				$('customerForm').reset(); $('customerForm').classList.add('hidden'); message.textContent = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadCustomers();
-			} catch (error) { message.textContent = 'Start the backend to save customer records.'; message.className = 'message error'; }
+				$('customerForm').reset(); $('skuList').innerHTML = ''; createSkuRow(); $('customerForm').classList.add('hidden'); message.textContent = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadCustomers();
+			} catch (error) { message.textContent = error.message || 'Unable to save customer request.'; message.className = 'message error'; }
 		}
 
 		$('loginForm').addEventListener('submit', async (event) => {
 			event.preventDefault();
 			const message = $('loginMessage');
-			const body = { username: $('loginUsername').value.trim(), password: $('loginPassword').value };
-			if (authMode === 'register') { body.name = $('loginName').value.trim(); body.email = $('loginEmail').value.trim(); }
+			const body = { username: $('loginUsername').value.trim(), password: $('loginPassword').value, region: $('loginRegion').value };
+			if (authMode === 'register') { body.name = $('loginName').value.trim(); body.email = $('loginEmail').value.trim(); body.region = $('loginRegion').value; }
 			try {
 				const response = await fetch(`${API_URL}/auth/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 				const data = await response.json();
@@ -266,17 +331,18 @@
 				localStorage.setItem('newDayToken', data.token); setUser(data.user); message.textContent = ''; showApp();
 			} catch (error) { message.textContent = error.message; message.className = 'message error'; }
 		});
-		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Create an account to access customer sales and records.' : 'Sign in to manage customer sales, see activity, and keep your team details close at hand.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / 2002'; $('loginMessage').textContent = ''; });
+		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Select your region, then create an account to access customer sales and records.' : 'Choose your region and sign in to manage customer sales and records.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / 2002'; $('loginMessage').textContent = ''; });
 		$('logoutButton').addEventListener('click', () => { localStorage.removeItem('newDayToken'); localStorage.removeItem('newDayUser'); $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); $('loginForm').reset(); });
 		$('refreshButton').addEventListener('click', loadCustomers);
 		$('historyRefreshButton').addEventListener('click', loadCustomers);
 		$('adminRefreshButton').addEventListener('click', loadCustomers);
+		$('settingsForm').addEventListener('submit', async (event) => { event.preventDefault(); const message = $('settingsMessage'); try { const response = await fetch(`${API_URL}/admin/settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ requestsOpen: $('requestsOpen').value === 'true', startDate: $('requestStart').value || null, endDate: $('requestEnd').value || null }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save request rules'); message.textContent = 'Request rules saved.'; message.className = 'message success'; } catch (error) { message.textContent = error.message; message.className = 'message error'; } });
 		document.querySelectorAll('[data-status-filter]').forEach((button) => button.addEventListener('click', () => { historyFilter = button.dataset.statusFilter; document.querySelectorAll('[data-status-filter]').forEach((tab) => tab.classList.toggle('active', tab === button)); renderHistory(); }));
-		$('addCustomerButton').addEventListener('click', () => { $('customerForm').classList.remove('hidden'); $('customerName').focus(); });
-		$('cancelCustomerButton').addEventListener('click', () => { $('customerForm').reset(); $('customerForm').classList.add('hidden'); $('customerMessage').textContent = ''; });
+		$('addCustomerButton').addEventListener('click', () => { $('customerForm').classList.remove('hidden'); if (!document.querySelector('.sku-row')) createSkuRow(); $('customerName').focus(); });
+		$('addSkuButton').addEventListener('click', createSkuRow);
+		$('cancelCustomerButton').addEventListener('click', () => { $('customerForm').reset(); $('skuList').innerHTML = ''; createSkuRow(); $('customerForm').classList.add('hidden'); $('customerMessage').textContent = ''; });
 		$('customerForm').addEventListener('submit', addCustomer);
-		$('productPieces').addEventListener('input', updateCustomerTotal);
-		$('productPrice').addEventListener('input', updateCustomerTotal);
+		createSkuRow();
 		function switchPage(page) {
 			const main = document.querySelector('main');
 			const buttons = document.querySelectorAll('[data-page]');
@@ -288,11 +354,108 @@
 			buttons.forEach((button) => button.classList.toggle('active', button.dataset.page === page));
 			if (page === 'customers') { $('customerForm').classList.remove('hidden'); $('customersPanel').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('customerName').focus(), 350); }
 			if (page === 'details') { $('detailsPanel').scrollIntoView({ behavior: 'smooth' }); renderHistory(); }
-			if (page === 'admin') { $('adminPanel').scrollIntoView({ behavior: 'smooth' }); renderApprovals(); }
+			if (page === 'admin') { $('adminPanel').scrollIntoView({ behavior: 'smooth' }); renderApprovals(); loadAdminData(); }
 			if (page === 'overview') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 		}
 		document.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => switchPage(button.dataset.page)));
 		if (localStorage.getItem('newDayToken') && localStorage.getItem('newDayUser')) showApp();
 	</script>
 </body>
+<script>
+(() => {
+  const style = document.createElement('style');
+  style.textContent = '.enhanced-tools{display:grid;grid-template-columns:1fr 180px auto;gap:10px;margin:14px 0}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.insight-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#f5faf6}.insight-card strong{display:block;font-size:21px;margin-top:6px}.inventory-list{display:grid;gap:8px;margin-top:12px}.inventory-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);font:12px Arial,sans-serif}.alert{color:#b24b38}.editor{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:6px;background:#fff}.editor .form-grid{grid-template-columns:1fr 1fr}.notes{margin-top:8px;font:12px/1.45 Arial,sans-serif;color:var(--muted)}.user-actions{display:flex;gap:8px;align-items:center}.mini-button{padding:7px 9px;font-size:10px}@media(max-width:700px){.enhanced-tools,.insights,.editor .form-grid{grid-template-columns:1fr}.customer-row{grid-template-columns:1fr}.user-actions{flex-wrap:wrap}}';
+  document.head.appendChild(style);
+
+  const tools = '<div id="enhancedTools" class="enhanced-tools"><input id="customerSearch" type="search" placeholder="Search customers or products"><select id="customerFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option></select><select id="customerRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select></div><section id="insights" class="insights"></section><section class="panel"><div class="panel-heading"><div><h2>Stock & expiry watch</h2><small>Based on products in customer records.</small></div><label>Low-stock alert<input id="lowStockThreshold" type="number" min="1" value="20"></label></div><div id="inventoryList" class="inventory-list"></div></section><section id="customerEditor" class="editor hidden"></section><section id="customerNotesPanel" class="editor hidden"></section>';
+  document.querySelector('#customersPanel .panel-heading').insertAdjacentHTML('afterend', tools);
+  document.querySelector('#adminPanel .panel-heading').insertAdjacentHTML('beforeend', '<button id="adminExportCustomers" class="button secondary" type="button">Export customer CSV</button>');
+  document.getElementById('profilePanel').insertAdjacentHTML('beforeend', '<section class="editor"><h3>Account security</h3><form id="passwordForm" class="form-grid"><label>Current password<input id="currentPassword" type="password" autocomplete="current-password" required></label><label>New password<input id="newPassword" type="password" minlength="6" autocomplete="new-password" required></label><p id="passwordMessage" class="message"></p><button class="button" type="submit">Change password</button></form></section>');
+
+  const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]));
+  const currency = (value) => new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(Number(value) || 0);
+  const day = (value) => value ? new Date(value + 'T00:00:00').toLocaleDateString() : 'No date';
+  let allCustomers = [];
+
+  function updateInsights(customers) {
+    const approved = customers.filter((customer) => customer.status === 'approved');
+    const pending = customers.filter((customer) => (customer.status || 'pending') === 'pending');
+    const sales = customers.reduce((sum, customer) => sum + (Number(customer.totalAmount) || 0), 0);
+    document.getElementById('insights').innerHTML = '<article class="insight-card"><span>Total sales</span><strong>' + currency(sales) + '</strong><small>All customer records</small></article><article class="insight-card"><span>Approved customers</span><strong>' + approved.length + '</strong><small>' + pending.length + ' awaiting review</small></article><article class="insight-card"><span>Products recorded</span><strong>' + customers.reduce((sum, customer) => sum + (customer.products || []).reduce((count, product) => count + (Number(product.pieces) || 0), 0), 0).toLocaleString() + '</strong><small>Units across all sales</small></article>';
+    const threshold = Number(document.getElementById('lowStockThreshold').value) || 20;
+    const products = {};
+    customers.forEach((customer) => (customer.products || []).forEach((product) => {
+      const key = product.product || 'Unnamed product';
+      products[key] = products[key] || { pieces: 0, dates: [] };
+      products[key].pieces += Number(product.pieces) || 0;
+      if (product.expiryDate) products[key].dates.push(product.expiryDate);
+    }));
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const list = Object.entries(products).sort((a, b) => a[1].pieces - b[1].pieces);
+    document.getElementById('inventoryList').innerHTML = list.length ? list.map(([name, info]) => {
+      const nearest = info.dates.sort()[0];
+      const expiry = nearest && new Date(nearest + 'T00:00:00') <= new Date(today.getTime() + 30 * 86400000);
+      return '<div class="inventory-item"><span><strong>' + esc(name) + '</strong><br><span class="' + (expiry ? 'alert' : '') + '">Nearest expiry: ' + day(nearest) + (expiry ? ' — check soon' : '') + '</span></span><strong class="' + (info.pieces <= threshold ? 'alert' : '') + '">' + info.pieces + ' units' + (info.pieces <= threshold ? ' · low' : '') + '</strong></div>';
+    }).join('') : '<div class="empty">Add customer products to see stock and expiry alerts.</div>';
+  }
+
+  function renderEnhancedCustomers(customers) {
+    allCustomers = customers;
+    customerHistory = customers;
+    const query = document.getElementById('customerSearch').value.trim().toLowerCase();
+    const status = document.getElementById('customerFilter').value;
+    const region = document.getElementById('customerRegionFilter').value;
+    const shown = customers.filter((customer) => {
+      const text = (customer.customerName + ' ' + (customer.products || []).map((product) => product.product).join(' ')).toLowerCase();
+      return (!query || text.includes(query)) && (status === 'all' || (customer.status || 'pending') === status) && (region === 'all' || (customer.region || 'Unassigned') === region);
+    });
+    document.getElementById('customerCount').textContent = customers.length;
+    document.getElementById('pieceCount').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
+    document.getElementById('salesTotal').textContent = currency(customers.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0));
+    document.getElementById('customerList').innerHTML = shown.length ? shown.map((customer) => '<div class="customer-row"><div><strong>' + esc(customer.customerName) + '</strong><span>' + (customer.products || []).map((product) => esc(product.product) + ' · ' + product.pieces + ' pcs · exp ' + esc(product.expiryDate)).join('<br>') + '</span><span>' + esc(customer.region || 'Unassigned') + ' · ' + new Date(customer.createdAt).toLocaleDateString() + ' · ' + esc(customer.status || 'pending') + '</span></div><div><span>Units</span><strong>' + (customer.totalPieces || 0) + '</strong></div><div><span>Value</span><strong>' + currency(customer.totalAmount) + '</strong></div><div class="user-actions"><button class="button secondary mini-button" data-edit="' + customer.id + '" type="button">Edit</button><button class="button secondary mini-button" data-notes="' + customer.id + '" type="button">Notes</button><button class="button danger mini-button" data-delete="' + customer.id + '" type="button">Delete</button></div></div>').join('') : '<div class="empty">No customers match this search.</div>';
+    document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
+    document.querySelectorAll('[data-edit]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.edit)));
+    document.querySelectorAll('[data-notes]').forEach((button) => button.addEventListener('click', () => openNotes(button.dataset.notes)));
+    renderHistory(); if (currentUser && currentUser.role === 'admin') renderApprovals(); updateInsights(customers);
+  }
+
+  function productEditor(product, index) { return '<div class="form-grid edit-product" data-index="' + index + '"><label>Product<input class="edit-product-name" required value="' + esc(product.product) + '"></label><label>Pieces<input class="edit-product-pieces" type="number" min="1" required value="' + (product.pieces || '') + '"></label><label>Price (KES)<input class="edit-product-price" type="number" min="0" step="0.01" required value="' + (product.pricePerItem || '') + '"></label><label>Expiry<input class="edit-product-expiry" type="date" required value="' + esc(product.expiryDate) + '"></label></div>'; }
+  function openEditor(id) {
+    const customer = allCustomers.find((item) => item.id === id); if (!customer) return;
+    const panel = document.getElementById('customerEditor');
+    panel.innerHTML = '<h3>Edit customer</h3><form id="editCustomerForm" class="form-grid"><label>Customer name<input id="editCustomerName" required value="' + esc(customer.customerName) + '"></label><div id="editProducts">' + (customer.products || []).map(productEditor).join('') + '</div><p id="editMessage" class="message"></p><div class="form-actions"><button class="button" type="submit">Save changes</button><button id="closeEditor" class="button secondary" type="button">Cancel</button></div></form>';
+    panel.classList.remove('hidden'); panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('closeEditor').addEventListener('click', () => panel.classList.add('hidden'));
+    document.getElementById('editCustomerForm').addEventListener('submit', async (event) => { event.preventDefault(); const products = [...panel.querySelectorAll('.edit-product')].map((row) => ({ product: row.querySelector('.edit-product-name').value.trim(), pieces: Number(row.querySelector('.edit-product-pieces').value), pricePerItem: Number(row.querySelector('.edit-product-price').value), expiryDate: row.querySelector('.edit-product-expiry').value })); try { const response = await fetch(API_URL + '/customers/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ customerName: document.getElementById('editCustomerName').value.trim(), products }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save changes'); panel.classList.add('hidden'); loadCustomers(); } catch (error) { document.getElementById('editMessage').textContent = error.message; document.getElementById('editMessage').className = 'message error'; } });
+  }
+  function openNotes(id) {
+    const customer = allCustomers.find((item) => item.id === id); if (!customer) return;
+    const notes = (customer.notes || []).map((note) => '<p><strong>' + esc(note.author) + '</strong> · ' + new Date(note.createdAt).toLocaleString() + '<br>' + esc(note.text) + '</p>').join('') || '<p>No notes yet.</p>';
+    const panel = document.getElementById('customerNotesPanel');
+    panel.innerHTML = '<h3>Notes — ' + esc(customer.customerName) + '</h3><div class="notes">' + notes + '</div><form id="noteForm" class="form-grid"><label>Add note<textarea id="newNote" maxlength="500" required placeholder="Useful follow-up, delivery, or payment detail"></textarea></label><p id="noteMessage" class="message"></p><div class="form-actions"><button class="button" type="submit">Save note</button><button id="closeNotes" class="button secondary" type="button">Close</button></div></form>';
+    panel.classList.remove('hidden'); panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('closeNotes').addEventListener('click', () => panel.classList.add('hidden'));
+    document.getElementById('noteForm').addEventListener('submit', async (event) => { event.preventDefault(); try { const response = await fetch(API_URL + '/customers/' + id + '/notes', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ note: document.getElementById('newNote').value }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save note'); openNotes(id); loadCustomers(); } catch (error) { document.getElementById('noteMessage').textContent = error.message; document.getElementById('noteMessage').className = 'message error'; } });
+  }
+  function exportCustomers() {
+    const header = ['Customer','Region','Status','Products','Pieces','Total KES','Created'];
+    const rows = allCustomers.map((customer) => [customer.customerName, customer.region || 'Unassigned', customer.status || 'pending', (customer.products || []).map((product) => product.product + ' (' + product.pieces + ')').join('; '), customer.totalPieces, customer.totalAmount, customer.createdAt]);
+    const csv = [header, ...rows].map((row) => row.map((value) => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = 'new-day-customers.csv'; link.click(); URL.revokeObjectURL(link.href);
+  }
+  async function enhancedAdminData() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    try { const response = await fetch(API_URL + '/admin/users', { headers: authHeaders() }); const data = await response.json(); if (!response.ok) throw new Error(data.message); document.getElementById('userList').innerHTML = '<table class="user-table"><thead><tr><th>User</th><th>Role</th><th>Admin action</th></tr></thead><tbody>' + data.users.map((user) => '<tr><td>' + esc(user.name) + '<br><span>' + esc(user.username) + '</span></td><td>' + esc(user.role) + '</td><td><button class="button secondary mini-button" data-role-user="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>').join('') + '</tbody></table>'; document.querySelectorAll('[data-role-user]').forEach((button) => button.addEventListener('click', async () => { try { const update = await fetch(API_URL + '/admin/users/' + button.dataset.roleUser + '/role', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ role: button.dataset.role }) }); const result = await update.json(); if (!update.ok) throw new Error(result.message); enhancedAdminData(); } catch (error) { document.getElementById('adminStatus').textContent = error.message; document.getElementById('adminStatus').className = 'message error'; } })); } catch (error) { document.getElementById('adminStatus').textContent = 'Unable to load user controls.'; }
+  }
+  document.getElementById('customerSearch').addEventListener('input', () => renderEnhancedCustomers(allCustomers));
+  document.getElementById('customerFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
+  document.getElementById('customerRegionFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
+  document.getElementById('lowStockThreshold').addEventListener('input', () => updateInsights(allCustomers));
+  document.getElementById('adminExportCustomers').addEventListener('click', exportCustomers);
+  document.getElementById('passwordForm').addEventListener('submit', async (event) => { event.preventDefault(); const message = document.getElementById('passwordMessage'); try { const response = await fetch(API_URL + '/auth/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ currentPassword: document.getElementById('currentPassword').value, newPassword: document.getElementById('newPassword').value }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to change password'); event.target.reset(); message.textContent = data.message; message.className = 'message success'; } catch (error) { message.textContent = error.message; message.className = 'message error'; } });
+  renderCustomers = renderEnhancedCustomers;
+  loadAdminData = enhancedAdminData;
+  if (customerHistory.length) renderEnhancedCustomers(customerHistory);
+})();
+</script>
 </html>

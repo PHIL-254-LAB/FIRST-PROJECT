@@ -1,15 +1,22 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-const dataFile = path.join(__dirname, '..', 'data', 'users.json');
+const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, '..', 'data');
+const dataFile = path.join(dataDir, 'users.json');
 
 async function readUsers() {
-  const fileContents = await fs.readFile(dataFile, 'utf8');
-  const users = JSON.parse(fileContents);
-  return Array.isArray(users) ? users : [];
+  try {
+    const fileContents = await fs.readFile(dataFile, 'utf8');
+    const users = JSON.parse(fileContents);
+    return Array.isArray(users) ? users : [];
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
 }
 
 async function writeUsers(users) {
+  await fs.mkdir(dataDir, { recursive: true });
   await fs.writeFile(dataFile, `${JSON.stringify(users, null, 2)}\n`, 'utf8');
 }
 
@@ -23,6 +30,33 @@ async function create(user) {
   users.push(user);
   await writeUsers(users);
   return user;
+}
+
+async function getById(id) {
+  const users = await readUsers();
+  return users.find((user) => user.id === id) || null;
+}
+
+async function updateUser(id, updates) {
+  const users = await readUsers();
+  const user = users.find((item) => item.id === id);
+
+  if (!user) {
+    return null;
+  }
+
+  Object.assign(user, updates);
+  user.id = id;
+  await writeUsers(users);
+  return user;
+}
+
+async function updatePassword(id, passwordHash) {
+  return updateUser(id, { passwordHash, passwordChangedAt: new Date().toISOString() });
+}
+
+async function updateRole(id, role) {
+  return updateUser(id, { role, roleChangedAt: new Date().toISOString() });
 }
 
 async function ensureSeedUsers() {
@@ -43,4 +77,17 @@ async function ensureSeedUsers() {
   }
 }
 
-module.exports = { findByUsername, create, ensureSeedUsers };
+async function getPublicUsers() {
+  const users = await readUsers();
+  return users.map(({ passwordHash, ...user }) => user);
+}
+
+module.exports = {
+  findByUsername,
+  getById,
+  create,
+  updatePassword,
+  updateRole,
+  ensureSeedUsers,
+  getPublicUsers
+};

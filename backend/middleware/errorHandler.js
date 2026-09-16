@@ -1,5 +1,9 @@
 function errorHandler(error, request, response, next) {
-  console.error(error);
+  if (error.statusCode) {
+    console.warn(`${request.method} ${request.originalUrl} -> ${error.statusCode} ${error.message}`);
+  } else {
+    console.error(error);
+  }
 
   if (response.headersSent) {
     return next(error);
