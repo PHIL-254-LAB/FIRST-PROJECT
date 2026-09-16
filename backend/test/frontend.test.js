@@ -44,6 +44,15 @@ describe('dahlia-blueband-sort.html', () => {
     assert.ok(html.includes("'http://localhost:3000/api'"), 'Expected the local API fallback URL');
   });
 
+  it('builds SKU rows from the shared product dropdown', () => {
+    assert.ok(/const productChoices = \[/.test(html), 'Expected a product list to feed the SKU dropdown');
+    assert.ok(html.includes('product-select'), 'Expected the SKU product field to be a dropdown');
+    assert.ok(html.includes('productNameFromRow(row)'), 'Expected submitted products to come from the dropdown value');
+    assert.ok(html.includes('id="addEditProduct"'), 'Expected an add-product control in the customer editor');
+    assert.ok(html.includes('remove-edit-product'), 'Expected a remove control for each product in the editor');
+    assert.ok(html.includes('linkProductField(row'), 'Expected the custom-product field to be wired up');
+  });
+
   it('escapes customer data before rendering it', () => {
     assert.ok(html.includes('const esc = (value)'), 'Expected the enhancement script to define an HTML escape helper');
     assert.ok(/esc\(customer\.customerName\)/.test(html), 'Expected rendered customer names to be escaped');

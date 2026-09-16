@@ -223,6 +223,52 @@
 		const initials = (name) => name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
 		const getGreeting = () => { const hour = new Date().getHours(); return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'; };
 
+		// Add or remove products here to change the SKU dropdown everywhere they appear.
+		const productChoices = [
+			'Blue Band 20g',
+			'Blue Band 50g',
+			'Blue Band 100g',
+			'Blue Band 250g',
+			'Blue Band 500g',
+			'Blue Band 1kg',
+			'Blue Band Choco 100g',
+			'Blue Band Choco 250g',
+			'Blue Band Choco 500g',
+			'Blue Band Gold 500g',
+			'Rama 100g',
+			'Rama 250g',
+			'Rama 500g'
+		];
+		const customProductChoice = '__custom_product__';
+		function productSelectOptions(selected) {
+			const options = productChoices.map((name) => `<option value="${name}"${name === selected ? ' selected' : ''}>${name}</option>`).join('');
+			const customSelected = selected && !productChoices.includes(selected) ? ' selected' : '';
+			return `<option value="">Choose a product / SKU</option>${options}<option value="${customProductChoice}"${customSelected}>Other product (type below)</option>`;
+		}
+		function productFieldMarkup(selected, selectClass, customClass) {
+			const isCustom = Boolean(selected) && !productChoices.includes(selected);
+			return `<label>Product / SKU<select class="product-select ${selectClass}" required>${productSelectOptions(selected)}</select><input class="product-custom ${customClass}${isCustom ? '' : ' hidden'}" placeholder="Type the product name" value="${isCustom ? selected : ''}"${isCustom ? ' required' : ''}></label>`;
+		}
+		function linkProductField(row, onChange) {
+			const select = row.querySelector('.product-select');
+			const custom = row.querySelector('.product-custom');
+			if (!select || !custom) return;
+			const sync = () => {
+				const needsCustom = select.value === customProductChoice;
+				custom.classList.toggle('hidden', !needsCustom);
+				if (needsCustom) custom.setAttribute('required', 'required'); else custom.removeAttribute('required');
+			};
+			select.addEventListener('change', () => { sync(); if (onChange) onChange(); });
+			sync();
+		}
+		function productNameFromRow(row) {
+			const select = row.querySelector('.product-select');
+			if (!select) return '';
+			if (select.value !== customProductChoice) return select.value;
+			const custom = row.querySelector('.product-custom');
+			return custom ? custom.value.trim() : '';
+		}
+
 		function getUser() { return JSON.parse(localStorage.getItem('newDayUser') || JSON.stringify(defaultUser)); }
 		function authHeaders() { return { Authorization: `Bearer ${localStorage.getItem('newDayToken') || ''}` }; }
 		function setUser(user) {
@@ -266,14 +312,15 @@
 		function createSkuRow() {
 			const row = document.createElement('div');
 			row.className = 'sku-row';
-			row.innerHTML = '<label>Product / SKU<input class="sku-product" placeholder="e.g. Blue Band 500g" required></label><label>Pieces<input class="sku-pieces" type="number" min="1" step="1" placeholder="0" required></label><label>Price per item (KES)<input class="sku-price" type="number" min="0" step="0.01" placeholder="0" required></label><label>Expiry date<input class="sku-expiry" type="date" required></label><button class="button danger remove-sku" type="button" title="Remove this SKU">Remove</button>';
+			row.innerHTML = productFieldMarkup('', 'sku-product', 'sku-custom') + '<label>Pieces<input class="sku-pieces" type="number" min="1" step="1" placeholder="0" required></label><label>Price per item (KES)<input class="sku-price" type="number" min="0" step="0.01" placeholder="0" required></label><label>Expiry date<input class="sku-expiry" type="date" required></label><button class="button danger remove-sku" type="button" title="Remove this SKU">Remove</button>';
+			linkProductField(row, updateCustomerTotal);
 			row.querySelectorAll('input').forEach((input) => input.addEventListener('input', updateCustomerTotal));
 			row.querySelector('.remove-sku').addEventListener('click', () => { if (document.querySelectorAll('.sku-row').length > 1) { row.remove(); updateCustomerTotal(); } });
 			$('skuList').appendChild(row);
 		}
 		function collectProducts() {
 			return [...document.querySelectorAll('.sku-row')].map((row) => ({
-				product: row.querySelector('.sku-product').value.trim(),
+				product: productNameFromRow(row),
 				pieces: Number(row.querySelector('.sku-pieces').value),
 				pricePerItem: Number(row.querySelector('.sku-price').value),
 				expiryDate: row.querySelector('.sku-expiry').value
@@ -364,7 +411,7 @@
 <script>
 (() => {
   const style = document.createElement('style');
-  style.textContent = '.enhanced-tools{display:grid;grid-template-columns:1fr 180px auto;gap:10px;margin:14px 0}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.insight-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#f5faf6}.insight-card strong{display:block;font-size:21px;margin-top:6px}.inventory-list{display:grid;gap:8px;margin-top:12px}.inventory-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);font:12px Arial,sans-serif}.alert{color:#b24b38}.editor{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:6px;background:#fff}.editor .form-grid{grid-template-columns:1fr 1fr}.notes{margin-top:8px;font:12px/1.45 Arial,sans-serif;color:var(--muted)}.user-actions{display:flex;gap:8px;align-items:center}.mini-button{padding:7px 9px;font-size:10px}@media(max-width:700px){.enhanced-tools,.insights,.editor .form-grid{grid-template-columns:1fr}.customer-row{grid-template-columns:1fr}.user-actions{flex-wrap:wrap}}';
+  style.textContent = '.enhanced-tools{display:grid;grid-template-columns:1fr 180px auto;gap:10px;margin:14px 0}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.insight-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#f5faf6}.insight-card strong{display:block;font-size:21px;margin-top:6px}.inventory-list{display:grid;gap:8px;margin-top:12px}.inventory-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);font:12px Arial,sans-serif}.alert{color:#b24b38}.editor{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:6px;background:#fff}.editor .form-grid{grid-template-columns:1fr 1fr}.edit-form{display:grid;gap:14px}.edit-product{padding:14px;border:1px solid var(--line);border-radius:6px;background:#fbfcfa}.edit-product .remove-edit-product{justify-self:end;align-self:end}.notes{margin-top:8px;font:12px/1.45 Arial,sans-serif;color:var(--muted)}.user-actions{display:flex;gap:8px;align-items:center}.mini-button{padding:7px 9px;font-size:10px}@media(max-width:700px){.enhanced-tools,.insights,.editor .form-grid{grid-template-columns:1fr}.customer-row{grid-template-columns:1fr}.user-actions{flex-wrap:wrap}}';
   document.head.appendChild(style);
 
   const tools = '<div id="enhancedTools" class="enhanced-tools"><input id="customerSearch" type="search" placeholder="Search customers or products"><select id="customerFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option></select><select id="customerRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select></div><section id="insights" class="insights"></section><section class="panel"><div class="panel-heading"><div><h2>Stock & expiry watch</h2><small>Based on products in customer records.</small></div><label>Low-stock alert<input id="lowStockThreshold" type="number" min="1" value="20"></label></div><div id="inventoryList" class="inventory-list"></div></section><section id="customerEditor" class="editor hidden"></section><section id="customerNotesPanel" class="editor hidden"></section>';
@@ -419,14 +466,29 @@
     renderHistory(); if (currentUser && currentUser.role === 'admin') renderApprovals(); updateInsights(customers);
   }
 
-  function productEditor(product, index) { return '<div class="form-grid edit-product" data-index="' + index + '"><label>Product<input class="edit-product-name" required value="' + esc(product.product) + '"></label><label>Pieces<input class="edit-product-pieces" type="number" min="1" required value="' + (product.pieces || '') + '"></label><label>Price (KES)<input class="edit-product-price" type="number" min="0" step="0.01" required value="' + (product.pricePerItem || '') + '"></label><label>Expiry<input class="edit-product-expiry" type="date" required value="' + esc(product.expiryDate) + '"></label></div>'; }
+  function productEditorFields(product) { return productFieldMarkup(product ? esc(product.product) : '', 'edit-product-name', 'edit-product-custom') + '<label>Pieces<input class="edit-product-pieces" type="number" min="1" required value="' + (product && product.pieces ? product.pieces : '') + '"></label><label>Price (KES)<input class="edit-product-price" type="number" min="0" step="0.01" required value="' + (product && product.pricePerItem ? product.pricePerItem : '') + '"></label><label>Expiry<input class="edit-product-expiry" type="date" required value="' + (product && product.expiryDate ? esc(product.expiryDate) : '') + '"></label><button class="button danger remove-edit-product" type="button" title="Remove this product">Remove</button>'; }
+  function productEditor(product, index) { return '<div class="form-grid edit-product" data-index="' + index + '">' + productEditorFields(product) + '</div>'; }
   function openEditor(id) {
     const customer = allCustomers.find((item) => item.id === id); if (!customer) return;
     const panel = document.getElementById('customerEditor');
-    panel.innerHTML = '<h3>Edit customer</h3><form id="editCustomerForm" class="form-grid"><label>Customer name<input id="editCustomerName" required value="' + esc(customer.customerName) + '"></label><div id="editProducts">' + (customer.products || []).map(productEditor).join('') + '</div><p id="editMessage" class="message"></p><div class="form-actions"><button class="button" type="submit">Save changes</button><button id="closeEditor" class="button secondary" type="button">Cancel</button></div></form>';
+    panel.innerHTML = '<h3>Edit customer</h3><form id="editCustomerForm" class="edit-form"><label>Customer name<input id="editCustomerName" required value="' + esc(customer.customerName) + '"></label><div class="sku-heading"><h4>Products / SKUs</h4><button id="addEditProduct" class="button secondary" type="button">+ Add product</button></div><div id="editProducts" class="sku-list">' + (customer.products || []).map(productEditor).join('') + '</div><p id="editMessage" class="message"></p><div class="form-actions"><button class="button" type="submit">Save changes</button><button id="closeEditor" class="button secondary" type="button">Cancel</button></div></form>';
     panel.classList.remove('hidden'); panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const productsBox = panel.querySelector('#editProducts');
+    const wireProductRow = (row) => {
+      linkProductField(row);
+      row.querySelector('.remove-edit-product').addEventListener('click', () => { if (productsBox.querySelectorAll('.edit-product').length > 1) row.remove(); });
+    };
+    productsBox.querySelectorAll('.edit-product').forEach(wireProductRow);
+    panel.querySelector('#addEditProduct').addEventListener('click', () => {
+      const row = document.createElement('div');
+      row.className = 'form-grid edit-product';
+      row.innerHTML = productEditorFields(null);
+      productsBox.appendChild(row);
+      wireProductRow(row);
+      row.querySelector('.edit-product-pieces').focus();
+    });
     document.getElementById('closeEditor').addEventListener('click', () => panel.classList.add('hidden'));
-    document.getElementById('editCustomerForm').addEventListener('submit', async (event) => { event.preventDefault(); const products = [...panel.querySelectorAll('.edit-product')].map((row) => ({ product: row.querySelector('.edit-product-name').value.trim(), pieces: Number(row.querySelector('.edit-product-pieces').value), pricePerItem: Number(row.querySelector('.edit-product-price').value), expiryDate: row.querySelector('.edit-product-expiry').value })); try { const response = await fetch(API_URL + '/customers/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ customerName: document.getElementById('editCustomerName').value.trim(), products }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save changes'); panel.classList.add('hidden'); loadCustomers(); } catch (error) { document.getElementById('editMessage').textContent = error.message; document.getElementById('editMessage').className = 'message error'; } });
+    document.getElementById('editCustomerForm').addEventListener('submit', async (event) => { event.preventDefault(); const products = [...panel.querySelectorAll('.edit-product')].map((row) => ({ product: productNameFromRow(row), pieces: Number(row.querySelector('.edit-product-pieces').value), pricePerItem: Number(row.querySelector('.edit-product-price').value), expiryDate: row.querySelector('.edit-product-expiry').value })); try { const response = await fetch(API_URL + '/customers/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ customerName: document.getElementById('editCustomerName').value.trim(), products }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save changes'); panel.classList.add('hidden'); loadCustomers(); } catch (error) { document.getElementById('editMessage').textContent = error.message; document.getElementById('editMessage').className = 'message error'; } });
   }
   function openNotes(id) {
     const customer = allCustomers.find((item) => item.id === id); if (!customer) return;

@@ -53,11 +53,11 @@ Two walks through the flow:
 | Area | Detail |
 | --- | --- |
 | Sign in / register | Username + password (bcrypt hashes) and a region: Kakamega, Webuye, Busia, or Luanda |
-| Customer sales | Customer name plus any number of SKU rows (product, pieces, KES price per item, expiry date) |
+| Customer sales | Customer name plus any number of SKU rows picked from a product dropdown (or "Other product" typed by hand), each with pieces, KES price per item, and expiry date |
 | Totals | Calculated by the API from the SKU rows; totals sent by the browser are ignored |
 | Approvals | Administrators approve or decline pending requests and set an operating deadline |
 | Request window | Administrators open/close requests and set the allowed start and end dates |
-| Editing | Customers and their SKUs can be edited after saving; each record keeps a note history |
+| Editing | Customers and their SKUs can be edited after saving, including adding or removing products; each record keeps a note history |
 | Reporting | Search, status and region filters, stock/expiry watch, and a customer CSV export |
 | Accounts | Users can change their own password; administrators can promote or demote accounts |
 

@@ -6,18 +6,20 @@
       {
         "product": "blue band 20g",
         "pieces": 30,
-        "pricePerItem": 30,
+        "pricePerItem": 20,
         "expiryDate": "2026-09-05",
-        "total": 900
+        "total": 600
       }
     ],
     "status": "approved",
     "totalPieces": 30,
-    "totalAmount": 900,
+    "totalAmount": 600,
     "createdAt": "2026-09-07T13:15:03.782Z",
     "operatingDeadline": "2026-09-04",
     "reviewedAt": "2026-09-07T13:16:05.064Z",
-    "reviewedBy": "admin"
+    "reviewedBy": "admin",
+    "updatedAt": "2026-09-16T11:05:40.082Z",
+    "updatedBy": "phillip"
   },
   {
     "id": "57b14f69-d351-4ffc-b3cc-864f0811ed85",
