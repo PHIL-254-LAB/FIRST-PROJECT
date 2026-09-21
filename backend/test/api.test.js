@@ -733,3 +733,43 @@ describe('Customer claims', () => {
     assert.equal(missing.status, 404);
   });
 });
+
+describe('Login audit', () => {
+  it('records failed and successful sign-ins newest-first', async () => {
+    const failed = await api('POST', '/api/auth/login', { body: { username: 'ghost-user', password: 'wrong-password', region: 'Kakamega' } });
+    assert.equal(failed.status, 401);
+
+    const ok = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'brand-new-pass', region: 'Kakamega' } });
+    assert.equal(ok.status, 200);
+
+    const { status, data } = await api('GET', '/api/admin/login-log', { token: adminToken });
+    assert.equal(status, 200);
+    assert.ok(data.log.length >= 2);
+
+    const newest = data.log[0];
+    assert.equal(newest.username, 'juma.otieno');
+    assert.equal(newest.success, true);
+    assert.equal(newest.userId, ok.data.user.id);
+    assert.equal(newest.name, 'Juma Otieno Jnr');
+    assert.ok(typeof newest.userAgent === 'string');
+    assert.ok(typeof newest.ip === 'string');
+    assert.ok(new Date(newest.createdAt).getTime() <= Date.now());
+
+    const second = data.log[1];
+    assert.equal(second.username, 'ghost-user');
+    assert.equal(second.success, false);
+    assert.equal(second.userId, null);
+  });
+
+  it('blocks non-admins from reading the login audit', async () => {
+    const { status } = await api('GET', '/api/admin/login-log', { token: userToken });
+    assert.equal(status, 403);
+  });
+
+  it('lists only the most recent login entries', async () => {
+    const { status, data } = await api('GET', '/api/admin/login-log?limit=1', { token: adminToken });
+    assert.equal(status, 200);
+    assert.equal(data.log.length, 1);
+    assert.equal(data.log[0].username, 'juma.otieno');
+  });
+});

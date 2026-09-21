@@ -47,6 +47,9 @@ Account administration (administrator only, all require `Authorization: Bearer <
 - `PUT /api/admin/users/:id` edits the login name and profile: `{ username, name, email?, region? }`.
 - `PATCH /api/admin/users/:id/role` promotes or demotes an account.
 - `PATCH /api/admin/users/:id/password` sets a new password: `{ newPassword }`.
+- `GET /api/admin/login-log?limit=100` returns the login audit, newest first (successful and failed
+  sign-ins with username, user id/name, role, region, IP, user agent, and time; the log keeps the
+  500 most recent entries and `limit` is capped at 500).
 
 Customer endpoints require the same `Authorization: Bearer <token>` header. New customer records start with `status: "pending"`; customer records are currently shared between authenticated users. Each customer can contain multiple products/SKUs, each with pieces, KES price, and expiry date.
 

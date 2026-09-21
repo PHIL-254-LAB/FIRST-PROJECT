@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
 const settingsModel = require('../models/settingsModel');
 const userModel = require('../models/userModel');
+const loginModel = require('../models/loginModel');
 
 const allowedRegions = ['Kakamega', 'Webuye', 'Busia', 'Luanda'];
 
@@ -184,4 +185,13 @@ async function resetPassword(request, response, next) {
   }
 }
 
-module.exports = { getSettings, updateSettings, getUsers, updateUserRole, createUser, updateAccount, resetPassword };
+async function getLoginLog(request, response, next) {
+  try {
+    const limit = Math.min(Number(request.query?.limit) || 100, 500);
+    response.json({ success: true, log: await loginModel.getLog({ limit }) });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { getSettings, updateSettings, getUsers, updateUserRole, createUser, updateAccount, resetPassword, getLoginLog };

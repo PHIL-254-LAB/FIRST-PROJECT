@@ -75,6 +75,9 @@
 		.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
 		.setting-card { padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: #f5faf6; }
 		.setting-card h3 { margin: 0 0 14px; font-size: 17px; font-weight: 500; }
+		.connection-state { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+		#connectionDetail { margin: 0 0 4px; color: var(--muted); font: 12px/1.5 Arial, sans-serif; }
+		#connectionLastCheck { padding: 0; text-align: left; color: var(--muted); font-size: 11px; }
 		.user-table { width: 100%; border-collapse: collapse; font: 12px Arial, sans-serif; }
 		.user-table th, .user-table td { padding: 12px 8px; border-bottom: 1px solid var(--line); text-align: left; }
 		.user-table th { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
@@ -90,11 +93,11 @@
 		main:not(.customers-page) #customersPanel { display: none; }
 main.customers-page .topbar, main.customers-page .stats, main.customers-page #summaryPanel { display: none; }
 		main.customers-page .content-grid { display: block; }
-		main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):not(.claims-admin-page):not(.accounts-page) #summaryPanel { display: block; }
-		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel, main.details-page #summaryPanel { display: none; }
+main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):not(.claims-admin-page):not(.accounts-page) #summaryPanel { display: block; }
+		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel, main.details-page #summaryPanel, main.details-page #overviewAdminPanel { display: none; }
 		main.details-page .content-grid { display: block; }
 		main.details-page #detailsPanel { display: block; min-height: calc(100vh - 68px); }
-		main.admin-page .topbar, main.admin-page .stats, main.admin-page #customersPanel, main.admin-page #detailsPanel, main.admin-page #summaryPanel { display: none; }
+		main.admin-page .topbar, main.admin-page .stats, main.admin-page #customersPanel, main.admin-page #detailsPanel, main.admin-page #summaryPanel, main.admin-page #overviewAdminPanel { display: none; }
 		main.admin-page .content-grid { display: block; }
 		main.admin-page #adminPanel { display: block; min-height: calc(100vh - 68px); }
 		.status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -143,13 +146,13 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
 		.sku-table .user-table td.sku-price-cell { text-align: right; }
 		.sku-table .user-table tbody tr.inactive-row td { color: var(--muted); opacity: .72; }
 		.sku-table .user-table .price-edit { text-align: right; }
-		main.claims-page .topbar, main.claims-page .stats, main.claims-page #customersPanel, main.claims-page #detailsPanel, main.claims-page #adminPanel, main.claims-page #claimsAdminPanel, main.claims-page #summaryPanel { display: none; }
+		main.claims-page .topbar, main.claims-page .stats, main.claims-page #customersPanel, main.claims-page #detailsPanel, main.claims-page #adminPanel, main.claims-page #claimsAdminPanel, main.claims-page #summaryPanel, main.claims-page #overviewAdminPanel { display: none; }
 		main.claims-page .content-grid { display: block; }
 		main.claims-page #claimsPanel { display: block; min-height: calc(100vh - 68px); }
-		main.claims-admin-page .topbar, main.claims-admin-page .stats, main.claims-admin-page #customersPanel, main.claims-admin-page #detailsPanel, main.claims-admin-page #adminPanel, main.claims-admin-page #claimsPanel, main.claims-admin-page #summaryPanel { display: none; }
+		main.claims-admin-page .topbar, main.claims-admin-page .stats, main.claims-admin-page #customersPanel, main.claims-admin-page #detailsPanel, main.claims-admin-page #adminPanel, main.claims-admin-page #claimsPanel, main.claims-admin-page #summaryPanel, main.claims-admin-page #overviewAdminPanel { display: none; }
 		main.claims-admin-page .content-grid { display: block; }
 		main.claims-admin-page #claimsAdminPanel { display: block; min-height: calc(100vh - 68px); }
-		main.accounts-page .topbar, main.accounts-page .stats, main.accounts-page #customersPanel, main.accounts-page #detailsPanel, main.accounts-page #adminPanel, main.accounts-page #claimsPanel, main.accounts-page #claimsAdminPanel, main.accounts-page #summaryPanel { display: none; }
+		main.accounts-page .topbar, main.accounts-page .stats, main.accounts-page #customersPanel, main.accounts-page #detailsPanel, main.accounts-page #adminPanel, main.accounts-page #claimsPanel, main.accounts-page #claimsAdminPanel, main.accounts-page #summaryPanel, main.accounts-page #overviewAdminPanel { display: none; }
 		main.accounts-page .content-grid { display: block; }
 		main.accounts-page #accountsPanel { display: block; min-height: calc(100vh - 68px); }
 		main:not(.accounts-page) #accountsPanel { display: none; }
@@ -235,6 +238,17 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
 					<article class="stat"><span>Declined</span><strong id="summaryDeclinedCount">0</strong><small id="summaryDeclinedAmount">KES 0</small></article>
 				</div>
 			</section>
+			<section id="overviewAdminPanel" class="panel hidden">
+				<div class="panel-heading"><div><h2>System controls</h2><small id="overviewAdminStatus">Connection status, request window, and registered user accounts.</small></div><button id="overviewAdminRefreshButton" class="button secondary" type="button">Refresh</button></div>
+				<div class="settings-grid">
+					<div class="setting-card">
+						<h3>Connection</h3>
+						<div id="connectionCard"><div class="connection-state"><strong id="connectionLabel">Status</strong><span id="connectionBadge" class="status-badge pending">Connecting</span></div><p id="connectionDetail">Checking API connectivity…</p><p id="connectionLastCheck" class="empty"></p></div>
+					</div>
+					<div class="setting-card"><h3>Request window</h3><form id="settingsForm" class="form-grid"><label>Requests enabled<select id="requestsOpen"><option value="true">Open</option><option value="false">Closed</option></select></label><label>Start date<input id="requestStart" type="date"></label><label>End date<input id="requestEnd" type="date"></label><p id="settingsMessage" class="message" aria-live="polite"></p><button class="button" type="submit">Save request rules</button></form></div>
+					<div class="setting-card"><h3>Registered users</h3><div id="userList"><div class="empty">Loading users...</div></div></div>
+				</div>
+			</section>
 
 			<div class="content-grid">
 				<section id="customersPanel" class="panel">
@@ -258,10 +272,6 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
 				<section id="adminPanel" class="panel hidden">
 					<div class="panel-heading"><div><h2>Approval requests</h2><small id="adminStatus">Review pending customer requests and set their operating deadline.</small></div><button id="adminRefreshButton" class="button secondary" type="button">Refresh</button></div>
 					<div id="approvalList"><div class="empty">Loading approval requests...</div></div>
-					<div class="settings-grid">
-						<div class="setting-card"><h3>Request window</h3><form id="settingsForm" class="form-grid"><label>Requests enabled<select id="requestsOpen"><option value="true">Open</option><option value="false">Closed</option></select></label><label>Start date<input id="requestStart" type="date"></label><label>End date<input id="requestEnd" type="date"></label><p id="settingsMessage" class="message" aria-live="polite"></p><button class="button" type="submit">Save request rules</button></form></div>
-						<div class="setting-card"><h3>Registered users</h3><div id="userList"><div class="empty">Loading users...</div></div></div>
-					</div>
 				</section>
 				<section id="claimsPanel" class="panel hidden">
 					<div class="panel-heading"><div><h2>Customer claims</h2><small id="claimsStatus">Choose a customer, then add claim SKUs. Unit prices, amounts, and the 50% discount are calculated automatically.</small></div></div>
@@ -417,8 +427,9 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
 			$('profileEmail').textContent = user.email; $('avatar').textContent = initials(user.name);
 			$('adminNav').classList.toggle('hidden', user.role !== 'admin');
 			$('accountsNav').classList.toggle('hidden', user.role !== 'admin');
+			if ($('overviewAdminPanel')) $('overviewAdminPanel').classList.toggle('hidden', user.role !== 'admin');
 		}
-		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); }
+		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); if (window.loadOverviewControls) window.loadOverviewControls(); }
 		async function loadRequestWindow() { try { const response = await fetch(`${API_URL}/customers/request-window`, { headers: authHeaders() }); const data = await response.json(); if (response.ok && !data.requestsOpen) { $('customerStatus').textContent = `Requests closed${data.startDate || data.endDate ? ` · window ${data.startDate || 'now'} to ${data.endDate || 'open-ended'}` : ''}`; $('addCustomerButton').disabled = true; } else if (response.ok) { $('addCustomerButton').disabled = false; } } catch (error) { /* The API status handles connectivity feedback. */ } }
 		function renderSummary(customers) {
 			const byStatus = (status) => customers.filter((customer) => (customer.status || 'pending') === status);
@@ -481,16 +492,14 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
 		async function loadAdminData() {
 			if (currentUser?.role !== 'admin') return;
 			try {
-				const [settingsResponse, usersResponse] = await Promise.all([fetch(`${API_URL}/admin/settings`, { headers: authHeaders() }), fetch(`${API_URL}/admin/users`, { headers: authHeaders() })]);
+				const settingsResponse = await fetch(`${API_URL}/admin/settings`, { headers: authHeaders() });
 			const settingsData = await settingsResponse.json();
-			const usersData = await usersResponse.json();
 			if (settingsResponse.ok) { $('requestsOpen').value = String(settingsData.settings.requestsOpen); $('requestStart').value = settingsData.settings.startDate || ''; $('requestEnd').value = settingsData.settings.endDate || ''; }
-			if (usersResponse.ok) { $('userList').innerHTML = `<table class="user-table"><thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead><tbody>${usersData.users.map((user) => `<tr><td>${user.name}<br><span>${user.username}</span></td><td>${user.role}</td><td>${new Date(user.createdAt).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`; }
 			} catch (error) { $('adminStatus').textContent = 'Unable to load admin settings.'; }
 		}
 		async function loadCustomers() {
-			try { const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() }); if (!response.ok) throw new Error('API unavailable'); const data = await response.json(); renderCustomers(data.customers || []); $('customerStatus').className = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadRequestWindow(); }
-			catch (error) { renderCustomers(demoCustomers); $('customerStatus').className = ''; $('customerStatus').textContent = 'Preview records (start the backend for live data)'; }
+			try { const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() }); if (!response.ok) throw new Error('API unavailable'); const data = await response.json(); renderCustomers(data.customers || []); $('customerStatus').className = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadRequestWindow(); if (window.updateConnectionStatus) window.updateConnectionStatus(true); }
+			catch (error) { renderCustomers(demoCustomers); $('customerStatus').className = ''; $('customerStatus').textContent = 'Preview records (start the backend for live data)'; if (window.updateConnectionStatus) window.updateConnectionStatus(false); }
 		}
 		async function deleteCustomer(id) {
 			if (String(id).startsWith('demo-')) return;
@@ -657,10 +666,96 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
     const csv = [header, ...rows].map((row) => row.map((value) => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"').join(',')).join('\n');
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = 'new-day-customers.csv'; link.click(); URL.revokeObjectURL(link.href);
   }
-  async function enhancedAdminData() {
-    if (!currentUser || currentUser.role !== 'admin') return;
-    try { const response = await fetch(API_URL + '/admin/users', { headers: authHeaders() }); const data = await response.json(); if (!response.ok) throw new Error(data.message); document.getElementById('userList').innerHTML = '<table class="user-table"><thead><tr><th>User</th><th>Role</th><th>Admin action</th></tr></thead><tbody>' + data.users.map((user) => '<tr><td>' + esc(user.name) + '<br><span>' + esc(user.username) + '</span></td><td>' + esc(user.role) + '</td><td><button class="button secondary mini-button" data-role-user="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>').join('') + '</tbody></table>'; document.querySelectorAll('[data-role-user]').forEach((button) => button.addEventListener('click', async () => { try { const update = await fetch(API_URL + '/admin/users/' + button.dataset.roleUser + '/role', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ role: button.dataset.role }) }); const result = await update.json(); if (!update.ok) throw new Error(result.message); enhancedAdminData(); } catch (error) { document.getElementById('adminStatus').textContent = error.message; document.getElementById('adminStatus').className = 'message error'; } })); } catch (error) { document.getElementById('adminStatus').textContent = 'Unable to load user controls.'; }
+  function setConnectionStatus(online) {
+    const badge = document.getElementById('connectionBadge');
+    const detail = document.getElementById('connectionDetail');
+    const lastCheck = document.getElementById('connectionLastCheck');
+    if (!badge) return;
+    badge.textContent = online ? 'Online' : 'Offline';
+    badge.className = 'status-badge ' + (online ? 'approved' : 'declined');
+    detail.textContent = online ? 'The backend API is reachable. Records and commands are live.' : 'The backend API is not reachable. Showing preview records only.';
+    if (lastCheck) lastCheck.textContent = 'Last checked ' + new Date().toLocaleTimeString();
   }
+  window.updateConnectionStatus = window.setConnectionStatus = setConnectionStatus;
+
+  let overviewUsers = [];
+  let overviewLog = [];
+  function setOverviewStatus(message, className) {
+    const status = document.getElementById('overviewAdminStatus');
+    if (!status) return;
+    status.textContent = message || 'Connection status, request window, and registered user accounts.';
+    status.className = message ? ('message ' + className) : '';
+  }
+  function lastLoginFor(userId) {
+    const entry = overviewLog.find((item) => item.userId === userId && item.success);
+    return entry ? entry.createdAt : null;
+  }
+  function isOnline(userId) {
+    const time = lastLoginFor(userId);
+    return Boolean(time) && (Date.now() - new Date(time).getTime()) < 15 * 60 * 1000;
+  }
+  function renderOverviewUsers() {
+    const list = document.getElementById('userList');
+    if (!list) return;
+    if (!overviewUsers.length) { list.innerHTML = '<div class="empty">No users registered yet.</div>'; return; }
+    list.innerHTML = '<table class="user-table"><thead><tr><th>User</th><th>Region</th><th>Status</th><th>Last sign-in</th><th>Actions</th></tr></thead><tbody>' + overviewUsers.map((user) => {
+      const last = lastLoginFor(user.id);
+      const lastText = last ? new Date(last).toLocaleString() : 'Never signed in';
+      return '<tr><td>' + esc(user.name) + '<br><span>' + esc(user.username) + '</span></td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + (isOnline(user.id) ? '<span class="status-badge approved">Online</span>' : '<span class="status-badge declined">Offline</span>') + '</td><td>' + esc(lastText) + '</td><td class="user-actions"><button class="button secondary mini-button" data-overview-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-overview-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-overview-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>';
+    }).join('') + '</tbody></table>';
+    document.querySelectorAll('[data-overview-edit]').forEach((button) => button.addEventListener('click', () => overviewEditAccount(button.dataset.overviewEdit)));
+    document.querySelectorAll('[data-overview-password]').forEach((button) => button.addEventListener('click', () => overviewResetPassword(button.dataset.overviewPassword)));
+    document.querySelectorAll('[data-overview-role]').forEach((button) => button.addEventListener('click', () => overviewToggleRole(button.dataset.overviewRole, button.dataset.role)));
+  }
+  async function loadOverviewControls() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    try {
+      const [settingsResponse, usersResponse, logResponse] = await Promise.all([
+        fetch(API_URL + '/admin/settings', { headers: authHeaders() }),
+        fetch(API_URL + '/admin/users', { headers: authHeaders() }),
+        fetch(API_URL + '/admin/login-log', { headers: authHeaders() })
+      ]);
+      const settingsData = await settingsResponse.json();
+      const usersData = await usersResponse.json();
+      const logData = await logResponse.json();
+      if (settingsResponse.ok) {
+        document.getElementById('requestsOpen').value = String(settingsData.settings.requestsOpen);
+        document.getElementById('requestStart').value = settingsData.settings.startDate || '';
+        document.getElementById('requestEnd').value = settingsData.settings.endDate || '';
+      }
+      overviewUsers = usersResponse.ok ? usersData.users : [];
+      overviewLog = logResponse.ok ? logData.log : [];
+      accounts = overviewUsers;
+      renderOverviewUsers();
+      setOverviewStatus(overviewUsers.length ? overviewUsers.length + ' registered users.' : '');
+    } catch (error) { setOverviewStatus('Unable to load system controls.', 'error'); }
+  }
+  function overviewEditAccount(id) { openAccountEdit(id); window.switchPage('accounts'); }
+  async function overviewToggleRole(id, role) {
+    const button = document.querySelector('[data-overview-role="' + id + '"]');
+    if (button) button.disabled = true;
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id + '/role', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ role }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to change the role');
+      setOverviewStatus(data.message, 'success');
+      loadOverviewControls();
+    } catch (error) { setOverviewStatus(error.message, 'error'); if (button) button.disabled = false; }
+  }
+  async function overviewResetPassword(id) {
+    const account = overviewUsers.find((item) => item.id === id);
+    const newPassword = prompt('New password for ' + (account ? account.name || account.username : 'this account') + ' (at least 6 characters):');
+    if (newPassword === null) return;
+    const trimmed = newPassword.trim();
+    if (trimmed.length < 6) { setOverviewStatus('Password must be at least 6 characters', 'error'); return; }
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id + '/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ newPassword: trimmed }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to reset the password');
+      setOverviewStatus(data.message, 'success');
+    } catch (error) { setOverviewStatus(error.message, 'error'); }
+  }
+  document.getElementById('overviewAdminRefreshButton').addEventListener('click', loadOverviewControls);
   document.getElementById('customerSearch').addEventListener('input', () => renderEnhancedCustomers(allCustomers));
   document.getElementById('customerFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
   document.getElementById('customerRegionFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
@@ -790,14 +885,16 @@ main.customers-page .topbar, main.customers-page .stats, main.customers-page #su
     document.querySelector('main').classList.toggle('accounts-page', page === 'accounts');
     originalSwitchPageForAccounts(page);
     document.getElementById('accountsPanel').classList.toggle('hidden', page !== 'accounts');
+    const overviewControls = document.getElementById('overviewAdminPanel');
+    if (overviewControls) overviewControls.classList.toggle('hidden', page !== 'overview' || !currentUser || currentUser.role !== 'admin');
     if (page === 'accounts') {
       loadAccounts();
       document.getElementById('accountsPanel').scrollIntoView({ behavior: 'smooth' });
     }
+    if (page === 'overview') loadOverviewControls();
   };
 
   renderCustomers = renderEnhancedCustomers;
-  loadAdminData = enhancedAdminData;
   if (customerHistory.length) renderEnhancedCustomers(customerHistory);
 })();
 </script>

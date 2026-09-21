@@ -20,7 +20,7 @@ Regular users select **Create one** on the login screen and enter a username, na
 8. Use **Edit** on a saved record to correct the customer name or any SKU row; choose **+ Add product** to add another product row while editing, or **Remove** to drop a product row.
 9. Use **Notes** to keep delivery, payment, or follow-up details on a record.
 10. Use **Search**, the status filter, and the region filter to find records. **Stock & expiry watch** flags products that are low on stock or expiring within 30 days.
-11. Open **Overview** and use **Account security** to change your own password.
+11. Open **Overview** to see the summary of total customers, units recorded, and approved / pending / declined amounts.
 
 Requests are shared with the administrator for review. A request cannot be created when the admin has closed the request window or the current date is outside the configured date range.
 
@@ -33,15 +33,27 @@ units recorded, and — split by approval status — how many customer records w
 pending, or were declined, each with the combined amount in KES. It refreshes automatically when the
 records load.
 
+Below it, the admin-only **System controls** section lives on the same Overview tab:
+
+- **Connection** — shows whether the workspace is talking to the live API (Online) or showing preview
+  records (Offline), with the last check time.
+- **Request window** — open or closed status and the allowed start/end dates. *This moved here from
+  the Approvals tab.*
+- **Registered users** — every account with its region, an online/offline indicator, its last
+  sign-in time, and quick actions to edit the account, reset its password, or promote/demote the
+  role. **Edit** jumps to the Accounts tab with the account loaded.
+
 1. Review pending customer requests and all SKU details.
 2. Set an operating deadline on the request card.
 3. Select **Approve** or **Decline**.
-4. Open **Request window** to choose Open or Closed and set the allowed start/end dates.
-5. Use **Registered users** to see account names, usernames, and roles, and to promote or demote an account. You cannot change your own role, and the last remaining administrator cannot be demoted.
+4. Open **Request window** (on the Overview tab) to choose Open or Closed and set the allowed start/end dates.
+5. Use **Registered users** (on the Overview tab) to see account names, usernames, roles, online/offline status, and last sign-in, and to promote or demote an account. You cannot change your own role, and the last remaining administrator cannot be demoted.
 6. Use **Export customer CSV** to download the customer register.
 7. Use the **Accounts** tab to create accounts for staff (full name, login name, email, region, role, and an initial password), to edit a login name or other profile details, to reset a password at any time, and to promote or demote an account.
+8. Use the **Login audit** through the API (`GET /api/admin/login-log`) to review every successful
+   and failed sign-in — username, user, role, region, IP address, browser, and time, newest first.
 
-The API enforces administrator permissions, so a regular user cannot approve, decline, or change request-window rules by calling the interface directly.
+The API enforces administrator permissions, so a regular user cannot approve, decline, change request-window rules, or read the login audit by calling the interface directly.
 
 ## Claims (customer returns)
 
@@ -88,11 +100,11 @@ Run the automated checks from the project root:
 npm test
 ```
 
-The suite starts the API against a temporary data folder and verifies sign-in, registration, saving and editing customers, notes, approvals, the request window, account roles, the claim catalog and claim saves/calculations/Excel exports, and that the web page scripts are valid. It never modifies the records in `backend/data`.
+The suite starts the API against a temporary data folder and verifies sign-in, registration, saving and editing customers, notes, approvals, the request window, account roles, the login audit, the claim catalog and claim saves/calculations/Excel exports, and that the web page scripts are valid. It never modifies the records in `backend/data`.
 
 ## Data and deployment
 
-Customer records are stored in `backend/data/customers.json`, user accounts in `backend/data/users.json`, request rules in `backend/data/settings.json`, the claim catalog in `backend/data/catalog.json`, and saved claims in `backend/data/claims.json`. Railway mounts these files on persistent storage so data survives normal redeployments.
+Customer records are stored in `backend/data/customers.json`, user accounts in `backend/data/users.json`, request rules in `backend/data/settings.json`, the claim catalog in `backend/data/catalog.json`, saved claims in `backend/data/claims.json`, and the login audit in `backend/data/login-log.json` (kept to the 500 most recent entries). Railway mounts these files on persistent storage so data survives normal redeployments.
 
 Code changes are pushed to GitHub and Railway redeploys from the `main` branch. After a deploy, refresh the website with `Ctrl+F5` if an older browser tab is still open.
 

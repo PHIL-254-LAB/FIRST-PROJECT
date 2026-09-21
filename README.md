@@ -12,6 +12,12 @@ requests, set the request window, export records, and manage account roles.
 Alongside the sales workflow, the app includes a **customer claims** system driven by the
 "CUSTOMER CLAIMS.xlsx" style document (title *DAHLIA BOTTLERS CLAIMS*):
 
+The **Overview** tab also hosts admin-only **system controls**: a live API connection indicator,
+the request window rules, and a registered-users table with each account's online/offline status
+(based on recent sign-ins) and last sign-in time. Every sign-in attempt — successful or failed —
+is written to a login audit log (`backend/data/login-log.json`, capped at the 500 most recent
+entries) that administrators can view through the API.
+
 - A separate, administrator-managed **claim catalog** lives in `backend/data/catalog.json`:
   a list of claim customers and the approved SKU list with fixed unit prices. It is seeded on
   first start with the standard price list (CHOCO / VANILLA / BB product sizes).
@@ -59,7 +65,7 @@ backend/
   routes/                    one router per area: authRoutes, customerRoutes, adminRoutes, catalogRoutes, claimRoutes
   controllers/               request handling and validation
   middleware/                auth.js (JWT + administrator guard), errorHandler.js
-  models/                    JSON-file data access: userModel, customerModel, settingsModel, catalogModel, claimModel
+  models/                    JSON-file data access: userModel, customerModel, settingsModel, catalogModel, claimModel, loginModel
   data/                      the live data files (mount this folder on a host)
   test/                      api.test.js (full API run) and frontend.test.js (page checks)
 package.json                 root scripts: start (API + page) and test
@@ -93,6 +99,8 @@ Two walks through the flow:
 | Editing | Customers and their SKUs can be edited after saving, including adding or removing products; each record keeps a note history |
 | Reporting | Search, status and region filters, stock/expiry watch, and a customer CSV export |
 | Overview summary | Counts of total customers and units recorded, plus approved / pending / declined counts with their amounts (KES) |
+| System controls | On the Overview tab: API connection status, the request window, and registered users with online/offline status and last sign-in |
+| Login audit | Every successful and failed sign-in is logged (username, user, role, region, IP, user agent, time); administrators read it through `/api/admin/login-log` |
 | Accounts | Administrators manage accounts from the Accounts tab (create accounts with passwords, edit login names, reset passwords, promote or demote) |
 | Claim catalog | Administrators manage claim customers and the approved SKU price list; seeded with the standard price list on first start |
 | Claims | Employees build a claim from the admin-configured dropdowns; amount and 50% totals auto-fill from server-side prices that can't be overridden |
@@ -146,6 +154,7 @@ administrator password (`admin`) before going live.
 | `PUT` | `/api/admin/users/:id` | Administrator | Edit an account's login name and profile details |
 | `PATCH` | `/api/admin/users/:id/role` | Administrator | Promote or demote an account |
 | `PATCH` | `/api/admin/users/:id/password` | Administrator | Set/reset an account's password |
+| `GET` | `/api/admin/login-log` | Administrator | Login audit entries, newest first (optional `limit`, max 500) |
 | `GET` | `/api/catalog/options` | Any signed-in user | Active claim customers + SKUs with prices for the claim form |
 | `GET` | `/api/catalog/manage` | Administrator | Full claim catalog incl. deactivated items |
 | `POST` | `/api/catalog/customers` | Administrator | Add a claim customer |
@@ -188,10 +197,14 @@ Push to `main` and the host redeploys. Hard-refresh (`Ctrl+F5`) the page if an o
 
 - Customer records live in `backend/data/customers.json`, accounts in `backend/data/users.json`,
   request rules in `backend/data/settings.json`, the claim catalog in `backend/data/catalog.json`,
-  and saved claims in `backend/data/claims.json`. The API creates these files if they are missing.
+  saved claims in `backend/data/claims.json`, and the login audit in `backend/data/login-log.json`.
+  The API creates these files if they are missing.
 - Passwords are stored as bcrypt hashes only. Tokens expire after 24 hours.
 - The API enforces roles: regular users cannot approve requests, change request-window rules, change
-  account roles, or administer the claim catalog even if they call the endpoints directly.
+  account roles, administer the claim catalog, or read the login audit even if they call the
+  endpoints directly.
+- Every sign-in attempt is recorded, so failed password guesses and successful access both leave a
+  trail in the audit log (a write that fails never blocks the sign-in itself).
 - Claim prices always come from the catalog on the server — a client can't submit a cheaper unit
   price — and saved claims keep a snapshot, so later price changes never rewrite history.
 - Never commit `backend/.env`, JWT secrets, or administrator passwords.

@@ -37,7 +37,7 @@ describe('dahlia-blueband-sort.html', () => {
   });
 
   it('exposes the panel ids used by the navigation and the API base URL', () => {
-    ['summaryPanel', 'customersPanel', 'detailsPanel', 'adminPanel', 'accountsPanel', 'loginScreen', 'app'].forEach((id) => {
+    ['summaryPanel', 'overviewAdminPanel', 'customersPanel', 'detailsPanel', 'adminPanel', 'accountsPanel', 'loginScreen', 'app'].forEach((id) => {
       assert.ok(html.includes(`id="${id}"`), `Expected the page to define id="${id}"`);
     });
 
@@ -89,5 +89,16 @@ describe('dahlia-blueband-sort.html', () => {
     assert.ok(html.includes('printClaim'), 'Expected a claim print helper');
     assert.ok(html.includes('exportClaimExcel'), 'Expected a claim Excel export helper');
     assert.ok(html.includes('DAHLIA BOTTLERS CLAIMS'), 'Expected the claim document title');
+  });
+
+  it('defines the overview system controls for administrators', () => {
+    ['overviewAdminPanel', 'overviewAdminStatus', 'overviewAdminRefreshButton', 'connectionBadge', 'connectionDetail', 'connectionLastCheck', 'userList', 'settingsForm'].forEach((id) => {
+      assert.ok(html.includes(`id="${id}"`), `Expected the page to define id="${id}"`);
+    });
+
+    assert.ok(html.includes("'/admin/login-log'"), 'Expected the login audit endpoint in the page');
+    assert.ok(html.includes('loadOverviewControls'), 'Expected a system-controls loader');
+    assert.ok(html.includes('updateConnectionStatus') || html.includes('setConnectionStatus'), 'Expected a connection status helper');
+    assert.ok(html.includes('renderOverviewUsers'), 'Expected an overview user list renderer');
   });
 });

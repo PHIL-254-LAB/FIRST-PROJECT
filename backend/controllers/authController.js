@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
+const loginModel = require('../models/loginModel');
 const { jwtSecret } = require('../middleware/auth');
 const allowedRegions = ['Kakamega', 'Webuye', 'Busia', 'Luanda'];
 
@@ -61,6 +62,25 @@ async function register(request, response, next) {
   }
 }
 
+async function recordLogin(entry) {
+  try {
+    await loginModel.append({
+      id: crypto.randomUUID(),
+      username: entry.username,
+      userId: entry.userId || null,
+      name: entry.name || entry.username || '',
+      role: entry.role || 'user',
+      region: entry.region || 'Unassigned',
+      success: entry.success,
+      ip: entry.ip,
+      userAgent: entry.userAgent,
+      createdAt: new Date().toISOString()
+    });
+  } catch (error) {
+    // A failed audit write must never block a sign-in.
+  }
+}
+
 async function login(request, response, next) {
   try {
     const username = normalizeUsername(request.body?.username);
@@ -68,12 +88,16 @@ async function login(request, response, next) {
     const selectedRegion = typeof request.body?.region === 'string' ? request.body.region.trim() : '';
     if (!allowedRegions.includes(selectedRegion)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
     const user = await userModel.findByUsername(username);
+    const ip = request.ip || request.socket?.remoteAddress || '';
+    const userAgent = typeof request.headers?.['user-agent'] === 'string' ? request.headers['user-agent'].slice(0, 200) : '';
 
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      await recordLogin({ username, success: false, ip, userAgent });
       return response.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
     const sessionUser = { ...user, region: user.region || selectedRegion };
+    await recordLogin({ username, userId: user.id, name: user.name, role: user.role || 'user', region: sessionUser.region || 'Unassigned', success: true, ip, userAgent });
     response.json({ success: true, user: publicUser(sessionUser), token: createToken(sessionUser) });
   } catch (error) {
     next(error);
