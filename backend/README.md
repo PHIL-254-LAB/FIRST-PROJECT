@@ -40,7 +40,36 @@ The API runs at `http://localhost:3000` by default. Set `PORT` and `FRONTEND_ORI
 - `POST /api/auth/login` signs in with a username and password and returns a JWT.
 - `GET /api/auth/me` returns the authenticated user. Send `Authorization: Bearer <token>`.
 
+Account administration (administrator only, all require `Authorization: Bearer <token>`):
+
+- `GET /api/admin/users` lists accounts without password hashes.
+- `POST /api/admin/users` creates an account: `{ username, name, password, email?, region?, role? }` (role is `user` or `admin`).
+- `PUT /api/admin/users/:id` edits the login name and profile: `{ username, name, email?, region? }`.
+- `PATCH /api/admin/users/:id/role` promotes or demotes an account.
+- `PATCH /api/admin/users/:id/password` sets a new password: `{ newPassword }`.
+
 Customer endpoints require the same `Authorization: Bearer <token>` header. New customer records start with `status: "pending"`; customer records are currently shared between authenticated users. Each customer can contain multiple products/SKUs, each with pieces, KES price, and expiry date.
+
+## Claim catalog and claims
+
+- `GET /api/catalog/options` returns the active claim customers and SKUs (with prices) for the claim form.
+- `GET /api/catalog/manage` (administrator) returns the full catalog including deactivated items.
+- `POST /api/catalog/customers`, `PUT /api/catalog/customers/:id`, `PATCH /api/catalog/customers/:id/active` (administrator) manage claim customers.
+- `POST /api/catalog/skus`, `PUT /api/catalog/skus/:id`, `PATCH /api/catalog/skus/:id/active` (administrator) manage claim SKUs and prices. The catalog is seeded with the standard price list when empty.
+- `POST /api/claims` (any signed-in user) saves a claim. It accepts only `customerId` and `items[{skuId, quantity}]`; the unit price, amount and 50% totals are calculated on the server from the catalog, duplicate SKUs are rejected, and the customer/SKU names and prices are snapshotted into the saved claim.
+- `POST /api/claims/export-draft` returns a real `.xlsx` for an unsaved draft, validated exactly like a saved claim.
+- `GET /api/claims` lists saved claims (newest first), `GET /api/claims/:id` returns one, and `GET /api/claims/:id/export` returns its `.xlsx` (DAHLIA BOTTLERS CLAIMS, A4 portrait, totals).
+
+Example claim body:
+
+```json
+{
+  "customerId": "<claim customer id>",
+  "items": [
+    { "skuId": "<sku id>", "quantity": 96 }
+  ]
+}
+```
 
 Example request body:
 

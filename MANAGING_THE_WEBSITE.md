@@ -28,14 +28,53 @@ Requests are shared with the administrator for review. A request cannot be creat
 
 Sign in with the administrator account. The admin sees an additional **Approvals** tab.
 
+On the **Overview** tab, the _Summary_ panel shows the dashboard figures: total customers, total
+units recorded, and — split by approval status — how many customer records were approved, are still
+pending, or were declined, each with the combined amount in KES. It refreshes automatically when the
+records load.
+
 1. Review pending customer requests and all SKU details.
 2. Set an operating deadline on the request card.
 3. Select **Approve** or **Decline**.
 4. Open **Request window** to choose Open or Closed and set the allowed start/end dates.
 5. Use **Registered users** to see account names, usernames, and roles, and to promote or demote an account. You cannot change your own role, and the last remaining administrator cannot be demoted.
 6. Use **Export customer CSV** to download the customer register.
+7. Use the **Accounts** tab to create accounts for staff (full name, login name, email, region, role, and an initial password), to edit a login name or other profile details, to reset a password at any time, and to promote or demote an account.
 
 The API enforces administrator permissions, so a regular user cannot approve, decline, or change request-window rules by calling the interface directly.
+
+## Claims (customer returns)
+
+The **Claims** area is a second, separate workflow for handling customer returns and swaps on the
+"CUSTOMER CLAIMS.xlsx" style document — it has nothing to do with the sales register above.
+
+For a staff member:
+
+1. Open **Claims**.
+2. Choose the **customer** from the dropdown (this list is set up by an administrator).
+3. Under **Items**, pick a product from the SKU dropdown and type how many **pieces** it was.
+   Click **Add row** for each extra SKU.
+4. The unit price, amount (pieces × price) and the 50% discount fill in automatically — they can't
+   be typed in. Adding the same product twice is blocked with a warning.
+5. Check the totals, then **Export to Excel** to download the claim document directly, **Print** to
+   produce the A4 form, or **Save claim** to keep it in the system (it then appears in the list
+   below with its claim number, e.g. `DC-0032`). Any saved claim can be printed or exported again.
+
+## Claim catalog (Claim Admin)
+
+Administrators see an extra **Claim Admin** tab with three views:
+
+- **Customers** — add a claim customer (name), edit its name, or deactivate/activate it. Inactive
+  customers disappear from the Claims screen.
+- **SKUs** — the full price list (seeded automatically on first start):
+  CHOCO 30G=17 · CHOCO 100G=62 · CHOCO 250G=169.6 · CHOCO 500G=321 · VANILLA 500G=267 ·
+  VANILLA 1KG=522 · BB 20G=8 · BB 30G=15.9 · BB 100G=58 · BB 250G=142 · BB 500G=267 · BB 1KG=522
+  (all KES). Edit a name or price with the inline edit button, or deactivate/activate a SKU.
+- **Claims** — every saved claim with its number, customer, totals, date, and saved-by user; open
+  one to print or export it to Excel.
+
+Changing a SKU's price only affects claims saved **after** the change. Already-saved claims keep the
+price they were created with, so historical exports never change.
 
 ## Product list
 
@@ -49,11 +88,11 @@ Run the automated checks from the project root:
 npm test
 ```
 
-The suite starts the API against a temporary data folder and verifies sign-in, registration, saving and editing customers, notes, approvals, the request window, account roles, and that the web page scripts are valid. It never modifies the records in `backend/data`.
+The suite starts the API against a temporary data folder and verifies sign-in, registration, saving and editing customers, notes, approvals, the request window, account roles, the claim catalog and claim saves/calculations/Excel exports, and that the web page scripts are valid. It never modifies the records in `backend/data`.
 
 ## Data and deployment
 
-Customer records are stored in `backend/data/customers.json`, user accounts in `backend/data/users.json`, and request rules in `backend/data/settings.json`. Railway mounts these files on persistent storage so data survives normal redeployments.
+Customer records are stored in `backend/data/customers.json`, user accounts in `backend/data/users.json`, request rules in `backend/data/settings.json`, the claim catalog in `backend/data/catalog.json`, and saved claims in `backend/data/claims.json`. Railway mounts these files on persistent storage so data survives normal redeployments.
 
 Code changes are pushed to GitHub and Railway redeploys from the `main` branch. After a deploy, refresh the website with `Ctrl+F5` if an older browser tab is still open.
 

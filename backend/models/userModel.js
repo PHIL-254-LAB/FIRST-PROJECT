@@ -86,6 +86,7 @@ module.exports = {
   findByUsername,
   getById,
   create,
+  updateUser,
   updatePassword,
   updateRole,
   ensureSeedUsers,

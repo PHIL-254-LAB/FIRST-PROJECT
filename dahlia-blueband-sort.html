@@ -44,6 +44,8 @@
 		.stat { padding: 22px; background: var(--white); border: 1px solid var(--line); border-radius: 8px; }
 		.stat span { color: var(--muted); font: 11px Arial, sans-serif; text-transform: uppercase; letter-spacing: .1em; }
 		.stat strong { display: block; margin-top: 13px; font-size: 30px; font-weight: 500; }
+		.stat small { display: block; margin-top: 8px; color: var(--teal-dark); font: 700 14px Arial, sans-serif; }
+		.panel .stats { margin-bottom: 0; }
 		.content-grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 22px; align-items: start; }
 		.panel { padding: 26px; background: var(--white); border: 1px solid var(--line); border-radius: 8px; }
 		.panel-heading { display: flex; justify-content: space-between; align-items: start; margin-bottom: 22px; }
@@ -86,13 +88,13 @@
 		.customer-row span { color: var(--muted); font-size: 11px; }
 		.empty { padding: 28px 16px; color: var(--muted); text-align: center; font: 13px Arial, sans-serif; }
 		main:not(.customers-page) #customersPanel { display: none; }
-		main.customers-page .topbar, main.customers-page .stats, main.customers-page #profilePanel { display: none; }
+main.customers-page .topbar, main.customers-page .stats, main.customers-page #summaryPanel { display: none; }
 		main.customers-page .content-grid { display: block; }
-		main.customers-page #customersPanel { min-height: calc(100vh - 68px); }
-		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel { display: none; }
+		main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):not(.claims-admin-page):not(.accounts-page) #summaryPanel { display: block; }
+		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel, main.details-page #summaryPanel { display: none; }
 		main.details-page .content-grid { display: block; }
 		main.details-page #detailsPanel { display: block; min-height: calc(100vh - 68px); }
-		main.admin-page .topbar, main.admin-page .stats, main.admin-page #customersPanel, main.admin-page #detailsPanel { display: none; }
+		main.admin-page .topbar, main.admin-page .stats, main.admin-page #customersPanel, main.admin-page #detailsPanel, main.admin-page #summaryPanel { display: none; }
 		main.admin-page .content-grid { display: block; }
 		main.admin-page #adminPanel { display: block; min-height: calc(100vh - 68px); }
 		.status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -118,6 +120,61 @@
 		.demo { margin-top: 22px; padding: 13px; color: #537068; background: #f1f8f3; border-left: 3px solid var(--coral); font: 12px/1.5 Arial, sans-serif; }
 		.text-button { border: 0; padding: 0; color: var(--teal); background: transparent; font: 700 12px Arial, sans-serif; }
 		.hidden { display: none !important; }
+		.claim-row { display: grid; grid-template-columns: 1.3fr .7fr .8fr .9fr .9fr auto; gap: 10px; align-items: end; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+		.claim-row .button { padding: 11px 12px; }
+		.claim-row.duplicate { border-color: #d98b6f; background: #fff7f3; }
+		.claim-row.duplicate select, .claim-row.duplicate input { border-color: #d98b6f; }
+		input[readonly] { color: var(--muted); background: #f1f4f0; cursor: not-allowed; }
+		.claim-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0 6px; }
+		.claim-totals > div { padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #f5faf6; }
+		.claim-totals span { color: var(--muted); font: 700 11px Arial, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+		.claim-totals strong { display: block; margin-top: 8px; font-size: 24px; font-weight: 500; }
+		.claim-list { display: grid; gap: 10px; }
+		.claim-list-item { display: grid; grid-template-columns: 1.2fr auto auto auto; gap: 14px; align-items: center; padding: 15px; border: 1px solid var(--line); border-radius: 6px; font-family: Arial, sans-serif; }
+		.claim-list-item strong { display: block; font-size: 13px; }
+		.claim-list-item span { color: var(--muted); font-size: 11px; }
+		.catalog-sku-name { font-weight: 700; }
+		.price-edit { width: 110px; }
+		.inline-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+		.admin-add-grid { display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: end; }
+		.admin-add-grid.sku { grid-template-columns: 1.4fr 160px 140px; }
+		.status-badge.inactive { color: #6b6b6b; background: #ececec; }
+		.claims-admin-sub { margin-top: 18px; }
+		.sku-table .user-table td.sku-price-cell { text-align: right; }
+		.sku-table .user-table tbody tr.inactive-row td { color: var(--muted); opacity: .72; }
+		.sku-table .user-table .price-edit { text-align: right; }
+		main.claims-page .topbar, main.claims-page .stats, main.claims-page #customersPanel, main.claims-page #detailsPanel, main.claims-page #adminPanel, main.claims-page #claimsAdminPanel, main.claims-page #summaryPanel { display: none; }
+		main.claims-page .content-grid { display: block; }
+		main.claims-page #claimsPanel { display: block; min-height: calc(100vh - 68px); }
+		main.claims-admin-page .topbar, main.claims-admin-page .stats, main.claims-admin-page #customersPanel, main.claims-admin-page #detailsPanel, main.claims-admin-page #adminPanel, main.claims-admin-page #claimsPanel, main.claims-admin-page #summaryPanel { display: none; }
+		main.claims-admin-page .content-grid { display: block; }
+		main.claims-admin-page #claimsAdminPanel { display: block; min-height: calc(100vh - 68px); }
+		main.accounts-page .topbar, main.accounts-page .stats, main.accounts-page #customersPanel, main.accounts-page #detailsPanel, main.accounts-page #adminPanel, main.accounts-page #claimsPanel, main.accounts-page #claimsAdminPanel, main.accounts-page #summaryPanel { display: none; }
+		main.accounts-page .content-grid { display: block; }
+		main.accounts-page #accountsPanel { display: block; min-height: calc(100vh - 68px); }
+		main:not(.accounts-page) #accountsPanel { display: none; }
+		main:not(.claims-page):not(.claims-admin-page) #claimsPanel, main:not(.claims-admin-page) #claimsAdminPanel { display: none; }
+		#printArea { display: none; }
+		.claim-document { font-family: Arial, sans-serif; color: #111; }
+		.claim-document h1 { margin: 0 0 4px; font-size: 24px; text-align: center; letter-spacing: .02em; }
+		.claim-document .cust { margin: 0 0 18px; font-size: 15px; text-align: center; }
+		.claim-document .cust strong { text-transform: uppercase; }
+		.claim-document table { width: 100%; border-collapse: collapse; font-size: 13px; }
+		.claim-document th, .claim-document td { border: 1px solid #222; padding: 8px 10px; }
+		.claim-document th { background: #e6e6e6; text-align: center; }
+		.claim-document td.sku { text-align: left; }
+		.claim-document td.num { text-align: right; }
+		.claim-document tr.total-row td { font-weight: 700; background: #f2f2f2; }
+		.claim-document .foot { margin-top: 16px; font-size: 11px; color: #555; text-align: center; }
+		@media print {
+			body * { visibility: hidden; }
+			body.printing #printArea, body.printing #printArea * { visibility: visible; }
+			body.printing #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
+			body.printing .claim-document th, body.printing .claim-document td { padding: 6px 8px; }
+		}
+		@media (min-width: 851px) and (max-width: 1120px) { .claim-row { grid-template-columns: 1fr 1fr 1fr; } .claim-row .remove-claim-sku { grid-column: span 1; } }
+		@media (max-width: 850px) { .claim-row { grid-template-columns: 1fr 1fr; } .admin-add-grid.sku { grid-template-columns: 1fr 160px; } }
+		@media (max-width: 560px) { .claim-row, .claim-totals, .claim-list-item { grid-template-columns: 1fr; } .admin-add-grid, .admin-add-grid.sku { grid-template-columns: 1fr; } }
 		@media (max-width: 850px) { .shell { grid-template-columns: 1fr; } .sidebar { padding: 18px 20px; } .nav { margin-top: 22px; grid-template-columns: repeat(4, 1fr); } .side-note { display: none; } .main { padding: 28px 20px 40px; } .content-grid { grid-template-columns: 1fr; } .add-form-grid, .settings-grid { grid-template-columns: 1fr 1fr; } }
 		@media (max-width: 560px) { .topbar { align-items: start; } .profile { display: none; } .stats { grid-template-columns: 1fr; } .nav { grid-template-columns: repeat(2, 1fr); } .nav button { padding: 10px 7px; font-size: 11px; } .panel { padding: 20px; } .customer-row { grid-template-columns: 1fr 1fr; } .customer-row .button { grid-column: 2; justify-self: end; } .add-form-grid, .settings-grid, .sku-row { grid-template-columns: 1fr; } .login-card { padding: 28px 22px; } }
 	</style>
@@ -148,7 +205,10 @@
 				<button class="active" type="button" data-page="overview">Overview</button>
 				<button type="button" data-page="customers">Customers</button>
 				<button type="button" data-page="details">Details</button>
+				<button type="button" data-page="claims">Claims</button>
 				<button id="adminNav" class="hidden" type="button" data-page="admin">Approvals</button>
+				<button id="claimsAdminNav" class="hidden" type="button" data-page="claims-admin">Claim Admin</button>
+				<button id="accountsNav" class="hidden" type="button" data-page="accounts">Accounts</button>
 			</nav>
 			<div class="side-note">A calmer way to keep every customer conversation moving.</div>
 		</aside>
@@ -165,11 +225,14 @@
 				<article class="stat"><span>Sales value (KES)</span><strong id="salesTotal">KES 0</strong></article>
 			</section>
 
-			<section id="profilePanel" class="panel">
-				<div class="panel-heading"><div><h2>Signed-in account</h2><small id="profileStatus">Your region and role control which records and actions are available.</small></div></div>
-				<div class="settings-grid">
-					<div class="setting-card"><h3>Profile</h3><p class="approval-meta"><strong id="profileAccount">—</strong><br>Username: <span id="profileUsername">—</span><br>Region: <span id="profileRegion">—</span><br>Role: <span id="profileRole">—</span></p></div>
-					<div class="setting-card"><h3>Workspace</h3><p class="approval-meta">Customer requests are saved with a pending status and reviewed by an administrator. Administrators can approve or decline requests, set the request window, export the customer register, and manage account roles.</p></div>
+			<section id="summaryPanel" class="panel">
+				<div class="panel-heading"><div><h2>Summary</h2><small id="summaryStatus">Total customers, units recorded, and amounts by approval status.</small></div><button id="summaryRefreshButton" class="button secondary" type="button">Refresh</button></div>
+				<div class="stats">
+					<article class="stat"><span>Total customers</span><strong id="summaryTotalCount">0</strong></article>
+					<article class="stat"><span>Total units recorded</span><strong id="summaryTotalUnits">0</strong></article>
+					<article class="stat"><span>Approved</span><strong id="summaryApprovedCount">0</strong><small id="summaryApprovedAmount">KES 0</small></article>
+					<article class="stat"><span>Pending</span><strong id="summaryPendingCount">0</strong><small id="summaryPendingAmount">KES 0</small></article>
+					<article class="stat"><span>Declined</span><strong id="summaryDeclinedCount">0</strong><small id="summaryDeclinedAmount">KES 0</small></article>
 				</div>
 			</section>
 
@@ -200,9 +263,85 @@
 						<div class="setting-card"><h3>Registered users</h3><div id="userList"><div class="empty">Loading users...</div></div></div>
 					</div>
 				</section>
+				<section id="claimsPanel" class="panel hidden">
+					<div class="panel-heading"><div><h2>Customer claims</h2><small id="claimsStatus">Choose a customer, then add claim SKUs. Unit prices, amounts, and the 50% discount are calculated automatically.</small></div></div>
+					<form id="claimForm" class="settings-grid">
+						<div class="setting-card">
+							<h3>New claim</h3>
+							<label>Customer<select id="claimCustomer" required><option value="">Choose a customer…</option></select></label>
+							<div class="sku-heading"><h4>Claim SKUs</h4><button id="addClaimRowButton" class="button secondary" type="button">+ Add product</button></div>
+							<div id="claimSkuList" class="sku-list"></div>
+							<div class="claim-totals">
+								<div><span>Total price</span><strong id="claimTotal">0.00</strong></div>
+								<div><span>Total 50% off</span><strong id="claimDiscount">0.00</strong></div>
+							</div>
+							<p id="claimMessage" class="message" aria-live="polite"></p>
+							<div class="form-actions">
+								<button id="saveClaimButton" class="button" type="submit">Save claim</button>
+								<button id="printClaimDraftButton" class="button secondary" type="button">Print claim</button>
+								<button id="exportClaimDraftButton" class="button secondary" type="button">Export to Excel</button>
+							</div>
+						</div>
+						<div class="setting-card">
+							<h3>Saved claims</h3>
+							<div id="claimList"><div class="empty">Loading claims…</div></div>
+						</div>
+					</form>
+				</section>
+				<section id="claimsAdminPanel" class="panel hidden">
+					<div class="panel-heading"><div><h2>Claim administration</h2><small id="claimsAdminStatus">Manage claim customers, the approved SKU list and prices, then print or export claims.</small></div><button id="claimsAdminRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<div class="status-tabs" aria-label="Claim administration sections"><button class="status-tab active" type="button" data-claims-tab="customers">Customers</button><button class="status-tab" type="button" data-claims-tab="skus">Products / SKUs & prices</button><button class="status-tab" type="button" data-claims-tab="claims">All claims</button></div>
+					<div id="claimsAdminCustomers" class="claims-admin-sub">
+						<div class="add-form">
+							<h3>Add claim customer</h3>
+							<div class="admin-add-grid">
+								<label>Customer name<input id="claimNewCustomerName" placeholder="e.g. BENGWELA" required></label>
+								<button id="addClaimCustomerButton" class="button" type="button">+ Add customer</button>
+							</div>
+						</div>
+						<div id="claimCustomerList"><div class="empty">Loading customers…</div></div>
+					</div>
+					<div id="claimsAdminSkus" class="claims-admin-sub hidden">
+						<div class="add-form">
+							<h3>Add SKU</h3>
+							<div class="admin-add-grid sku">
+								<label>SKU name<input id="catalogSkuName" placeholder="e.g. CHOCO 750G" required></label>
+								<label>Unit price (KES)<input id="catalogSkuPrice" type="number" min="0" step="0.01" placeholder="0" required></label>
+								<button id="addCatalogSkuButton" class="button" type="button">+ Add SKU</button>
+							</div>
+							<p id="catalogMessage" class="message" aria-live="polite"></p>
+						</div>
+						<div class="sku-table" id="catalogSkuTable"><div class="empty">Loading SKUs…</div></div>
+					</div>
+					<div id="claimsAdminClaims" class="claims-admin-sub hidden">
+						<div id="claimAdminList"><div class="empty">Loading claims…</div></div>
+					</div>
+				</section>
+				<section id="accountsPanel" class="panel hidden">
+					<div class="panel-heading"><div><h2>Accounts &amp; passwords</h2><small id="accountsStatus">Create user accounts, set or reset passwords, and edit login names.</small></div><button id="accountsRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<form id="accountForm" class="add-form">
+						<h3 id="accountFormTitle">Add account</h3>
+						<div class="add-form-grid">
+							<label>Full name<input id="accountName" placeholder="e.g. Otieno Juma" required></label>
+							<label>Login name<input id="accountUsername" placeholder="e.g. otieno" required></label>
+							<label>Email<input id="accountEmail" type="email" placeholder="you@example.com"></label>
+							<label>Region<select id="accountRegion"><option value="">Unassigned</option><option>Kakamega</option><option>Webuye</option><option>Busia</option><option>Luanda</option></select></label>
+							<label>Password<input id="accountPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></label>
+							<label>Role<select id="accountRole"><option value="user">User</option><option value="admin">Administrator</option></select></label>
+						</div>
+						<p id="accountMessage" class="message" aria-live="polite"></p>
+						<div class="form-actions">
+							<button id="accountSubmit" class="button" type="submit">Add account</button>
+							<button id="accountCancel" class="button secondary hidden" type="button">Cancel edit</button>
+						</div>
+					</form>
+					<div id="accountList"><div class="empty">Loading accounts…</div></div>
+				</section>
 			</div>
 		</main>
 	</div>
+
+	<div id="printArea"></div>
 
 	<script>
 		const API_URL = window.location.protocol === 'file:' || window.location.port === '5500'
@@ -277,13 +416,25 @@
 			$('greeting').textContent = getGreeting(); $('welcomeName').textContent = user.name.split(' ')[0]; $('profileName').textContent = user.name;
 			$('profileEmail').textContent = user.email; $('avatar').textContent = initials(user.name);
 			$('adminNav').classList.toggle('hidden', user.role !== 'admin');
-			$('profileAccount').textContent = user.name || 'Signed-in user';
-			$('profileUsername').textContent = user.username || '—';
-			$('profileRegion').textContent = user.region || 'Unassigned';
-			$('profileRole').textContent = user.role || 'user';
+			$('accountsNav').classList.toggle('hidden', user.role !== 'admin');
 		}
 		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); }
 		async function loadRequestWindow() { try { const response = await fetch(`${API_URL}/customers/request-window`, { headers: authHeaders() }); const data = await response.json(); if (response.ok && !data.requestsOpen) { $('customerStatus').textContent = `Requests closed${data.startDate || data.endDate ? ` · window ${data.startDate || 'now'} to ${data.endDate || 'open-ended'}` : ''}`; $('addCustomerButton').disabled = true; } else if (response.ok) { $('addCustomerButton').disabled = false; } } catch (error) { /* The API status handles connectivity feedback. */ } }
+		function renderSummary(customers) {
+			const byStatus = (status) => customers.filter((customer) => (customer.status || 'pending') === status);
+			const amount = (list) => list.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0);
+			const approved = byStatus('approved');
+			const pending = byStatus('pending');
+			const declined = byStatus('declined');
+			$('summaryTotalCount').textContent = customers.length.toLocaleString();
+			$('summaryTotalUnits').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
+			$('summaryApprovedCount').textContent = approved.length.toLocaleString();
+			$('summaryApprovedAmount').textContent = money(amount(approved));
+			$('summaryPendingCount').textContent = pending.length.toLocaleString();
+			$('summaryPendingAmount').textContent = money(amount(pending));
+			$('summaryDeclinedCount').textContent = declined.length.toLocaleString();
+			$('summaryDeclinedAmount').textContent = money(amount(declined));
+		}
 		function renderCustomers(customers) {
 			customerHistory = customers;
 			$('customerCount').textContent = customers.length;
@@ -292,6 +443,7 @@
 			$('customerList').innerHTML = customers.length ? customers.map((customer) => { const products = customer.products || []; const productSummary = products.map((product) => `${product.product} · ${product.pieces} pcs · exp ${product.expiryDate}`).join('<br>'); return `<div class="customer-row"><div><strong>${customer.customerName}</strong><span>${productSummary}</span><span>${new Date(customer.createdAt).toLocaleDateString()} · ${customer.status || 'pending'}</span></div><div><span>Units</span><strong>${customer.totalPieces || 0}</strong></div><div><span>Value</span><strong>${money(customer.totalAmount)}</strong></div><button class="button danger" data-delete="${customer.id}" type="button">Delete</button></div>`; }).join('') : '<div class="empty">No customer records yet.</div>';
 			document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
 			renderHistory();
+			renderSummary(customers);
 			if (currentUser?.role === 'admin') renderApprovals();
 		}
 		function renderHistory() {
@@ -381,6 +533,7 @@
 		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Select your region, then create an account to access customer sales and records.' : 'Choose your region and sign in to manage customer sales and records.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / 2002'; $('loginMessage').textContent = ''; });
 		$('logoutButton').addEventListener('click', () => { localStorage.removeItem('newDayToken'); localStorage.removeItem('newDayUser'); $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); $('loginForm').reset(); });
 		$('refreshButton').addEventListener('click', loadCustomers);
+		$('summaryRefreshButton').addEventListener('click', loadCustomers);
 		$('historyRefreshButton').addEventListener('click', loadCustomers);
 		$('adminRefreshButton').addEventListener('click', loadCustomers);
 		$('settingsForm').addEventListener('submit', async (event) => { event.preventDefault(); const message = $('settingsMessage'); try { const response = await fetch(`${API_URL}/admin/settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ requestsOpen: $('requestsOpen').value === 'true', startDate: $('requestStart').value || null, endDate: $('requestEnd').value || null }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save request rules'); message.textContent = 'Request rules saved.'; message.className = 'message success'; } catch (error) { message.textContent = error.message; message.className = 'message error'; } });
@@ -417,7 +570,6 @@
   const tools = '<div id="enhancedTools" class="enhanced-tools"><input id="customerSearch" type="search" placeholder="Search customers or products"><select id="customerFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option></select><select id="customerRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select></div><section id="insights" class="insights"></section><section class="panel"><div class="panel-heading"><div><h2>Stock & expiry watch</h2><small>Based on products in customer records.</small></div><label>Low-stock alert<input id="lowStockThreshold" type="number" min="1" value="20"></label></div><div id="inventoryList" class="inventory-list"></div></section><section id="customerEditor" class="editor hidden"></section><section id="customerNotesPanel" class="editor hidden"></section>';
   document.querySelector('#customersPanel .panel-heading').insertAdjacentHTML('afterend', tools);
   document.querySelector('#adminPanel .panel-heading').insertAdjacentHTML('beforeend', '<button id="adminExportCustomers" class="button secondary" type="button">Export customer CSV</button>');
-  document.getElementById('profilePanel').insertAdjacentHTML('beforeend', '<section class="editor"><h3>Account security</h3><form id="passwordForm" class="form-grid"><label>Current password<input id="currentPassword" type="password" autocomplete="current-password" required></label><label>New password<input id="newPassword" type="password" minlength="6" autocomplete="new-password" required></label><p id="passwordMessage" class="message"></p><button class="button" type="submit">Change password</button></form></section>');
 
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]));
   const currency = (value) => new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(Number(value) || 0);
@@ -463,7 +615,7 @@
     document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
     document.querySelectorAll('[data-edit]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.edit)));
     document.querySelectorAll('[data-notes]').forEach((button) => button.addEventListener('click', () => openNotes(button.dataset.notes)));
-    renderHistory(); if (currentUser && currentUser.role === 'admin') renderApprovals(); updateInsights(customers);
+    renderHistory(); if (currentUser && currentUser.role === 'admin') renderApprovals(); updateInsights(customers); renderSummary(customers);
   }
 
   function productEditorFields(product) { return productFieldMarkup(product ? esc(product.product) : '', 'edit-product-name', 'edit-product-custom') + '<label>Pieces<input class="edit-product-pieces" type="number" min="1" required value="' + (product && product.pieces ? product.pieces : '') + '"></label><label>Price (KES)<input class="edit-product-price" type="number" min="0" step="0.01" required value="' + (product && product.pricePerItem ? product.pricePerItem : '') + '"></label><label>Expiry<input class="edit-product-expiry" type="date" required value="' + (product && product.expiryDate ? esc(product.expiryDate) : '') + '"></label><button class="button danger remove-edit-product" type="button" title="Remove this product">Remove</button>'; }
@@ -514,10 +666,620 @@
   document.getElementById('customerRegionFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
   document.getElementById('lowStockThreshold').addEventListener('input', () => updateInsights(allCustomers));
   document.getElementById('adminExportCustomers').addEventListener('click', exportCustomers);
-  document.getElementById('passwordForm').addEventListener('submit', async (event) => { event.preventDefault(); const message = document.getElementById('passwordMessage'); try { const response = await fetch(API_URL + '/auth/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ currentPassword: document.getElementById('currentPassword').value, newPassword: document.getElementById('newPassword').value }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to change password'); event.target.reset(); message.textContent = data.message; message.className = 'message success'; } catch (error) { message.textContent = error.message; message.className = 'message error'; } });
+
+  let accounts = [];
+  let accountEditingId = null;
+
+  function resetAccountForm() {
+    document.getElementById('accountForm').reset();
+    document.getElementById('accountPassword').placeholder = 'At least 6 characters';
+    document.getElementById('accountCancel').classList.add('hidden');
+    document.getElementById('accountSubmit').textContent = 'Add account';
+    document.getElementById('accountFormTitle').textContent = 'Add account';
+    document.getElementById('accountMessage').textContent = '';
+  }
+  function setAccountsStatus(message, className = '') {
+    document.getElementById('accountsStatus').textContent = message || 'Create user accounts, set or reset passwords, and edit login names.';
+    document.getElementById('accountsStatus').className = message ? `message ${className}` : '';
+  }
+  async function loadAccounts() {
+    try {
+      const response = await fetch(API_URL + '/admin/users', { headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to load accounts');
+      accounts = data.users;
+      const list = document.getElementById('accountList');
+      list.innerHTML = accounts.length ? '<table class="user-table"><thead><tr><th>Login name</th><th>Full name</th><th>Email</th><th>Region</th><th>Role</th><th>Actions</th></tr></thead><tbody>' + accounts.map((user) => '<tr><td>' + esc(user.username) + '</td><td>' + esc(user.name) + '</td><td>' + esc(user.email || '—') + '</td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + esc(user.role) + '</td><td class="user-actions"><button class="button secondary mini-button" data-account-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-account-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-account-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>').join('') + '</tbody></table>' : '<div class="empty">No accounts yet.</div>';
+      document.querySelectorAll('[data-account-edit]').forEach((button) => button.addEventListener('click', () => openAccountEdit(button.dataset.accountEdit)));
+      document.querySelectorAll('[data-account-password]').forEach((button) => button.addEventListener('click', () => resetAccountPassword(button.dataset.accountPassword)));
+      document.querySelectorAll('[data-account-role]').forEach((button) => button.addEventListener('click', () => toggleAccountRole(button.dataset.accountRole, button.dataset.role)));
+    } catch (error) {
+      document.getElementById('accountList').innerHTML = '<div class="empty">' + esc(error.message) + '</div>';
+      setAccountsStatus(error.message, 'error');
+    }
+  }
+  function openAccountEdit(id) {
+    const account = accounts.find((item) => item.id === id);
+    if (!account) return;
+    accountEditingId = id;
+    document.getElementById('accountFormTitle').textContent = 'Edit account';
+    document.getElementById('accountName').value = account.name || '';
+    document.getElementById('accountUsername').value = account.username || '';
+    document.getElementById('accountEmail').value = account.email || '';
+    document.getElementById('accountRegion').value = account.region || '';
+    document.getElementById('accountRole').value = account.role || 'user';
+    document.getElementById('accountPassword').value = '';
+    document.getElementById('accountPassword').placeholder = 'Leave blank to keep the current password';
+    document.getElementById('accountCancel').classList.remove('hidden');
+    document.getElementById('accountSubmit').textContent = 'Save changes';
+    document.getElementById('accountMessage').textContent = '';
+    document.getElementById('accountName').focus();
+  }
+  function cancelAccountEdit() { accountEditingId = null; resetAccountForm(); }
+  async function submitAccount(event) {
+    event.preventDefault();
+    const message = document.getElementById('accountMessage');
+    const payload = {
+      name: document.getElementById('accountName').value.trim(),
+      username: document.getElementById('accountUsername').value.trim(),
+      email: document.getElementById('accountEmail').value.trim(),
+      region: document.getElementById('accountRegion').value,
+      role: document.getElementById('accountRole').value
+    };
+    const newPassword = document.getElementById('accountPassword').value;
+    try {
+      let response;
+      let data;
+      if (accountEditingId) {
+        response = await fetch(API_URL + '/admin/users/' + accountEditingId, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(payload) });
+        data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Unable to update the account');
+        if (newPassword) {
+          const reset = await fetch(API_URL + '/admin/users/' + accountEditingId + '/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ newPassword }) });
+          const resetData = await reset.json();
+          if (!reset.ok) throw new Error(resetData.message || 'Unable to reset the password');
+        }
+        message.textContent = data.message;
+      } else {
+        if (!newPassword) throw new Error('Set a password for the new account');
+        response = await fetch(API_URL + '/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ ...payload, password: newPassword }) });
+        data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Unable to create the account');
+        message.textContent = data.message;
+      }
+      message.className = 'message success';
+      resetAccountForm();
+      loadAccounts();
+    } catch (error) {
+      message.textContent = error.message;
+      message.className = 'message error';
+    }
+  }
+  async function toggleAccountRole(id, role) {
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id + '/role', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ role }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to change the role');
+      setAccountsStatus(data.message, 'success');
+      loadAccounts();
+    } catch (error) {
+      setAccountsStatus(error.message, 'error');
+    }
+  }
+  async function resetAccountPassword(id) {
+    const account = accounts.find((item) => item.id === id);
+    const newPassword = prompt('New password for ' + (account ? account.name || account.username : 'this account') + ' (at least 6 characters):');
+    if (newPassword === null) return;
+    const trimmed = newPassword.trim();
+    if (trimmed.length < 6) { setAccountsStatus('Password must be at least 6 characters', 'error'); return; }
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id + '/password', { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ newPassword: trimmed }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to reset the password');
+      setAccountsStatus(data.message, 'success');
+    } catch (error) {
+      setAccountsStatus(error.message, 'error');
+    }
+  }
+  document.getElementById('accountForm').addEventListener('submit', submitAccount);
+  document.getElementById('accountCancel').addEventListener('click', cancelAccountEdit);
+  document.getElementById('accountsRefreshButton').addEventListener('click', loadAccounts);
+
+  const originalSwitchPageForAccounts = window.switchPage;
+  window.switchPage = function switchAccountsPage(page) {
+    document.querySelector('main').classList.toggle('accounts-page', page === 'accounts');
+    originalSwitchPageForAccounts(page);
+    document.getElementById('accountsPanel').classList.toggle('hidden', page !== 'accounts');
+    if (page === 'accounts') {
+      loadAccounts();
+      document.getElementById('accountsPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   renderCustomers = renderEnhancedCustomers;
   loadAdminData = enhancedAdminData;
   if (customerHistory.length) renderEnhancedCustomers(customerHistory);
+})();
+</script>
+<script>
+(() => {
+  const CLAIMS_URL = '/api/claims';
+  const CATALOG_OPTIONS_URL = '/api/catalog/options';
+  const CATALOG_MANAGE_URL = '/api/catalog/manage';
+
+  const escHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+  const claimMoney = (value) => Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const moneyLine = (value) => Number(value || 0).toLocaleString();
+
+  let claimCustomers = [];
+  let claimSkus = [];
+  let claimsCatalog = [];
+  let catalogCustomers = [];
+  let catalogSkus = [];
+  let editingCustomerId = null;
+  let editingSkuId = null;
+
+  function setClaimMessage(message, className = '') {
+    $('claimMessage').textContent = message;
+    $('claimMessage').className = message ? `message ${className}` : 'message';
+  }
+  function claimsAdminMessage(message, className = '') {
+    $('claimsAdminStatus').textContent = message;
+    $('claimsAdminStatus').className = message ? `message ${className}` : 'message';
+  }
+  function updateClaimsNav() {
+    $('claimsAdminNav').classList.toggle('hidden', !(currentUser && currentUser.role === 'admin'));
+  }
+
+  function createClaimRow() {
+    const row = document.createElement('div');
+    row.className = 'claim-row';
+    const options = claimSkus.map((sku) => `<option value="${escHtml(sku.id)}">${escHtml(sku.name)}</option>`).join('');
+    row.innerHTML = `<label>SKU<select class="claim-sku-select" required><option value="">Choose a SKU…</option>${options}</select></label>
+      <label>Quantity (PCS)<input class="claim-sku-qty" type="number" min="1" step="1" placeholder="0" required></label>
+      <label>Unit price (KES)<input class="claim-sku-price" readonly placeholder="AUTO"></label>
+      <label>Amount<input class="claim-sku-amount" readonly></label>
+      <label>50% OFF<input class="claim-sku-discount" readonly></label>
+      <button class="button danger remove-claim-sku" type="button">Remove</button>`;
+    row.querySelector('.claim-sku-select').addEventListener('change', () => onClaimSkuChange(row));
+    row.querySelector('.claim-sku-qty').addEventListener('input', () => { updateClaimRow(row); updateClaimTotal(); });
+    row.querySelector('.remove-claim-sku').addEventListener('click', () => { row.remove(); updateClaimTotal(); });
+    $('claimSkuList').appendChild(row);
+    return row;
+  }
+  function onClaimSkuChange(row) {
+    const skuId = row.querySelector('.claim-sku-select').value;
+    const sku = claimSkus.find((item) => item.id === skuId);
+    row.querySelector('.claim-sku-price').value = sku ? sku.unitPrice.toFixed(2) : '';
+    updateClaimRow(row);
+    updateClaimTotal();
+  }
+  function updateClaimRow(row) {
+    const qty = Number(row.querySelector('.claim-sku-qty').value) || 0;
+    const price = Number(row.querySelector('.claim-sku-price').value) || 0;
+    const amount = Math.round(qty * price * 100) / 100;
+    const discount = Math.round(amount * 50) / 100;
+    row.querySelector('.claim-sku-amount').value = amount ? amount.toFixed(2) : '';
+    row.querySelector('.claim-sku-discount').value = discount ? discount.toFixed(2) : '';
+  }
+  function checkClaimDuplicates() {
+    const rows = [...document.querySelectorAll('#claimSkuList .claim-row')];
+    rows.forEach((row) => row.classList.remove('duplicate'));
+    const bySku = {};
+    let duplicates = false;
+    rows.forEach((row) => {
+      const skuId = row.querySelector('.claim-sku-select').value;
+      if (!skuId) return;
+      if (bySku[skuId]) { row.classList.add('duplicate'); bySku[skuId].classList.add('duplicate'); duplicates = true; }
+      else bySku[skuId] = row;
+    });
+    if (duplicates) setClaimMessage('The same SKU is on more than one row — combine the quantities or edit the existing row.', 'error');
+    return duplicates;
+  }
+  function updateClaimTotal() {
+    let total = 0;
+    let discount = 0;
+    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
+      total += Number(row.querySelector('.claim-sku-amount').value) || 0;
+      discount += Number(row.querySelector('.claim-sku-discount').value) || 0;
+    });
+    $('claimTotal').textContent = claimMoney(total);
+    $('claimDiscount').textContent = claimMoney(discount);
+    checkClaimDuplicates();
+  }
+  function collectClaimItems() {
+    const items = [];
+    let incomplete = false;
+    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
+      const skuId = row.querySelector('.claim-sku-select').value;
+      const quantity = Number(row.querySelector('.claim-sku-qty').value) || 0;
+      if (!skuId && !quantity) return;
+      if (!skuId || quantity <= 0) { incomplete = true; return; }
+      items.push({ skuId, quantity });
+    });
+    return { items, incomplete };
+  }
+  function resetClaimForm() {
+    $('claimSkuList').innerHTML = '';
+    createClaimRow();
+    setClaimMessage('');
+    updateClaimTotal();
+  }
+  async function saveClaim(event) {
+    if (event) event.preventDefault();
+    const customerId = $('claimCustomer').value;
+    if (!customerId) { setClaimMessage('Choose a customer before saving.', 'error'); return; }
+    if (checkClaimDuplicates()) return;
+    const { items, incomplete } = collectClaimItems();
+    if (incomplete) { setClaimMessage('Every SKU row needs a product and a quantity.', 'error'); return; }
+    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return; }
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId, items })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to save claim');
+      resetClaimForm();
+      setClaimMessage(`Claim ${data.claim.claimNumber} saved for ${data.claim.customerName}.`, 'success');
+      loadClaims();
+    } catch (error) { setClaimMessage(error.message, 'error'); }
+  }
+
+  function claimFromForm() {
+    const customerSelect = $('claimCustomer');
+    if (!customerSelect.value) { setClaimMessage('Choose a customer before printing.', 'error'); return null; }
+    const items = [];
+    let totalAmount = 0;
+    let totalDiscount = 0;
+    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
+      const select = row.querySelector('.claim-sku-select');
+      const skuId = select.value;
+      const skuName = select.selectedOptions[0] ? select.selectedOptions[0].textContent : '';
+      const quantity = Number(row.querySelector('.claim-sku-qty').value) || 0;
+      const unitPrice = Number(row.querySelector('.claim-sku-price').value) || 0;
+      if (!skuId || quantity <= 0) return;
+      const amount = Math.round(quantity * unitPrice * 100) / 100;
+      const discountAmount = Math.round(amount * 50) / 100;
+      items.push({ skuId, skuName, quantity, unitPrice, amount, discountAmount });
+      totalAmount += amount;
+      totalDiscount += discountAmount;
+    });
+    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return null; }
+    return { claimNumber: 'DRAFT', customerId: customerSelect.value, customerName: customerSelect.selectedOptions[0].textContent, items, totalAmount, totalDiscount, createdBy: (currentUser && currentUser.username) || '', createdAt: new Date().toISOString() };
+  }
+  function buildClaimDocumentHtml(claim) {
+    const rows = claim.items.map((item) => `<tr><td class="sku">${escHtml(item.skuName)}</td><td class="num">${moneyLine(item.quantity)}</td><td class="num">${claimMoney(item.amount)}</td><td class="num">${claimMoney(item.discountAmount)}</td></tr>`).join('');
+    return `<div class="claim-document">
+      <h1>DAHLIA BOTTLERS CLAIMS</h1>
+      <p class="cust">Customer name: <strong>${escHtml(claim.customerName)}</strong></p>
+      <table>
+        <thead><tr><th>SKUS</th><th>QUANTITY (PCS)</th><th>PRICE</th><th>50% OFF</th></tr></thead>
+        <tbody>${rows}<tr class="total-row"><td>TOTAL</td><td class="num"></td><td class="num">${claimMoney(claim.totalAmount)}</td><td class="num">${claimMoney(claim.totalDiscount)}</td></tr></tbody>
+      </table>
+      <p class="foot">${escHtml(claim.claimNumber)} · Prepared by ${escHtml(claim.createdBy)} · ${new Date(claim.createdAt).toLocaleString()} · Prepared on ${new Date().toLocaleDateString()}</p>
+    </div>`;
+  }
+  function printClaim(claim) {
+    $('printArea').innerHTML = buildClaimDocumentHtml(claim);
+    document.body.classList.add('printing');
+    window.print();
+    document.body.classList.remove('printing');
+    $('printArea').innerHTML = '';
+  }
+  function printClaimDraft() {
+    const draft = claimFromForm();
+    if (draft) printClaim(draft);
+  }
+  async function exportClaimExcel(id) {
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}/${encodeURIComponent(id)}/export`, { headers: authHeaders() });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Unable to export claim');
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const filename = (disposition.match(/filename="?([^"]+)"?/i) || [])[1] || `claim-${id}.xlsx`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setClaimMessage(error.message, 'error');
+    }
+  }
+  async function exportClaimDraft() {
+    const customerId = $('claimCustomer').value;
+    if (!customerId) { setClaimMessage('Choose a customer before exporting to Excel.', 'error'); return; }
+    if (checkClaimDuplicates()) return;
+    const { items, incomplete } = collectClaimItems();
+    if (incomplete) { setClaimMessage('Every SKU row needs a product and a quantity.', 'error'); return; }
+    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return; }
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}/export-draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId, items })
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Unable to export claim');
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const filename = (disposition.match(/filename="?([^"]+)"?/i) || [])[1] || 'DAHLIA-BOTTLERS-CLAIMS-DRAFT.xlsx';
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setClaimMessage(error.message, 'error');
+    }
+  }
+
+  function claimListItem(claim) {
+    return `<div class="claim-list-item">
+      <div><strong>${escHtml(claim.customerName)}</strong><span>${escHtml(claim.claimNumber)} · ${new Date(claim.createdAt).toLocaleDateString()}</span></div>
+      <div><span>Total</span><strong>${claimMoney(claim.totalAmount)}</strong></div>
+      <div><span>50% off</span><strong>${claimMoney(claim.totalDiscount)}</strong></div>
+      <div class="user-actions">
+        <button class="button secondary mini-button" data-print-claim="${escHtml(claim.id)}" type="button">Print</button>
+        <button class="button secondary mini-button" data-excel-claim="${escHtml(claim.id)}" type="button">Excel</button>
+      </div>
+    </div>`;
+  }
+  function wireClaimActions() {
+    document.querySelectorAll('[data-print-claim]').forEach((button) => button.addEventListener('click', () => {
+      const claim = claimsCatalog.find((item) => item.id === button.dataset.printClaim);
+      if (claim) printClaim(claim);
+    }));
+    document.querySelectorAll('[data-excel-claim]').forEach((button) => button.addEventListener('click', () => exportClaimExcel(button.dataset.excelClaim)));
+  }
+  function renderClaims(claims) {
+    $('claimList').innerHTML = claims.length ? claims.map(claimListItem).join('') : '<div class="empty">No claims yet — create your first claim on the left.</div>';
+    if ($('claimAdminList')) $('claimAdminList').innerHTML = claims.length ? claims.map(claimListItem).join('') : '<div class="empty">No claims have been created yet.</div>';
+    wireClaimActions();
+  }
+  async function loadClaims() {
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}`, { headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to load claims');
+      claimsCatalog = data.claims || [];
+      renderClaims(claimsCatalog);
+    } catch (error) {
+      setClaimMessage(error.message, 'error');
+      $('claimList').innerHTML = '<div class="empty">Unable to load claims.</div>';
+    }
+  }
+
+  async function loadClaimOptions() {
+    try {
+      const response = await fetch(`${API_URL}${CATALOG_OPTIONS_URL}`, { headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to load claim options');
+      claimCustomers = data.customers || [];
+      claimSkus = data.skus || [];
+      populateClaimCustomerSelect();
+      rebuildClaimRowSkus();
+    } catch (error) {
+      $('claimsStatus').textContent = error.message;
+      $('claimsStatus').className = 'message error';
+    }
+  }
+  function populateClaimCustomerSelect() {
+    const select = $('claimCustomer');
+    const current = select.value;
+    select.innerHTML = '<option value="">Choose a customer…</option>' + claimCustomers.map((customer) => `<option value="${escHtml(customer.id)}">${escHtml(customer.name)}</option>`).join('');
+    if (claimCustomers.some((customer) => customer.id === current)) select.value = current;
+  }
+  function rebuildClaimRowSkus() {
+    const options = claimSkus.map((sku) => `<option value="${escHtml(sku.id)}">${escHtml(sku.name)}</option>`).join('');
+    document.querySelectorAll('#claimSkuList .claim-sku-select').forEach((select) => {
+      const value = select.value;
+      select.innerHTML = '<option value="">Choose a SKU…</option>' + options;
+      if ([...select.options].some((option) => option.value === value)) select.value = value;
+    });
+  }
+  async function claimsRefresh() {
+    updateClaimsNav();
+    await loadClaimOptions();
+    await loadClaims();
+  }
+
+  function renderAdminCustomers() {
+    const rows = catalogCustomers.length ? catalogCustomers.map((customer) => {
+      const badge = customer.active === false ? 'inactive' : 'approved';
+      const label = customer.active === false ? 'Inactive' : 'Active';
+      return `<div class="customer-row">
+        <div data-customer-name><strong>${escHtml(customer.name)}</strong><span class="status-badge ${badge}">${label}</span></div>
+        <div class="user-actions">
+          <button class="button secondary mini-button" data-edit-claim-customer="${escHtml(customer.id)}" type="button">Edit</button>
+          <button class="button secondary mini-button" data-toggle-claim-customer="${escHtml(customer.id)}" data-active="${customer.active !== false}" type="button">${customer.active === false ? 'Activate' : 'Deactivate'}</button>
+        </div>
+      </div>`;
+    }).join('') : '<div class="empty">No claim customers yet.</div>';
+    $('claimCustomerList').innerHTML = rows;
+    $('claimCustomerList').querySelectorAll('[data-edit-claim-customer]').forEach((button) => button.addEventListener('click', () => editClaimCustomer(button.dataset.editClaimCustomer)));
+    $('claimCustomerList').querySelectorAll('[data-toggle-claim-customer]').forEach((button) => button.addEventListener('click', () => toggleClaimCustomer(button.dataset.toggleClaimCustomer, button.dataset.active === 'true')));
+  }
+  function editClaimCustomer(id) {
+    if (editingCustomerId) return;
+    const customer = catalogCustomers.find((item) => item.id === id);
+    if (!customer) return;
+    editingCustomerId = id;
+    const row = document.querySelector(`[data-edit-claim-customer="${id}"]`).closest('.customer-row');
+    row.querySelector('[data-customer-name]').innerHTML = `<input data-name-input value="${escHtml(customer.name)}" class="price-edit">`;
+    const actions = row.querySelector('.user-actions');
+    actions.insertAdjacentHTML('afterbegin', '<button class="button mini-button" type="button" data-save-customer-edit>Save</button><button class="button danger mini-button" type="button" data-cancel-customer-edit>Cancel</button>');
+    actions.querySelector('[data-save-customer-edit]').addEventListener('click', async () => {
+      const name = row.querySelector('[data-name-input]').value.trim();
+      if (!name) { claimsAdminMessage('Customer name cannot be empty.', 'error'); return; }
+      try {
+        const response = await fetch(`${API_URL}/api/catalog/customers/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ name }) });
+        const res = await response.json();
+        if (!response.ok) throw new Error(res.message || 'Unable to save customer');
+        editingCustomerId = null;
+        loadAdminCatalog();
+        loadClaimOptions();
+        claimsAdminMessage('Customer updated.', 'success');
+      } catch (error) { editingCustomerId = null; claimsAdminMessage(error.message, 'error'); loadAdminCatalog(); }
+    });
+    actions.querySelector('[data-cancel-customer-edit]').addEventListener('click', () => { editingCustomerId = null; loadAdminCatalog(); });
+  }
+  async function toggleClaimCustomer(id, wasActive) {
+    try {
+      const response = await fetch(`${API_URL}/api/catalog/customers/${encodeURIComponent(id)}/active`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ active: !wasActive }) });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.message || 'Unable to update customer');
+      loadAdminCatalog();
+      loadClaimOptions();
+    } catch (error) { claimsAdminMessage(error.message, 'error'); }
+  }
+  function renderAdminSkus() {
+    const rows = catalogSkus.length ? catalogSkus.map((sku) => `<tr class="${sku.active === false ? 'inactive-row' : ''}" data-sku-row="${escHtml(sku.id)}">
+      <td><span class="catalog-sku-name">${escHtml(sku.name)}</span></td>
+      <td class="sku-price-cell"><span data-sku-price>${claimMoney(sku.unitPrice)}</span></td>
+      <td>${sku.active === false ? '<span class="status-badge inactive">Inactive</span>' : '<span class="status-badge approved">Active</span>'}</td>
+      <td><div class="inline-actions">
+        <button class="button secondary mini-button" data-edit-sku="${escHtml(sku.id)}" type="button">Edit</button>
+        <button class="button secondary mini-button" data-toggle-sku="${escHtml(sku.id)}" data-active="${sku.active !== false}" type="button">${sku.active === false ? 'Activate' : 'Deactivate'}</button>
+      </div></td>
+    </tr>`).join('') : '<tr><td colspan="4"><div class="empty">No SKUs configured yet.</div></td></tr>';
+    $('catalogSkuTable').innerHTML = `<table class="user-table"><thead><tr><th>SKU</th><th>Unit price</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+    $('catalogSkuTable').querySelectorAll('[data-edit-sku]').forEach((button) => button.addEventListener('click', () => editCatalogSku(button.dataset.editSku)));
+    $('catalogSkuTable').querySelectorAll('[data-toggle-sku]').forEach((button) => button.addEventListener('click', () => toggleCatalogSku(button.dataset.toggleSku, button.dataset.active === 'true')));
+  }
+  function editCatalogSku(id) {
+    if (editingSkuId) return;
+    const sku = catalogSkus.find((item) => item.id === id);
+    if (!sku) return;
+    editingSkuId = id;
+    const row = document.querySelector(`[data-sku-row="${id}"]`);
+    row.querySelector('[data-sku-price]').innerHTML = `<input data-price-input class="price-edit" type="number" min="0" step="0.01" value="${sku.unitPrice}">`;
+    const actions = row.querySelector('.inline-actions');
+    actions.insertAdjacentHTML('afterbegin', '<button class="button mini-button" type="button" data-save-sku>Save</button><button class="button danger mini-button" type="button" data-cancel-sku>Cancel</button>');
+    actions.querySelector('[data-save-sku]').addEventListener('click', async () => {
+      const unitPrice = Number(row.querySelector('[data-price-input]').value);
+      try {
+        const response = await fetch(`${API_URL}/api/catalog/skus/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ unitPrice }) });
+        const res = await response.json();
+        if (!response.ok) throw new Error(res.message || 'Unable to save SKU price');
+        editingSkuId = null;
+        loadAdminCatalog();
+        loadClaimOptions();
+        claimsAdminMessage(`${sku.name} price updated — new claims use ${claimMoney(unitPrice)}.`, 'success');
+      } catch (error) { editingSkuId = null; claimsAdminMessage(error.message, 'error'); loadAdminCatalog(); }
+    });
+    actions.querySelector('[data-cancel-sku]').addEventListener('click', () => { editingSkuId = null; loadAdminCatalog(); });
+  }
+  async function toggleCatalogSku(id, wasActive) {
+    try {
+      const response = await fetch(`${API_URL}/api/catalog/skus/${encodeURIComponent(id)}/active`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ active: !wasActive }) });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.message || 'Unable to update SKU');
+      loadAdminCatalog();
+      loadClaimOptions();
+    } catch (error) { claimsAdminMessage(error.message, 'error'); }
+  }
+  async function loadAdminCatalog() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    try {
+      const response = await fetch(`${API_URL}${CATALOG_MANAGE_URL}`, { headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to load the claim catalog');
+      catalogCustomers = data.customers || [];
+      catalogSkus = data.skus || [];
+      renderAdminCustomers();
+      renderAdminSkus();
+    } catch (error) { claimsAdminMessage(error.message, 'error'); }
+  }
+
+  $('claimForm').addEventListener('submit', saveClaim);
+  $('addClaimRowButton').addEventListener('click', createClaimRow);
+  $('printClaimDraftButton').addEventListener('click', printClaimDraft);
+  $('exportClaimDraftButton').addEventListener('click', exportClaimDraft);
+  $('claimsAdminRefreshButton').addEventListener('click', () => { loadAdminCatalog(); loadClaims(); });
+  $('addClaimCustomerButton').addEventListener('click', async () => {
+    const name = $('claimNewCustomerName').value.trim();
+    if (!name) return;
+    try {
+      const response = await fetch(`${API_URL}/api/catalog/customers`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ name }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to add customer');
+      $('claimNewCustomerName').value = '';
+      loadAdminCatalog();
+      loadClaimOptions();
+      claimsAdminMessage(`Customer ${data.customer.name} added.`, 'success');
+    } catch (error) { claimsAdminMessage(error.message, 'error'); }
+  });
+  $('addCatalogSkuButton').addEventListener('click', async () => {
+    const name = $('catalogSkuName').value.trim();
+    const unitPrice = Number($('catalogSkuPrice').value);
+    if (!name || !Number.isFinite(unitPrice) || unitPrice < 0) { claimsAdminMessage('Enter a SKU name and a valid unit price.', 'error'); return; }
+    try {
+      const response = await fetch(`${API_URL}/api/catalog/skus`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ name, unitPrice }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to add SKU');
+      $('catalogSkuName').value = '';
+      $('catalogSkuPrice').value = '';
+      loadAdminCatalog();
+      loadClaimOptions();
+      claimsAdminMessage(`SKU ${data.sku.name} added at ${claimMoney(data.sku.unitPrice)}.`, 'success');
+    } catch (error) { claimsAdminMessage(error.message, 'error'); }
+  });
+  document.querySelectorAll('[data-claims-tab]').forEach((button) => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-claims-tab]').forEach((tab) => tab.classList.toggle('active', tab === button));
+    const tab = button.dataset.claimsTab;
+    $('claimsAdminCustomers').classList.toggle('hidden', tab !== 'customers');
+    $('claimsAdminSkus').classList.toggle('hidden', tab !== 'skus');
+    $('claimsAdminClaims').classList.toggle('hidden', tab !== 'claims');
+    if (tab === 'claims') renderClaims(claimsCatalog);
+  }));
+
+  const originalSwitchPage = window.switchPage;
+  window.switchPage = function switchClaimsPage(page) {
+    const main = document.querySelector('main');
+    main.classList.toggle('claims-page', page === 'claims');
+    main.classList.toggle('claims-admin-page', page === 'claims-admin');
+    $('claimsPanel').classList.toggle('hidden', page !== 'claims');
+    $('claimsAdminPanel').classList.toggle('hidden', page !== 'claims-admin');
+    if (page === 'claims') {
+      claimsRefresh();
+      $('claimsPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+    if (page === 'claims-admin') {
+      loadAdminCatalog();
+      loadClaims();
+      $('claimsAdminPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+    originalSwitchPage(page);
+  };
+
+  const originalLoadCustomers = window.loadCustomers;
+  window.loadCustomers = function loadCustomersWithClaims() {
+    updateClaimsNav();
+    loadClaimOptions();
+    loadClaims();
+    return originalLoadCustomers();
+  };
+
+  createClaimRow();
+  if (localStorage.getItem('newDayToken') && localStorage.getItem('newDayUser') && !$('app').classList.contains('hidden')) {
+    claimsRefresh();
+  } else {
+    updateClaimsNav();
+  }
 })();
 </script>
 </html>
