@@ -213,6 +213,203 @@ async function exportClaim(request, response, next) {
   }
 }
 
+// Shared look for every claim document: the exported/saved claim and the blank template.
+const CLAIM_STYLES = {
+  title: { name: 'Calibri', size: 18, bold: true, color: { argb: 'FF17322F' } },
+  label: { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF17322F' } },
+  header: { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } },
+  body: { name: 'Calibri', size: 11 },
+  meta: { name: 'Calibri', size: 10, italic: true, color: { argb: 'FF71817B' } },
+  fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF176B63' } },
+  border: {
+    top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
+  },
+  moneyFormat: '#,##0.00'
+};
+
+const TEMPLATE_FIRST_ROW = 6;
+const TEMPLATE_ROW_COUNT = 12;
+const TEMPLATE_HEADERS = ['SKU', 'QUANTITY (PCS)', 'ORIGINAL PRICE (KES)', 'PRICE TO BE CLAIMED (KES)', 'DISCOUNT'];
+
+// A4 portrait with fit-to-width margins, used by every claim sheet.
+function claimPageSetup() {
+  return {
+    paperSize: 9,
+    orientation: 'portrait',
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+    margins: { top: 0.7, bottom: 0.7, left: 0.5, right: 0.5, header: 0.3, footer: 0.3 }
+  };
+}
+
+// The blank claim form: the same A4 document the approved claims print to, with empty
+// rows the team can print and write on, or fill in Excel before it is captured here.
+async function downloadClaimTemplate(request, response, next) {
+  try {
+    const workbook = buildClaimTemplateWorkbook({
+      region: request.user.region || 'Unassigned',
+      van: request.user.van || '',
+      preparedBy: request.user.name || request.user.username,
+      preparedOn: new Date()
+    }, await catalogModel.getSkus({ activeOnly: true }));
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    response.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="DAHLIA-BOTTLERS-CLAIMS-TEMPLATE.xlsx"'
+    });
+    response.send(Buffer.from(buffer));
+  } catch (error) {
+    next(error);
+  }
+}
+
+function buildClaimTemplateWorkbook(user, skus) {
+  const {
+    title: titleFont, label: labelFont, header: headerFont, body: bodyFont, meta: metaFont,
+    fill, border: thinBorder, moneyFormat
+  } = CLAIM_STYLES;
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Dahlia Bottlers Claims';
+  // The TOTAL row is built from formulas, so let Excel calculate them when the file opens.
+  workbook.calcProperties.fullCalcOnLoad = true;
+
+  const sheet = workbook.addWorksheet('CLAIMS');
+  sheet.columns = [
+    { key: 'sku', width: 26 },
+    { key: 'quantity', width: 18 },
+    { key: 'price', width: 22 },
+    { key: 'claimed', width: 22 },
+    { key: 'discount', width: 16 }
+  ];
+
+  const totalRowNumber = TEMPLATE_FIRST_ROW + TEMPLATE_ROW_COUNT;
+  const lastBlankRow = totalRowNumber - 1;
+
+  sheet.getCell('A1').value = `DAHLIA TRADING COMPANY ("${String(user.region || 'Unassigned').toUpperCase()}")`;
+  sheet.getCell('A1').font = titleFont;
+  sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+  sheet.getRow(1).height = 34;
+  sheet.mergeCells('A1:E1');
+
+  sheet.getCell('A2').value = 'Customer name:';
+  sheet.getCell('A2').font = labelFont;
+  sheet.getCell('C2').border = { bottom: { style: 'thin' } };
+  sheet.mergeCells('A2:B2');
+  sheet.mergeCells('C2:E2');
+
+  sheet.getCell('A3').value = 'Van:';
+  sheet.getCell('A3').font = labelFont;
+  sheet.getCell('C3').value = String(user.van || '').toUpperCase();
+  sheet.getCell('C3').font = bodyFont;
+  sheet.getCell('C3').alignment = { horizontal: 'left', vertical: 'middle' };
+  sheet.getCell('C3').border = { bottom: { style: 'thin' } };
+  sheet.mergeCells('A3:B3');
+  sheet.mergeCells('C3:E3');
+
+  sheet.getRow(4).height = 8;
+
+  const headerRow = sheet.getRow(5);
+  TEMPLATE_HEADERS.forEach((heading, index) => { headerRow.getCell(index + 1).value = heading; });
+  headerRow.eachCell((cell) => {
+    cell.font = headerFont;
+    cell.fill = fill;
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.border = thinBorder;
+  });
+  headerRow.height = 30;
+
+  for (let rowNumber = TEMPLATE_FIRST_ROW; rowNumber <= lastBlankRow; rowNumber += 1) {
+    const row = sheet.getRow(rowNumber);
+    for (let column = 1; column <= TEMPLATE_HEADERS.length; column += 1) {
+      const cell = row.getCell(column);
+      cell.font = bodyFont;
+      cell.border = thinBorder;
+      cell.alignment = { horizontal: column === 1 ? 'left' : 'center', vertical: 'middle' };
+      if (column === 3 || column === 4) cell.numFmt = moneyFormat;
+    }
+    row.height = 22;
+  }
+
+  const totalRow = sheet.getRow(totalRowNumber);
+  totalRow.getCell(1).value = 'TOTAL';
+  ['B', 'C', 'D'].forEach((letter, index) => {
+    totalRow.getCell(index + 2).value = { formula: `SUM(${letter}${TEMPLATE_FIRST_ROW}:${letter}${lastBlankRow})` };
+  });
+  totalRow.eachCell((cell) => {
+    cell.font = labelFont;
+    cell.border = thinBorder;
+    cell.alignment = { horizontal: cell.column === 1 ? 'left' : 'center', vertical: 'middle' };
+    if (cell.column === 3 || cell.column === 4) cell.numFmt = moneyFormat;
+  });
+  totalRow.height = 26;
+
+  sheet.getCell('A19').value = 'Total price to be claimed (KES)';
+  sheet.getCell('A19').font = labelFont;
+  sheet.getCell('D19').value = { formula: `D${totalRowNumber}` };
+  sheet.getCell('D19').font = labelFont;
+  sheet.getCell('D19').numFmt = moneyFormat;
+  sheet.getCell('D19').border = thinBorder;
+  sheet.getCell('D19').alignment = { horizontal: 'center', vertical: 'middle' };
+  sheet.mergeCells('A19:C19');
+
+  sheet.getRow(20).height = 8;
+
+  sheet.getCell('A21').value = 'Customer stamp / signature';
+  sheet.getCell('D21').value = 'Verified by (stamp / signature)';
+  ['A21', 'D21'].forEach((address) => {
+    sheet.getCell(address).font = metaFont;
+    sheet.getCell(address).border = thinBorder;
+    sheet.getCell(address).alignment = { horizontal: 'center', vertical: 'bottom' };
+  });
+  sheet.mergeCells('A21:C21');
+  sheet.mergeCells('D21:E21');
+  sheet.getRow(21).height = 44;
+
+  sheet.getCell('A22').value = `Blank claim template · Downloaded by ${user.preparedBy} on ${user.preparedOn.toLocaleDateString()} · Write 50% OFF or 100% OFF in the DISCOUNT column`;
+  sheet.getCell('A22').font = metaFont;
+  sheet.getCell('A22').alignment = { horizontal: 'left', vertical: 'middle' };
+  sheet.mergeCells('A22:E22');
+
+  sheet.pageSetup = { ...claimPageSetup(), horizontalCentered: true };
+
+  const priceList = workbook.addWorksheet('SKU PRICE LIST');
+  priceList.columns = [{ key: 'sku', width: 28 }, { key: 'price', width: 18 }];
+
+  const priceTitle = priceList.addRow(['APPROVED SKU PRICE LIST']);
+  priceTitle.getCell(1).font = { ...titleFont, size: 14 };
+  priceTitle.height = 26;
+  priceList.mergeCells('A1:B1');
+
+  const priceHeader = priceList.addRow(['SKU', 'PRICE (KES)']);
+  priceHeader.eachCell((cell) => {
+    cell.font = headerFont;
+    cell.fill = fill;
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = thinBorder;
+  });
+
+  if (skus.length === 0) {
+    priceList.addRow(['No active SKUs yet — ask an administrator to add them', '']).getCell(1).font = metaFont;
+  } else {
+    skus.forEach((sku) => {
+      const row = priceList.addRow([sku.name, sku.unitPrice]);
+      row.getCell(1).font = bodyFont;
+      row.getCell(2).font = bodyFont;
+      row.getCell(2).numFmt = moneyFormat;
+      row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      row.eachCell((cell) => { cell.border = thinBorder; });
+    });
+  }
+
+  priceList.pageSetup = claimPageSetup();
+
+  return workbook;
+}
+
 async function buildClaimWorkbook(claim) {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Dahlia Bottlers Claims';
@@ -225,14 +422,10 @@ async function buildClaimWorkbook(claim) {
     { key: 'discount', width: 14 }
   ];
 
-  const titleFont = { name: 'Calibri', size: 18, bold: true, color: { argb: 'FF17322F' } };
-  const labelFont = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF17322F' } };
-  const headerFont = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-  const bodyFont = { name: 'Calibri', size: 11 };
-  const fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF176B63' } };
-  const thinBorder = {
-    top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
-  };
+  const {
+    title: titleFont, label: labelFont, header: headerFont, body: bodyFont,
+    fill, border: thinBorder, moneyFormat
+  } = CLAIM_STYLES;
 
   sheet.mergeCells('A1:D1');
   sheet.getCell('A1').value = 'DAHLIA BOTTLERS CLAIMS';
@@ -255,7 +448,6 @@ async function buildClaimWorkbook(claim) {
   });
   headerRow.height = 24;
 
-  const moneyFormat = '#,##0.00';
   claim.items.forEach((item) => {
     const row = sheet.addRow([item.skuName, item.quantity, item.amount, item.discountAmount]);
     row.getCell(1).font = bodyFont;
@@ -286,17 +478,19 @@ async function buildClaimWorkbook(claim) {
   metaRow.getCell(1).alignment = { horizontal: 'left' };
   metaRow.height = 20;
 
-  sheet.pageSetup = {
-    paperSize: 9,
-    orientation: 'portrait',
-    fitToPage: true,
-    fitToWidth: 1,
-    fitToHeight: 0,
-    margins: { top: 0.7, bottom: 0.7, left: 0.5, right: 0.5, header: 0.3, footer: 0.3 },
-    horizontalCentered: true
-  };
+  sheet.pageSetup = { ...claimPageSetup(), horizontalCentered: true };
 
   return workbook;
 }
 
-module.exports = { createClaim, approveClaim, exportDraftClaim, getClaims, getClaim, exportClaim, buildClaimWorkbook };
+module.exports = {
+  createClaim,
+  approveClaim,
+  exportDraftClaim,
+  getClaims,
+  getClaim,
+  exportClaim,
+  downloadClaimTemplate,
+  buildClaimWorkbook,
+  buildClaimTemplateWorkbook
+};

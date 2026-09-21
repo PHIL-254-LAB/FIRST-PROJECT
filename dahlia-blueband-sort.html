@@ -73,6 +73,7 @@
 		.sku-heading { display: flex; justify-content: space-between; align-items: center; }
 		.sku-heading h4 { margin: 0; font: 700 11px Arial, sans-serif; color: #52645d; text-transform: uppercase; letter-spacing: .08em; }
 		.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+		.settings-grid.single { grid-template-columns: 1fr; }
 		.setting-card { padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: #f5faf6; }
 		.setting-card h3 { margin: 0 0 14px; font-size: 17px; font-weight: 500; }
 		.connection-state { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -188,6 +189,8 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 		.claim-admin-tools { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 16px 0 6px; }
 		.claim-admin-tools label { display: grid; gap: 6px; font: 700 11px Arial, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 		.claim-admin-tools select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font: 13px Arial, sans-serif; }
+		.claim-half-off { display: flex; flex-direction: row; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font: 700 13px Arial, sans-serif; color: var(--ink); }
+		.claim-half-off input { width: 18px; height: 18px; accent-color: var(--brand, #176B63); }
 		#printArea .print-page-break { page-break-after: always; break-after: page; }
 		@media print {
 			body * { visibility: hidden; }
@@ -296,35 +299,22 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 					<div id="approvalList"><div class="empty">Loading approval requests...</div></div>
 				</section>
 				<section id="claimsPanel" class="panel hidden">
-					<div class="panel-heading"><div><h2>Customer claims</h2><small id="claimsStatus">Choose a customer, then add claim SKUs. Unit prices, amounts, and the 50% discount are calculated automatically.</small></div></div>
-					<form id="claimForm" class="settings-grid">
-						<div class="setting-card">
-							<h3>New claim</h3>
-							<label>Customer<select id="claimCustomer" required><option value="">Choose a customer…</option></select></label>
-							<div class="sku-heading"><h4>Claim SKUs</h4><button id="addClaimRowButton" class="button secondary" type="button">+ Add product</button></div>
-							<div id="claimSkuList" class="sku-list"></div>
-							<div class="claim-totals">
-								<div><span>Total price</span><strong id="claimTotal">0.00</strong></div>
-								<div><span>Total 50% off</span><strong id="claimDiscount">0.00</strong></div>
-							</div>
-							<p id="claimMessage" class="message" aria-live="polite"></p>
-							<div class="form-actions">
-								<button id="saveClaimButton" class="button" type="submit">Save claim</button>
-								<button id="printClaimDraftButton" class="button secondary" type="button">Print claim</button>
-								<button id="exportClaimDraftButton" class="button secondary" type="button">Export to Excel</button>
-							</div>
-						</div>
+					<div class="panel-heading"><div><h2>Customer claims</h2><small id="claimsStatus">Approved requests are listed here. Choose a region, then a van, tick 50% off if needed, and print.</small></div></div>
+					<div class="settings-grid single">
 						<div class="setting-card">
 							<h3>Approved claims</h3>
 							<div class="claim-admin-tools">
 								<label>Region<select id="claimRegionFilter"><option value="all">All regions</option></select></label>
 								<label id="claimVanField" class="hidden">Van<select id="claimVanFilter" disabled><option value="all">All vans</option></select></label>
+								<label class="claim-half-off"><input id="claimHalfOff" type="checkbox"> 50% off</label>
 								<button id="printApprovedClaimsButton" class="button" type="button">Print approved claims</button>
+								<button id="downloadClaimTemplateButton" class="button secondary" type="button">Download blank template</button>
 							</div>
-							<p class="claim-meta">Only approved claims are listed. Choose a region, then a van, to narrow the list before printing.</p>
+							<p class="claim-meta">Only approved requests are listed. Choose a region, then a van, to narrow the list. Tick "50% off" to print the total at half price. <strong>Download blank template</strong> saves the empty A4 claim form as an Excel file you can print or fill in.</p>
+							<p id="claimListMessage" class="message" aria-live="polite"></p>
 							<div id="claimList"><div class="empty">Loading approved claims…</div></div>
 						</div>
-					</form>
+					</div>
 					<section id="claimsAdminPanel" class="panel claims-admin-block hidden">
 					<div class="panel-heading"><div><h2>Claim administration</h2><small id="claimsAdminStatus">Manage claim customers, the approved SKU list and prices, then print or export claims.</small></div><button id="claimsAdminRefreshButton" class="button secondary" type="button">Refresh</button></div>
 					<div class="status-tabs" aria-label="Claim administration sections"><button class="status-tab active" type="button" data-claims-tab="customers">Customers</button><button class="status-tab" type="button" data-claims-tab="skus">Products / SKUs & prices</button><button class="status-tab" type="button" data-claims-tab="claims">All claims</button></div>
@@ -1088,17 +1078,18 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   const claimMoney = (value) => Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const moneyLine = (value) => Number(value || 0).toLocaleString();
 
-  let claimCustomers = [];
-  let claimSkus = [];
   let claimsCatalog = [];
+  let approvedRequests = [];
   let catalogCustomers = [];
   let catalogSkus = [];
   let editingCustomerId = null;
   let editingSkuId = null;
 
-  function setClaimMessage(message, className = '') {
-    $('claimMessage').textContent = message;
-    $('claimMessage').className = message ? `message ${className}` : 'message';
+  function setClaimListMessage(message, className = '') {
+    const node = $('claimListMessage');
+    if (!node) return;
+    node.textContent = message;
+    node.className = message ? `message ${className}` : 'message';
   }
   function claimsAdminMessage(message, className = '') {
     $('claimsAdminStatus').textContent = message;
@@ -1109,126 +1100,42 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     $('claimsAdminPanel').classList.toggle('hidden', !admin);
   }
 
-  function createClaimRow() {
-    const row = document.createElement('div');
-    row.className = 'claim-row';
-    const options = claimSkus.map((sku) => `<option value="${escHtml(sku.id)}">${escHtml(sku.name)}</option>`).join('');
-    row.innerHTML = `<label>SKU<select class="claim-sku-select" required><option value="">Choose a SKU…</option>${options}</select></label>
-      <label>Quantity (PCS)<input class="claim-sku-qty" type="number" min="1" step="1" placeholder="0" required></label>
-      <label>Unit price (KES)<input class="claim-sku-price" readonly placeholder="AUTO"></label>
-      <label>Amount<input class="claim-sku-amount" readonly></label>
-      <label>50% OFF<input class="claim-sku-discount" readonly></label>
-      <button class="button danger remove-claim-sku" type="button">Remove</button>`;
-    row.querySelector('.claim-sku-select').addEventListener('change', () => onClaimSkuChange(row));
-    row.querySelector('.claim-sku-qty').addEventListener('input', () => { updateClaimRow(row); updateClaimTotal(); });
-    row.querySelector('.remove-claim-sku').addEventListener('click', () => { row.remove(); updateClaimTotal(); });
-    $('claimSkuList').appendChild(row);
-    return row;
+  function isHalfOff() {
+    const toggle = $('claimHalfOff');
+    return !!(toggle && toggle.checked);
   }
-  function onClaimSkuChange(row) {
-    const skuId = row.querySelector('.claim-sku-select').value;
-    const sku = claimSkus.find((item) => item.id === skuId);
-    row.querySelector('.claim-sku-price').value = sku ? sku.unitPrice.toFixed(2) : '';
-    updateClaimRow(row);
-    updateClaimTotal();
+  function roundClaimMoney(value) {
+    return Math.round((Number(value) || 0) * 100) / 100;
   }
-  function updateClaimRow(row) {
-    const qty = Number(row.querySelector('.claim-sku-qty').value) || 0;
-    const price = Number(row.querySelector('.claim-sku-price').value) || 0;
-    const amount = Math.round(qty * price * 100) / 100;
-    const discount = Math.round(amount * 50) / 100;
-    row.querySelector('.claim-sku-amount').value = amount ? amount.toFixed(2) : '';
-    row.querySelector('.claim-sku-discount').value = discount ? discount.toFixed(2) : '';
-  }
-  function checkClaimDuplicates() {
-    const rows = [...document.querySelectorAll('#claimSkuList .claim-row')];
-    rows.forEach((row) => row.classList.remove('duplicate'));
-    const bySku = {};
-    let duplicates = false;
-    rows.forEach((row) => {
-      const skuId = row.querySelector('.claim-sku-select').value;
-      if (!skuId) return;
-      if (bySku[skuId]) { row.classList.add('duplicate'); bySku[skuId].classList.add('duplicate'); duplicates = true; }
-      else bySku[skuId] = row;
-    });
-    if (duplicates) setClaimMessage('The same SKU is on more than one row — combine the quantities or edit the existing row.', 'error');
-    return duplicates;
-  }
-  function updateClaimTotal() {
-    let total = 0;
-    let discount = 0;
-    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
-      total += Number(row.querySelector('.claim-sku-amount').value) || 0;
-      discount += Number(row.querySelector('.claim-sku-discount').value) || 0;
-    });
-    $('claimTotal').textContent = claimMoney(total);
-    $('claimDiscount').textContent = claimMoney(discount);
-    checkClaimDuplicates();
-  }
-  function collectClaimItems() {
-    const items = [];
-    let incomplete = false;
-    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
-      const skuId = row.querySelector('.claim-sku-select').value;
-      const quantity = Number(row.querySelector('.claim-sku-qty').value) || 0;
-      if (!skuId && !quantity) return;
-      if (!skuId || quantity <= 0) { incomplete = true; return; }
-      items.push({ skuId, quantity });
-    });
-    return { items, incomplete };
-  }
-  function resetClaimForm() {
-    $('claimSkuList').innerHTML = '';
-    createClaimRow();
-    setClaimMessage('');
-    updateClaimTotal();
-  }
-  async function saveClaim(event) {
-    if (event) event.preventDefault();
-    const customerId = $('claimCustomer').value;
-    if (!customerId) { setClaimMessage('Choose a customer before saving.', 'error'); return; }
-    if (checkClaimDuplicates()) return;
-    const { items, incomplete } = collectClaimItems();
-    if (incomplete) { setClaimMessage('Every SKU row needs a product and a quantity.', 'error'); return; }
-    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return; }
-    try {
-      const response = await fetch(`${API_URL}${CLAIMS_URL}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ customerId, items })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Unable to save claim');
-      resetClaimForm();
-      setClaimMessage(`Claim ${data.claim.claimNumber} saved for ${data.claim.customerName}.`, 'success');
-      loadClaims();
-    } catch (error) { setClaimMessage(error.message, 'error'); }
-  }
-
-  function claimFromForm() {
-    const customerSelect = $('claimCustomer');
-    if (!customerSelect.value) { setClaimMessage('Choose a customer before printing.', 'error'); return null; }
-    const items = [];
-    let totalAmount = 0;
-    let totalDiscount = 0;
-    document.querySelectorAll('#claimSkuList .claim-row').forEach((row) => {
-      const select = row.querySelector('.claim-sku-select');
-      const skuId = select.value;
-      const skuName = select.selectedOptions[0] ? select.selectedOptions[0].textContent : '';
-      const quantity = Number(row.querySelector('.claim-sku-qty').value) || 0;
-      const unitPrice = Number(row.querySelector('.claim-sku-price').value) || 0;
-      if (!skuId || quantity <= 0) return;
-      const amount = Math.round(quantity * unitPrice * 100) / 100;
-      const discountAmount = Math.round(amount * 50) / 100;
-      items.push({ skuId, skuName, quantity, unitPrice, amount, discountAmount });
-      totalAmount += amount;
-      totalDiscount += discountAmount;
-    });
-    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return null; }
-    return { claimNumber: 'DRAFT', customerId: customerSelect.value, customerName: customerSelect.selectedOptions[0].textContent, items, totalAmount, totalDiscount, createdBy: (currentUser && currentUser.username) || '', createdAt: new Date().toISOString() };
+  function requestToClaim(request, half) {
+    const rate = half ? 0.5 : 1;
+    const totalAmount = Number(request.totalAmount) || 0;
+    const items = (request.products || []).map((product) => ({
+      skuName: product.product,
+      quantity: product.pieces,
+      amount: product.total,
+      discountAmount: roundClaimMoney((Number(product.total) || 0) * rate)
+    }));
+    return {
+      id: request.id,
+      claimNumber: 'REQ-' + String(request.id || '').slice(0, 8).toUpperCase(),
+      customerName: request.customerName,
+      region: request.region || 'Unassigned',
+      van: request.van || '',
+      status: 'approved',
+      createdAt: request.createdAt,
+      createdBy: request.createdBy || request.reviewedBy || '',
+      approvedBy: request.reviewedBy,
+      approvedAt: request.reviewedAt,
+      approvalMode: half ? '50' : 'FULL',
+      items,
+      totalAmount,
+      totalDiscount: roundClaimMoney(totalAmount * rate)
+    };
   }
   function buildClaimDocumentHtml(claim) {
-    const mode = String(claim.approvalMode) === '100' ? '100' : '50';
+    const rawMode = String(claim.approvalMode);
+    const mode = rawMode === '100' ? '100' : (rawMode === 'FULL' ? 'FULL' : '50');
     const region = String(claim.region || 'Unassigned').toUpperCase();
     const van = String(claim.van || '').toUpperCase();
     const customerName = String(claim.customerName || '').toUpperCase();
@@ -1238,7 +1145,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       <td class="num">${moneyLine(item.quantity)}</td>
       <td class="num">${claimMoney(item.amount)}</td>
       <td class="num claimed">${claimMoney(item.discountAmount)}</td>
-      <td class="num"><span class="off-tag">${mode}% OFF</span></td>
+      <td class="num">${mode === 'FULL' ? '<span class="off-tag">FULL PRICE</span>' : `<span class="off-tag">${mode}% OFF</span>`}</td>
     </tr>`).join('');
     const approvedLine = claim.status === 'approved' && (claim.approvedByName || claim.approvedBy)
       ? `<br>Approved by ${escHtml(claim.approvedByName || claim.approvedBy)}${claim.approvedAt ? ' on ' + new Date(claim.approvedAt).toLocaleString() : ''}`
@@ -1255,7 +1162,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
           <tr class="total-row"><td colspan="2">TOTAL</td><td class="num">${claimMoney(claim.totalAmount)}</td><td class="num claimed">${claimMoney(claim.totalDiscount)}</td><td class="num"></td></tr>
         </tbody>
       </table>
-      <p class="claim-summary">Total price to be claimed: <strong>KES ${claimMoney(claim.totalDiscount)}</strong> (${mode}% off approved)</p>
+      <p class="claim-summary">Total price to be claimed: <strong>KES ${claimMoney(claim.totalDiscount)}</strong> (${mode === 'FULL' ? 'full price' : mode + '% off'})</p>
       <div class="sign-block">
         <div class="sign-box"><span>Customer stamp / signature</span></div>
         <div class="sign-box"><span>Verified by (stamp / signature)</span></div>
@@ -1278,15 +1185,14 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     const vanSelect = $('claimVanFilter');
     const region = regionSelect ? regionSelect.value : 'all';
     const van = vanSelect ? vanSelect.value : 'all';
-    return (claimsCatalog || []).filter((claim) => claim.status === 'approved'
-      && (region === 'all' || (claim.region || 'Unassigned') === region)
+    return (approvedRequests || []).filter((claim) => (region === 'all' || (claim.region || 'Unassigned') === region)
       && (van === 'all' || (claim.van || 'Unassigned') === van));
   }
   function renderClaimList() {
     const regionSelect = $('claimRegionFilter');
     const vanSelect = $('claimVanFilter');
     if (!regionSelect || !vanSelect) return;
-    const approved = (claimsCatalog || []).filter((claim) => claim.status === 'approved');
+    const approved = approvedRequests || [];
     const regions = new Set(['Kakamega', 'Webuye', 'Busia', 'Luanda', 'Unassigned']);
     Object.keys(regionVanMap).forEach((name) => regions.add(name));
     approved.forEach((claim) => regions.add(claim.region || 'Unassigned'));
@@ -1308,11 +1214,15 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     }
     $('claimVanField').classList.toggle('hidden', region === 'all');
     const shown = filteredApprovedClaims();
-    $('claimList').innerHTML = shown.length ? shown.map(claimListItem).join('') : '<div class="empty">No approved claims match this region and van yet.</div>';
+    $('claimList').innerHTML = shown.length ? shown.map((request) => requestListItem(request, isHalfOff())).join('') : '<div class="empty">No approved claims match this region and van yet.</div>';
+    $('claimList').querySelectorAll('[data-print-request]').forEach((button) => button.addEventListener('click', () => {
+      const request = (approvedRequests || []).find((item) => item.id === button.dataset.printRequest);
+      if (request) printDocuments([requestToClaim(request, isHalfOff())]);
+    }));
   }
   function printApprovedClaims() {
-    const approved = filteredApprovedClaims();
-    if (!approved.length) { setClaimMessage('No approved claims match this region and van yet.', 'error'); return; }
+    const approved = filteredApprovedClaims().map((request) => requestToClaim(request, isHalfOff()));
+    if (!approved.length) { setClaimListMessage('No approved claims match this region and van yet.', 'error'); return; }
     printDocuments(approved);
   }
   function printAllApproved() {
@@ -1320,9 +1230,33 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     if (!approved.length) { claimsAdminMessage('No approved claims to print yet.', 'error'); return; }
     printDocuments(approved);
   }
-  function printClaimDraft() {
-    const draft = claimFromForm();
-    if (draft) printClaim(draft);
+  // The blank claim form template, straight from the API as a real .xlsx.
+  async function downloadClaimTemplate() {
+    const button = $('downloadClaimTemplateButton');
+    if (button) button.disabled = true;
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}/template`, { headers: authHeaders() });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Unable to download the claim template');
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const filename = (disposition.match(/filename="?([^"]+)"?/i) || [])[1] || 'DAHLIA-BOTTLERS-CLAIMS-TEMPLATE.xlsx';
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setClaimListMessage('Blank claim template downloaded — print it or fill it in Excel.', 'success');
+    } catch (error) {
+      setClaimListMessage(error.message, 'error');
+    } finally {
+      if (button) button.disabled = false;
+    }
   }
   async function exportClaimExcel(id) {
     try {
@@ -1343,42 +1277,9 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       link.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
-      setClaimMessage(error.message, 'error');
+      claimsAdminMessage(error.message, 'error');
     }
   }
-  async function exportClaimDraft() {
-    const customerId = $('claimCustomer').value;
-    if (!customerId) { setClaimMessage('Choose a customer before exporting to Excel.', 'error'); return; }
-    if (checkClaimDuplicates()) return;
-    const { items, incomplete } = collectClaimItems();
-    if (incomplete) { setClaimMessage('Every SKU row needs a product and a quantity.', 'error'); return; }
-    if (!items.length) { setClaimMessage('Add at least one SKU row with a quantity.', 'error'); return; }
-    try {
-      const response = await fetch(`${API_URL}${CLAIMS_URL}/export-draft`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ customerId, items })
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || 'Unable to export claim');
-      }
-      const blob = await response.blob();
-      const disposition = response.headers.get('content-disposition') || '';
-      const filename = (disposition.match(/filename="?([^"]+)"?/i) || [])[1] || 'DAHLIA-BOTTLERS-CLAIMS-DRAFT.xlsx';
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      setClaimMessage(error.message, 'error');
-    }
-  }
-
   function claimStatusBadge(claim) {
     if (claim.status === 'approved') return `<span class="status-badge approved">Approved ${claim.approvalMode || '50'}%</span>`;
     if (claim.status === 'declined') return '<span class="status-badge declined">Declined</span>';
@@ -1389,6 +1290,17 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     if (claim.status === 'approved') return `<span class="claim-meta">Approved ${claim.approvalMode || '50'}% by ${escHtml(claim.approvedByName || claim.approvedBy || '')}</span>`;
     if (claim.status === 'declined') return `<span class="claim-meta">Declined by ${escHtml(claim.approvedByName || claim.approvedBy || '')}</span>`;
     return `<button class="button mini-button" data-approve-claim="${escHtml(claim.id)}" data-mode="50" type="button">Approve 50%</button><button class="button mini-button" data-approve-claim="${escHtml(claim.id)}" data-mode="100" type="button">Approve 100%</button><button class="button danger mini-button" data-decline-claim="${escHtml(claim.id)}" type="button">Decline</button>`;
+  }
+  function requestListItem(request, half) {
+    const total = Number(request.totalAmount) || 0;
+    const claimed = half ? roundClaimMoney(total * 0.5) : total;
+    const meta = [request.region || 'Unassigned', request.van || '', new Date(request.createdAt).toLocaleDateString()].filter(Boolean).join(' · ');
+    return `<div class="claim-list-item">
+      <div><strong>${escHtml(request.customerName)}</strong><span>${escHtml(meta)} · <span class="status-badge approved">Approved</span></span></div>
+      <div><span>Total</span><strong>${claimMoney(total)}</strong></div>
+      <div><span>${half ? '50% off' : 'Full'}</span><strong>${claimMoney(claimed)}</strong></div>
+      <div class="user-actions"><button class="button secondary mini-button" data-print-request="${escHtml(request.id)}" type="button">Print</button></div>
+    </div>`;
   }
   function claimListItem(claim) {
     const mode = claim.approvalMode || '50';
@@ -1441,42 +1353,26 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       claimsCatalog = data.claims || [];
       renderClaims(claimsCatalog);
     } catch (error) {
-      setClaimMessage(error.message, 'error');
-      $('claimList').innerHTML = '<div class="empty">Unable to load claims.</div>';
+      claimsCatalog = [];
+      renderClaims(claimsCatalog);
     }
   }
 
-  async function loadClaimOptions() {
+  async function loadApprovedRequests() {
     try {
-      const response = await fetch(`${API_URL}${CATALOG_OPTIONS_URL}`, { headers: authHeaders() });
+      const response = await fetch(`${API_URL}/customers`, { headers: authHeaders() });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Unable to load claim options');
-      claimCustomers = data.customers || [];
-      claimSkus = data.skus || [];
-      populateClaimCustomerSelect();
-      rebuildClaimRowSkus();
+      if (!response.ok) throw new Error(data.message || 'Unable to load approved requests');
+      approvedRequests = (data.customers || []).filter((claim) => claim.status === 'approved');
     } catch (error) {
-      $('claimsStatus').textContent = error.message;
-      $('claimsStatus').className = 'message error';
+      approvedRequests = [];
+      setClaimListMessage(error.message, 'error');
     }
-  }
-  function populateClaimCustomerSelect() {
-    const select = $('claimCustomer');
-    const current = select.value;
-    select.innerHTML = '<option value="">Choose a customer…</option>' + claimCustomers.map((customer) => `<option value="${escHtml(customer.id)}">${escHtml(customer.name)}</option>`).join('');
-    if (claimCustomers.some((customer) => customer.id === current)) select.value = current;
-  }
-  function rebuildClaimRowSkus() {
-    const options = claimSkus.map((sku) => `<option value="${escHtml(sku.id)}">${escHtml(sku.name)}</option>`).join('');
-    document.querySelectorAll('#claimSkuList .claim-sku-select').forEach((select) => {
-      const value = select.value;
-      select.innerHTML = '<option value="">Choose a SKU…</option>' + options;
-      if ([...select.options].some((option) => option.value === value)) select.value = value;
-    });
+    renderClaimList();
   }
   async function claimsRefresh() {
     updateClaimsNav();
-    await loadClaimOptions();
+    await loadApprovedRequests();
     await loadClaims();
   }
 
@@ -1514,7 +1410,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
         if (!response.ok) throw new Error(res.message || 'Unable to save customer');
         editingCustomerId = null;
         loadAdminCatalog();
-        loadClaimOptions();
         claimsAdminMessage('Customer updated.', 'success');
       } catch (error) { editingCustomerId = null; claimsAdminMessage(error.message, 'error'); loadAdminCatalog(); }
     });
@@ -1526,7 +1421,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       const res = await response.json();
       if (!response.ok) throw new Error(res.message || 'Unable to update customer');
       loadAdminCatalog();
-      loadClaimOptions();
     } catch (error) { claimsAdminMessage(error.message, 'error'); }
   }
   function renderAdminSkus() {
@@ -1560,7 +1454,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
         if (!response.ok) throw new Error(res.message || 'Unable to save SKU price');
         editingSkuId = null;
         loadAdminCatalog();
-        loadClaimOptions();
         claimsAdminMessage(`${sku.name} price updated — new claims use ${claimMoney(unitPrice)}.`, 'success');
       } catch (error) { editingSkuId = null; claimsAdminMessage(error.message, 'error'); loadAdminCatalog(); }
     });
@@ -1572,7 +1465,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       const res = await response.json();
       if (!response.ok) throw new Error(res.message || 'Unable to update SKU');
       loadAdminCatalog();
-      loadClaimOptions();
     } catch (error) { claimsAdminMessage(error.message, 'error'); }
   }
   async function loadAdminCatalog() {
@@ -1588,15 +1480,13 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     } catch (error) { claimsAdminMessage(error.message, 'error'); }
   }
 
-  $('claimForm').addEventListener('submit', saveClaim);
-  $('addClaimRowButton').addEventListener('click', createClaimRow);
-  $('printClaimDraftButton').addEventListener('click', printClaimDraft);
-  $('exportClaimDraftButton').addEventListener('click', exportClaimDraft);
   $('claimsAdminRefreshButton').addEventListener('click', () => { loadAdminCatalog(); loadClaims(); });
   $('printAllApprovedButton').addEventListener('click', printAllApproved);
   $('printApprovedClaimsButton').addEventListener('click', printApprovedClaims);
-  $('claimRegionFilter').addEventListener('change', () => { renderClaimList(); wireClaimActions(); });
-  $('claimVanFilter').addEventListener('change', () => { renderClaimList(); wireClaimActions(); });
+  $('downloadClaimTemplateButton').addEventListener('click', downloadClaimTemplate);
+  $('claimHalfOff').addEventListener('change', () => renderClaimList());
+  $('claimRegionFilter').addEventListener('change', () => renderClaimList());
+  $('claimVanFilter').addEventListener('change', () => renderClaimList());
   $('addClaimCustomerButton').addEventListener('click', async () => {
     const name = $('claimNewCustomerName').value.trim();
     if (!name) return;
@@ -1606,7 +1496,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       if (!response.ok) throw new Error(data.message || 'Unable to add customer');
       $('claimNewCustomerName').value = '';
       loadAdminCatalog();
-      loadClaimOptions();
       claimsAdminMessage(`Customer ${data.customer.name} added.`, 'success');
     } catch (error) { claimsAdminMessage(error.message, 'error'); }
   });
@@ -1621,7 +1510,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       $('catalogSkuName').value = '';
       $('catalogSkuPrice').value = '';
       loadAdminCatalog();
-      loadClaimOptions();
       claimsAdminMessage(`SKU ${data.sku.name} added at ${claimMoney(data.sku.unitPrice)}.`, 'success');
     } catch (error) { claimsAdminMessage(error.message, 'error'); }
   });
@@ -1651,12 +1539,11 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   const originalLoadCustomers = window.loadCustomers;
   window.loadCustomers = function loadCustomersWithClaims() {
     updateClaimsNav();
-    loadClaimOptions();
+    loadApprovedRequests();
     loadClaims();
     return originalLoadCustomers();
   };
 
-  createClaimRow();
   if (localStorage.getItem('newDayToken') && localStorage.getItem('newDayUser') && !$('app').classList.contains('hidden')) {
     claimsRefresh();
   } else {

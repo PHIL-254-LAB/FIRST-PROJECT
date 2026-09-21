@@ -896,6 +896,55 @@ describe('Customer claims', () => {
     });
     assert.equal(missing.status, 404);
   });
+
+  it('downloads the blank claim template with the region, price list, and totals', async () => {
+    const response = await fetch(`${baseUrl}/api/claims/template`, {
+      headers: { Authorization: `Bearer ${userToken}` }
+    });
+    assert.equal(response.status, 200);
+    assert.ok(
+      response.headers.get('content-type').includes('spreadsheetml'),
+      'Expected an xlsx content type for the template'
+    );
+    assert.ok(
+      (response.headers.get('content-disposition') || '').includes('DAHLIA-BOTTLERS-CLAIMS-TEMPLATE.xlsx'),
+      'Expected the template to download under its own filename'
+    );
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    assert.equal(buffer.subarray(0, 2).toString(), 'PK', 'Expected a ZIP-based xlsx container');
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const sheet = workbook.getWorksheet('CLAIMS');
+    assert.ok(sheet, 'Expected a CLAIMS sheet in the template');
+    assert.equal(sheet.getCell('A1').value, 'DAHLIA TRADING COMPANY ("KAKAMEGA")', 'Expected the region in the printed title');
+    assert.equal(sheet.getCell('A2').value, 'Customer name:', 'Expected an empty customer name line');
+    assert.equal(sheet.getCell('C3').value, 'VAN D', 'Expected the signed-in van on the form');
+    assert.deepEqual(
+      sheet.getRow(5).values.slice(1, 6),
+      ['SKU', 'QUANTITY (PCS)', 'ORIGINAL PRICE (KES)', 'PRICE TO BE CLAIMED (KES)', 'DISCOUNT'],
+      'Expected the A4 claim form column headings'
+    );
+    assert.equal(sheet.getCell('B6').value, null, 'Expected the SKU rows to be blank');
+    assert.equal(sheet.getCell('A18').value, 'TOTAL');
+    assert.equal(sheet.getCell('B18').value.formula, 'SUM(B6:B17)');
+    assert.equal(sheet.getCell('C18').value.formula, 'SUM(C6:C17)');
+    assert.equal(sheet.getCell('D18').value.formula, 'SUM(D6:D17)');
+    assert.equal(sheet.getCell('D19').value.formula, 'D18');
+    assert.equal(sheet.getCell('A21').value, 'Customer stamp / signature');
+    assert.equal(sheet.getCell('D21').value, 'Verified by (stamp / signature)');
+
+    const priceList = workbook.getWorksheet('SKU PRICE LIST');
+    assert.ok(priceList, 'Expected the approved SKU price list sheet');
+    const priceNames = [];
+    priceList.eachRow((row, rowNumber) => { if (rowNumber > 2) priceNames.push(row.getCell(1).value); });
+    assert.ok(priceNames.includes('BB 250G'), 'Expected the active SKUs on the price list');
+    assert.ok(!priceNames.includes('VANILLA 250G'), 'Expected deactivated SKUs to stay off the template');
+
+    const anonymous = await fetch(`${baseUrl}/api/claims/template`);
+    assert.equal(anonymous.status, 401, 'Expected the template to require a signed-in user');
+  });
 });
 
 describe('Product master catalog', () => {

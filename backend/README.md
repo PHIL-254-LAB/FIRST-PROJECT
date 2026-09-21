@@ -61,6 +61,7 @@ Customer endpoints require the same `Authorization: Bearer <token>` header. New 
 - `POST /api/catalog/skus`, `PUT /api/catalog/skus/:id`, `PATCH /api/catalog/skus/:id/active` (administrator) manage claim SKUs and prices. The catalog is seeded with the standard price list when empty.
 - `POST /api/claims` (any signed-in user) saves a claim. It accepts only `customerId` and `items[{skuId, quantity}]`; the unit price, amount and 50% totals are calculated on the server from the catalog, duplicate SKUs are rejected, and the customer/SKU names and prices are snapshotted into the saved claim.
 - `POST /api/claims/export-draft` returns a real `.xlsx` for an unsaved draft, validated exactly like a saved claim.
+- `GET /api/claims/template` returns the blank claim form as a real `.xlsx`: the A4 "DAHLIA TRADING COMPANY (REGION)" page with the signed-in user's region and van, empty SKU rows, a TOTAL row built from `SUM()` formulas, the customer/verifier signature boxes, and the active SKU price list on a second sheet.
 - `GET /api/claims` lists saved claims (newest first), `GET /api/claims/:id` returns one, and `GET /api/claims/:id/export` returns its `.xlsx` (DAHLIA BOTTLERS CLAIMS, A4 portrait, totals).
 
 Example claim body:

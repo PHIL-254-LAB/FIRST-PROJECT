@@ -79,6 +79,12 @@ it: pick a **Region**, then a **Van** (the van list only fills in once a region 
 shows any approved claim that matches, and the **Print approved claims** button prints exactly what's
 in the list.
 
+Next to it, **Download blank template** saves the empty claim form as an Excel file
+(`DAHLIA-BOTTLERS-CLAIMS-TEMPLATE.xlsx`): the same A4 layout with your **region** and **van** already
+in the heading, blank SKU rows, a **TOTAL** row that adds itself up as you type, the customer and
+verifier signature boxes, and the administrator's SKU price list on a second sheet
+(`SKU PRICE LIST`). Print it for claims written by hand, or fill it in Excel and keep the copy.
+
 Each printable approved claim uses the stamp-ready A4 template: the title
 `DAHLIA TRADING COMPANY ("REGION")` centered, then `CUSTOMER NAME - ("VAN")`, a table listing each
 SKU with its quantity, the **original price**, the **price to be claimed**, and a `50% OFF` / `100%

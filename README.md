@@ -36,6 +36,10 @@ entries) that administrators can view through the API.
 - Every claim can be **printed** (A4, matching the template layout) or **exported to Excel**
   (real `.xlsx` with borders, title, totals, and A4 print setup) — either directly from the
   entry screen (server-generated draft export) or from any saved claim.
+- The **Claims** tab also offers **Download blank template** (`GET /api/claims/template`): the same
+  A4 claim form with empty SKU rows, a self-summing TOTAL row, signature boxes, and the
+  administrator's SKU price list on a second sheet — for printing or filling in before the claim is
+  captured in the system.
 
 ## How it fits together
 
@@ -86,6 +90,10 @@ Two walks through the flow:
   real `.xlsx`) or `GET /api/claims/:id/export` (any saved claim); `exportClaim` builds a
   *DAHLIA BOTTLERS CLAIMS* workbook with the customer name, the SKU / quantity / price / 50%-off
   columns and totals, sized for A4 portrait printing.
+- **Downloading the blank template** — **Download blank template** on the Claims tab calls
+  `GET /api/claims/template`; `buildClaimTemplateWorkbook` writes the empty A4 form (region and van
+  headings from the signed-in account, the admin SKU price list on a second sheet) and the TOTAL row
+  is made of `SUM()` formulas, so a copy filled in Excel adds itself up.
 - **Approving** — an administrator patches `/api/customers/:id/status`; `requireAuth` + `requireAdmin` verify the role, `updateCustomerStatus` stores the status, operating deadline, reviewer, and review time through `customerModel`; the page refreshes the approval queue.
 
 ## What the app does
@@ -106,6 +114,7 @@ Two walks through the flow:
 | Claim catalog | Administrators manage claim customers and the approved SKU price list; seeded with the standard price list on first start |
 | Claims | Employees build a claim from the admin-configured dropdowns; amount and 50% totals auto-fill from server-side prices that can't be overridden |
 | Claim export | Print an A4 claim form or export a real `.xlsx` (from the entry screen or any saved claim) |
+| Claim template | Download the blank A4 claim form (`.xlsx`) to print or fill in before it is captured |
 
 ## Quick start (local)
 
@@ -166,6 +175,7 @@ administrator password (`admin`) before going live.
 | `PATCH` | `/api/catalog/skus/:id/active` | Administrator | Activate/deactivate a claim SKU |
 | `POST` | `/api/claims` | Any signed-in user | Save a claim (server-side pricing, snapshotting) |
 | `POST` | `/api/claims/export-draft` | Any signed-in user | Excel export of an unsaved draft claim |
+| `GET` | `/api/claims/template` | Any signed-in user | Blank A4 claim form template (`.xlsx`, A4 portrait + SKU price list) |
 | `GET` | `/api/claims` | Any signed-in user | All saved claims, newest first |
 | `GET` | `/api/claims/:id` | Any signed-in user | One saved claim |
 | `GET` | `/api/claims/:id/export` | Any signed-in user | Excel export of a saved claim |
