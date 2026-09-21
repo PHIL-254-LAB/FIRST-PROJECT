@@ -93,7 +93,7 @@
 		main:not(.customers-page) #customersPanel { display: none; }
 main.customers-page .topbar, main.customers-page .stats, main.customers-page #summaryPanel { display: none; }
 		main.customers-page .content-grid { display: block; }
-main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):not(.claims-admin-page):not(.accounts-page) #summaryPanel { display: block; }
+main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):not(.accounts-page) #summaryPanel { display: block; }
 		main.details-page .topbar, main.details-page .stats, main.details-page #customersPanel, main.details-page #summaryPanel, main.details-page #overviewAdminPanel { display: none; }
 		main.details-page .content-grid { display: block; }
 		main.details-page #detailsPanel { display: block; min-height: calc(100vh - 68px); }
@@ -103,6 +103,15 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 		.status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
 		.status-tab { border: 1px solid var(--line); padding: 9px 13px; border-radius: 5px; color: var(--muted); background: var(--white); font: 700 11px Arial, sans-serif; }
 		.status-tab.active, .status-tab:hover { color: var(--teal-dark); border-color: var(--teal); background: var(--mint); }
+		.summary-breakdown { display: grid; gap: 14px; }
+		.summary-region { border: 1px solid var(--line); border-radius: 6px; padding: 16px; background: #f5faf6; }
+		.summary-region > h3 { margin: 0 0 10px; font-size: 17px; font-weight: 500; }
+		.summary-region > h3 small { font-weight: 400; color: var(--muted); margin-left: 8px; font-size: 12px; }
+		.summary-van { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; }
+		.summary-van h4 { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 6px; font-size: 14px; font-weight: 500; }
+		.summary-van h4 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+		.summary-request { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px dashed var(--line); font: 12px/1.6 Arial, sans-serif; }
+		.summary-request span { color: var(--muted); }
 		.history-list { display: grid; gap: 10px; }
 		.history-item { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 17px; border: 1px solid var(--line); border-radius: 6px; font-family: Arial, sans-serif; }
 		.history-item strong { display: block; margin-bottom: 6px; font-size: 14px; }
@@ -143,37 +152,49 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 		.admin-add-grid.sku { grid-template-columns: 1.4fr 160px 140px; }
 		.status-badge.inactive { color: #6b6b6b; background: #ececec; }
 		.claims-admin-sub { margin-top: 18px; }
+		.claims-admin-block { margin-top: 22px; }
 		.sku-table .user-table td.sku-price-cell { text-align: right; }
 		.sku-table .user-table tbody tr.inactive-row td { color: var(--muted); opacity: .72; }
 		.sku-table .user-table .price-edit { text-align: right; }
-		main.claims-page .topbar, main.claims-page .stats, main.claims-page #customersPanel, main.claims-page #detailsPanel, main.claims-page #adminPanel, main.claims-page #claimsAdminPanel, main.claims-page #summaryPanel, main.claims-page #overviewAdminPanel { display: none; }
+		main.claims-page .topbar, main.claims-page .stats, main.claims-page #customersPanel, main.claims-page #detailsPanel, main.claims-page #adminPanel, main.claims-page #summaryPanel, main.claims-page #overviewAdminPanel { display: none; }
 		main.claims-page .content-grid { display: block; }
 		main.claims-page #claimsPanel { display: block; min-height: calc(100vh - 68px); }
-		main.claims-admin-page .topbar, main.claims-admin-page .stats, main.claims-admin-page #customersPanel, main.claims-admin-page #detailsPanel, main.claims-admin-page #adminPanel, main.claims-admin-page #claimsPanel, main.claims-admin-page #summaryPanel, main.claims-admin-page #overviewAdminPanel { display: none; }
-		main.claims-admin-page .content-grid { display: block; }
-		main.claims-admin-page #claimsAdminPanel { display: block; min-height: calc(100vh - 68px); }
-		main.accounts-page .topbar, main.accounts-page .stats, main.accounts-page #customersPanel, main.accounts-page #detailsPanel, main.accounts-page #adminPanel, main.accounts-page #claimsPanel, main.accounts-page #claimsAdminPanel, main.accounts-page #summaryPanel, main.accounts-page #overviewAdminPanel { display: none; }
+		main.accounts-page .topbar, main.accounts-page .stats, main.accounts-page #customersPanel, main.accounts-page #detailsPanel, main.accounts-page #adminPanel, main.accounts-page #claimsPanel, main.accounts-page #summaryPanel, main.accounts-page #overviewAdminPanel { display: none; }
 		main.accounts-page .content-grid { display: block; }
 		main.accounts-page #accountsPanel { display: block; min-height: calc(100vh - 68px); }
 		main:not(.accounts-page) #accountsPanel { display: none; }
-		main:not(.claims-page):not(.claims-admin-page) #claimsPanel, main:not(.claims-admin-page) #claimsAdminPanel { display: none; }
+		main:not(.claims-page) #claimsPanel { display: none; }
 		#printArea { display: none; }
-		.claim-document { font-family: Arial, sans-serif; color: #111; }
-		.claim-document h1 { margin: 0 0 4px; font-size: 24px; text-align: center; letter-spacing: .02em; }
-		.claim-document .cust { margin: 0 0 18px; font-size: 15px; text-align: center; }
-		.claim-document .cust strong { text-transform: uppercase; }
+		.claim-document { font-family: Arial, sans-serif; color: #14332f; background: #fff; padding: 4px; }
+		.claim-document .doc-band { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #176B63, #2aa198 55%, #f0a92d); margin: 0 0 20px; }
+		.claim-document .doc-title { margin: 0; font-size: 22px; font-weight: 700; text-align: center; letter-spacing: .05em; color: #17322f; }
+		.claim-document .cust { margin: 8px 0 4px; font-size: 15px; font-weight: 700; text-align: center; letter-spacing: .04em; text-transform: uppercase; color: #1c4b44; }
+		.claim-document .doc-meta { margin: 0 0 18px; font-size: 11px; text-align: center; color: #71817b; }
 		.claim-document table { width: 100%; border-collapse: collapse; font-size: 13px; }
-		.claim-document th, .claim-document td { border: 1px solid #222; padding: 8px 10px; }
-		.claim-document th { background: #e6e6e6; text-align: center; }
-		.claim-document td.sku { text-align: left; }
+		.claim-document th, .claim-document td { border: 1px solid #c7d3cf; padding: 9px 10px; }
+		.claim-document thead th { background: #176B63; color: #fff; text-align: center; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+		.claim-document td.sku { text-align: left; font-weight: 600; }
 		.claim-document td.num { text-align: right; }
-		.claim-document tr.total-row td { font-weight: 700; background: #f2f2f2; }
-		.claim-document .foot { margin-top: 16px; font-size: 11px; color: #555; text-align: center; }
+		.claim-document tbody tr:nth-child(even) td { background: #f4f9f7; }
+		.claim-document td.claimed { font-weight: 700; color: #176B63; }
+		.claim-document .off-tag { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #fde9c8; color: #8a5a05; font-size: 10px; font-weight: 700; letter-spacing: .05em; white-space: nowrap; }
+		.claim-document tr.total-row td { font-weight: 700; background: #e8f3f0; color: #123b35; }
+		.claim-document .claim-summary { margin: 14px 0 20px; text-align: right; font-size: 13px; color: #40524d; }
+		.claim-document .claim-summary strong { font-size: 16px; color: #176B63; }
+		.claim-document .sign-block { display: flex; justify-content: space-between; gap: 30px; margin-top: 30px; }
+		.claim-document .sign-box { flex: 1; height: 92px; border: 1px dashed #9fb3ad; border-radius: 6px; position: relative; background: #fbfdfc; }
+		.claim-document .sign-box span { position: absolute; left: 10px; bottom: 8px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #71817b; }
+		.claim-document .foot { margin-top: 20px; padding-top: 10px; border-top: 1px solid #e2ebe8; font-size: 10px; color: #71817b; text-align: center; }
+		.claim-admin-tools { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin: 16px 0 6px; }
+		.claim-admin-tools label { display: grid; gap: 6px; font: 700 11px Arial, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+		.claim-admin-tools select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font: 13px Arial, sans-serif; }
+		#printArea .print-page-break { page-break-after: always; break-after: page; }
 		@media print {
 			body * { visibility: hidden; }
 			body.printing #printArea, body.printing #printArea * { visibility: visible; }
 			body.printing #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
-			body.printing .claim-document th, body.printing .claim-document td { padding: 6px 8px; }
+			body.printing .claim-document { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+			body.printing .claim-document th, body.printing .claim-document td { padding: 7px 9px; }
 		}
 		@media (min-width: 851px) and (max-width: 1120px) { .claim-row { grid-template-columns: 1fr 1fr 1fr; } .claim-row .remove-claim-sku { grid-column: span 1; } }
 		@media (max-width: 850px) { .claim-row { grid-template-columns: 1fr 1fr; } .admin-add-grid.sku { grid-template-columns: 1fr 160px; } }
@@ -192,12 +213,14 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 				<label>Username<input id="loginUsername" type="text" autocomplete="username" placeholder="Phillip" required></label>
 				<label id="nameField" class="hidden">Full name<input id="loginName" type="text" autocomplete="name" placeholder="Your name"></label>
 				<label id="emailField" class="hidden">Email address<input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
-				<label id="regionField">Region<select id="loginRegion" required><option value="">Choose your region</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option></select></label>
+				<label id="roleField">Role<select id="loginRole"><option value="user">User</option><option id="loginRoleAdmin" value="admin">Admin</option></select></label>
+				<label id="regionField">Region<select id="loginRegion"><option value="">Choose your region</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option></select></label>
+				<label id="vanField" class="hidden">Van<select id="loginVan"><option value="">Choose your van</option></select></label>
 				<label>Password<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required></label>
 				<p id="loginMessage" class="message" aria-live="polite"></p>
 				<button id="authSubmit" class="button" type="submit">Sign in to workspace</button>
 			</div>
-			<div class="demo"><strong id="authModeLabel">Have an account?</strong> <button id="authToggle" class="text-button" type="button">Create one</button><br><span id="authHint">Existing account: Phillip / 2002</span></div>
+			<div class="demo"><strong id="authModeLabel">Have an account?</strong> <button id="authToggle" class="text-button" type="button">Create one</button><br><span id="authHint">Existing account: Phillip / PHILO.01 (choose Admin)</span></div>
 		</form>
 	</section>
 
@@ -206,11 +229,9 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			<div class="brand"><span class="brand-mark">D</span> DAHLIA BLUE BAND SORT</div>
 			<nav class="nav" aria-label="Primary navigation">
 				<button class="active" type="button" data-page="overview">Overview</button>
-				<button type="button" data-page="customers">Customers</button>
+				<button id="customersNav" type="button" data-page="customers">Customers</button>
 				<button type="button" data-page="details">Details</button>
 				<button type="button" data-page="claims">Claims</button>
-				<button id="adminNav" class="hidden" type="button" data-page="admin">Approvals</button>
-				<button id="claimsAdminNav" class="hidden" type="button" data-page="claims-admin">Claim Admin</button>
 				<button id="accountsNav" class="hidden" type="button" data-page="accounts">Accounts</button>
 			</nav>
 			<div class="side-note">A calmer way to keep every customer conversation moving.</div>
@@ -237,11 +258,17 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 					<article class="stat"><span>Pending</span><strong id="summaryPendingCount">0</strong><small id="summaryPendingAmount">KES 0</small></article>
 					<article class="stat"><span>Declined</span><strong id="summaryDeclinedCount">0</strong><small id="summaryDeclinedAmount">KES 0</small></article>
 				</div>
+				<div class="status-tabs" aria-label="Summary breakdown by status">
+					<button class="status-tab active" type="button" data-summary-status="pending">Pending</button>
+					<button class="status-tab" type="button" data-summary-status="approved">Approved</button>
+					<button class="status-tab" type="button" data-summary-status="declined">Declined</button>
+				</div>
+				<div id="summaryBreakdown" class="summary-breakdown"><div class="empty">Loading requests...</div></div>
 			</section>
 			<section id="overviewAdminPanel" class="panel hidden">
 				<div class="panel-heading"><div><h2>System controls</h2><small id="overviewAdminStatus">Connection status, request window, and registered user accounts.</small></div><button id="overviewAdminRefreshButton" class="button secondary" type="button">Refresh</button></div>
 				<div class="settings-grid">
-					<div class="setting-card">
+					<div class="setting-card hidden">
 						<h3>Connection</h3>
 						<div id="connectionCard"><div class="connection-state"><strong id="connectionLabel">Status</strong><span id="connectionBadge" class="status-badge pending">Connecting</span></div><p id="connectionDetail">Checking API connectivity…</p><p id="connectionLastCheck" class="empty"></p></div>
 					</div>
@@ -252,25 +279,20 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 
 			<div class="content-grid">
 				<section id="customersPanel" class="panel">
-					<div class="panel-heading"><div><h2>Recent customers</h2><small id="customerStatus">Connecting to your customer records...</small></div><div class="form-actions"><button id="addCustomerButton" class="button" type="button">+ Add customer</button><button id="refreshButton" class="button secondary" type="button">Refresh</button></div></div>
-					<form id="customerForm" class="add-form hidden">
-						<h3>Add customer sale</h3>
-						<label>Customer name<input id="customerName" placeholder="e.g. Mama Jane Shop" required></label>
-						<div class="sku-heading"><h4>Products / SKUs</h4><button id="addSkuButton" class="button secondary" type="button">+ Add SKU</button></div>
-						<div id="skuList" class="sku-list"></div>
-						<label>Total price (KES)<input id="customerTotal" type="text" value="KES 0" readonly></label>
-						<p id="customerMessage" class="message" aria-live="polite"></p>
-						<div class="form-actions"><button class="button" type="submit">Save customer</button><button id="cancelCustomerButton" class="button secondary" type="button">Cancel</button></div>
-					</form>
+					<div class="panel-heading"><div><h2>Recent customers</h2><small id="customerStatus">Connecting to your customer records...</small></div><div class="form-actions"><button id="refreshButton" class="button secondary" type="button">Refresh</button></div></div>
 					<div id="customerList" class="customer-list"><div class="empty">Loading customer records...</div></div>
 				</section>
 				<section id="detailsPanel" class="panel hidden">
-					<div class="panel-heading"><div><h2>Customer details</h2><small id="historyStatus">History of created customers and approval status.</small></div><button id="historyRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<div class="panel-heading"><div><h2>Customer details</h2><small id="historyStatus">History of created customers and approval status.</small></div><div class="form-actions"><button id="exportDecidedButton" class="button secondary" type="button">Export approved &amp; declined to Excel</button><button id="historyRefreshButton" class="button secondary" type="button">Refresh</button></div></div>
 					<div class="status-tabs" aria-label="Customer status filters"><button class="status-tab active" type="button" data-status-filter="all">All</button><button class="status-tab" type="button" data-status-filter="pending">Pending</button><button class="status-tab" type="button" data-status-filter="approved">Approved</button><button class="status-tab" type="button" data-status-filter="declined">Declined</button></div>
 					<div id="historyList" class="history-list"><div class="empty">Loading customer history...</div></div>
 				</section>
 				<section id="adminPanel" class="panel hidden">
-					<div class="panel-heading"><div><h2>Approval requests</h2><small id="adminStatus">Review pending customer requests and set their operating deadline.</small></div><button id="adminRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<div class="panel-heading"><div><h2>Requests</h2><small id="adminStatus">User requests awaiting your approval. Choose a region, then a van.</small></div><button id="adminRefreshButton" class="button secondary" type="button">Refresh</button></div>
+					<div class="approval-tools">
+						<label id="approvalRegionField">Region<select id="approvalRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select></label>
+						<label id="approvalVanField" class="hidden">Van<select id="approvalVanFilter" disabled><option value="all">All vans</option></select></label>
+					</div>
 					<div id="approvalList"><div class="empty">Loading approval requests...</div></div>
 				</section>
 				<section id="claimsPanel" class="panel hidden">
@@ -293,12 +315,17 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 							</div>
 						</div>
 						<div class="setting-card">
-							<h3>Saved claims</h3>
-							<div id="claimList"><div class="empty">Loading claims…</div></div>
+							<h3>Approved claims</h3>
+							<div class="claim-admin-tools">
+								<label>Region<select id="claimRegionFilter"><option value="all">All regions</option></select></label>
+								<label id="claimVanField" class="hidden">Van<select id="claimVanFilter" disabled><option value="all">All vans</option></select></label>
+								<button id="printApprovedClaimsButton" class="button" type="button">Print approved claims</button>
+							</div>
+							<p class="claim-meta">Only approved claims are listed. Choose a region, then a van, to narrow the list before printing.</p>
+							<div id="claimList"><div class="empty">Loading approved claims…</div></div>
 						</div>
 					</form>
-				</section>
-				<section id="claimsAdminPanel" class="panel hidden">
+					<section id="claimsAdminPanel" class="panel claims-admin-block hidden">
 					<div class="panel-heading"><div><h2>Claim administration</h2><small id="claimsAdminStatus">Manage claim customers, the approved SKU list and prices, then print or export claims.</small></div><button id="claimsAdminRefreshButton" class="button secondary" type="button">Refresh</button></div>
 					<div class="status-tabs" aria-label="Claim administration sections"><button class="status-tab active" type="button" data-claims-tab="customers">Customers</button><button class="status-tab" type="button" data-claims-tab="skus">Products / SKUs & prices</button><button class="status-tab" type="button" data-claims-tab="claims">All claims</button></div>
 					<div id="claimsAdminCustomers" class="claims-admin-sub">
@@ -324,8 +351,10 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 						<div class="sku-table" id="catalogSkuTable"><div class="empty">Loading SKUs…</div></div>
 					</div>
 					<div id="claimsAdminClaims" class="claims-admin-sub hidden">
+						<div class="form-actions"><button id="printAllApprovedButton" class="button" type="button">Print all approved claims</button><span class="claim-meta">Only approved claims can be printed / exported.</span></div>
 						<div id="claimAdminList"><div class="empty">Loading claims…</div></div>
 					</div>
+					</section>
 				</section>
 				<section id="accountsPanel" class="panel hidden">
 					<div class="panel-heading"><div><h2>Accounts &amp; passwords</h2><small id="accountsStatus">Create user accounts, set or reset passwords, and edit login names.</small></div><button id="accountsRefreshButton" class="button secondary" type="button">Refresh</button></div>
@@ -336,6 +365,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 							<label>Login name<input id="accountUsername" placeholder="e.g. otieno" required></label>
 							<label>Email<input id="accountEmail" type="email" placeholder="you@example.com"></label>
 							<label>Region<select id="accountRegion"><option value="">Unassigned</option><option>Kakamega</option><option>Webuye</option><option>Busia</option><option>Luanda</option></select></label>
+							<label id="accountVanField" class="hidden">Van<select id="accountVan"><option value="">None</option></select></label>
 							<label>Password<input id="accountPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></label>
 							<label>Role<select id="accountRole"><option value="user">User</option><option value="admin">Administrator</option></select></label>
 						</div>
@@ -354,13 +384,33 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 	<div id="printArea"></div>
 
 	<script>
+		const originalFetch = window.fetch;
+		window.fetch = async function (input, init) {
+			const response = await originalFetch.call(window, input, init);
+			if (response.status === 401 && localStorage.getItem('newDayToken')) {
+				try {
+					const data = await response.clone().json();
+					if (data && (data.message === 'Invalid or expired authentication token' || data.message === 'Authentication required')) {
+						localStorage.removeItem('newDayToken');
+						localStorage.removeItem('newDayUser');
+						const appEl = document.getElementById('app');
+						const loginEl = document.getElementById('loginScreen');
+						if (appEl) appEl.classList.add('hidden');
+						if (loginEl) loginEl.classList.remove('hidden');
+					}
+				} catch (error) { /* the body was not JSON — leave the response untouched */ }
+			}
+			return response;
+		};
 		const API_URL = window.location.protocol === 'file:' || window.location.port === '5500'
 			? 'http://localhost:3000/api'
 			: '/api';
 		const defaultUser = { name: 'Phillip', email: 'phillip@newday.com', role: 'Team user' };
+		const regionVans = { Kakamega: ['VAN D', 'VAN G1', 'VAN G2', 'VAN F1', 'VAN F2', 'VAN H1', 'VAN H2', 'J001', 'W001 KKMG'], Webuye: ['WEB 1', 'WEB 2', 'WEB 3', 'WEB 4', 'WEB 5'], Busia: ['A001', 'A002', 'C001', 'E001', 'W001 BUSIA'], Luanda: ['B001'] };
 		let authMode = 'login';
 		let customerHistory = [];
 		let historyFilter = 'all';
+		let summaryFilter = 'pending';
 		let currentUser = null;
 		const demoCustomers = [
 			{ id: 'demo-1', customerName: 'Mama Jane Shop', totalPieces: 30, totalAmount: 5500, createdAt: '2026-09-04T09:30:00.000Z' },
@@ -372,22 +422,25 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 		const initials = (name) => name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
 		const getGreeting = () => { const hour = new Date().getHours(); return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'; };
 
-		// Add or remove products here to change the SKU dropdown everywhere they appear.
-		const productChoices = [
-			'Blue Band 20g',
-			'Blue Band 50g',
-			'Blue Band 100g',
-			'Blue Band 250g',
-			'Blue Band 500g',
-			'Blue Band 1kg',
-			'Blue Band Choco 100g',
-			'Blue Band Choco 250g',
-			'Blue Band Choco 500g',
-			'Blue Band Gold 500g',
-			'Rama 100g',
-			'Rama 250g',
-			'Rama 500g'
-		];
+		// Master SKUs and their fixed prices. The live list is refreshed from the
+		// product master API after sign-in; this is the offline fallback.
+		const defaultProductPrices = {
+			'CHOCO 30G': 17,
+			'CHOCO 100G': 62,
+			'CHOCO 250G': 169.6,
+			'CHOCO 500G': 321,
+			'VANILLA 500G': 267,
+			'VANILLA 1KG': 522,
+			'BB 20G': 8,
+			'BB 30G': 15.9,
+			'BB 100G': 58,
+			'BB 250G': 142,
+			'BB 500G': 267,
+			'BB 1KG': 522
+		};
+		const defaultProductChoices = Object.keys(defaultProductPrices);
+		let productChoices = [...defaultProductChoices];
+		let productPrices = { ...defaultProductPrices };
 		const customProductChoice = '__custom_product__';
 		function productSelectOptions(selected) {
 			const options = productChoices.map((name) => `<option value="${name}"${name === selected ? ' selected' : ''}>${name}</option>`).join('');
@@ -417,6 +470,38 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			const custom = row.querySelector('.product-custom');
 			return custom ? custom.value.trim() : '';
 		}
+		function applyFixedPrice(row, priceSelector) {
+			const input = row.querySelector(priceSelector);
+			if (!input) return;
+			const price = productPrices[productNameFromRow(row)];
+			if (typeof price === 'number' && Number.isFinite(price)) {
+				input.value = price.toFixed(2);
+				input.readOnly = true;
+			} else {
+				input.readOnly = false;
+			}
+		}
+		function rebuildProductSelects() {
+			document.querySelectorAll('.sku-row .product-select').forEach((select) => {
+				const value = select.value;
+				select.innerHTML = productSelectOptions(value);
+				if ([...select.options].some((option) => option.value === value)) select.value = value;
+				applyFixedPrice(select.closest('.sku-row'), '.sku-price');
+			});
+		}
+		async function loadProductMaster() {
+			try {
+				const response = await fetch(`${API_URL}/catalog/options`, { headers: authHeaders() });
+				if (!response.ok) return;
+				const data = await response.json();
+				const skus = (data.skus || []).filter((sku) => sku && sku.name);
+				if (!skus.length) return;
+				productChoices = skus.map((sku) => sku.name);
+				productPrices = {};
+				skus.forEach((sku) => { productPrices[sku.name] = Number(sku.unitPrice); });
+				rebuildProductSelects();
+			} catch (error) { /* keep the offline fallback list */ }
+		}
 
 		function getUser() { return JSON.parse(localStorage.getItem('newDayUser') || JSON.stringify(defaultUser)); }
 		function authHeaders() { return { Authorization: `Bearer ${localStorage.getItem('newDayToken') || ''}` }; }
@@ -425,12 +510,15 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			localStorage.setItem('newDayUser', JSON.stringify(user));
 			$('greeting').textContent = getGreeting(); $('welcomeName').textContent = user.name.split(' ')[0]; $('profileName').textContent = user.name;
 			$('profileEmail').textContent = user.email; $('avatar').textContent = initials(user.name);
-			$('adminNav').classList.toggle('hidden', user.role !== 'admin');
-			$('accountsNav').classList.toggle('hidden', user.role !== 'admin');
-			if ($('overviewAdminPanel')) $('overviewAdminPanel').classList.toggle('hidden', user.role !== 'admin');
+			const isAdmin = user.role === 'admin';
+			$('customersNav').textContent = isAdmin ? 'Requests' : 'Customers';
+			$('customersNav').dataset.page = isAdmin ? 'admin' : 'customers';
+			$('accountsNav').classList.toggle('hidden', !isAdmin);
+			if ($('exportDecidedButton')) $('exportDecidedButton').classList.toggle('hidden', !isAdmin);
+			if ($('overviewAdminPanel')) $('overviewAdminPanel').classList.toggle('hidden', !isAdmin);
 		}
-		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadCustomers(); if (window.loadOverviewControls) window.loadOverviewControls(); }
-		async function loadRequestWindow() { try { const response = await fetch(`${API_URL}/customers/request-window`, { headers: authHeaders() }); const data = await response.json(); if (response.ok && !data.requestsOpen) { $('customerStatus').textContent = `Requests closed${data.startDate || data.endDate ? ` · window ${data.startDate || 'now'} to ${data.endDate || 'open-ended'}` : ''}`; $('addCustomerButton').disabled = true; } else if (response.ok) { $('addCustomerButton').disabled = false; } } catch (error) { /* The API status handles connectivity feedback. */ } }
+		function showApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); setUser(getUser()); loadProductMaster(); loadCustomers(); if (window.loadOverviewControls) window.loadOverviewControls(); }
+		async function loadRequestWindow() { try { const response = await fetch(`${API_URL}/customers/request-window`, { headers: authHeaders() }); const data = await response.json(); if (response.ok && !data.requestsOpen) { $('customerStatus').textContent = `Requests closed${data.startDate || data.endDate ? ` · window ${data.startDate || 'now'} to ${data.endDate || 'open-ended'}` : ''}`; } } catch (error) { /* The API status handles connectivity feedback. */ } }
 		function renderSummary(customers) {
 			const byStatus = (status) => customers.filter((customer) => (customer.status || 'pending') === status);
 			const amount = (list) => list.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0);
@@ -445,6 +533,26 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			$('summaryPendingAmount').textContent = money(amount(pending));
 			$('summaryDeclinedCount').textContent = declined.length.toLocaleString();
 			$('summaryDeclinedAmount').textContent = money(amount(declined));
+			if (!$('summaryBreakdown')) return;
+			const selected = byStatus(summaryFilter);
+			const byRegion = {};
+			selected.forEach((customer) => {
+				const region = customer.region || 'Unassigned';
+				const van = customer.van || 'Unassigned';
+				byRegion[region] = byRegion[region] || {};
+				byRegion[region][van] = byRegion[region][van] || [];
+				byRegion[region][van].push(customer);
+			});
+			$('summaryBreakdown').innerHTML = Object.keys(byRegion).sort().map((region) => {
+				const vans = byRegion[region];
+				const regionList = Object.values(vans).flat();
+				const vanHtml = Object.keys(vans).sort().map((van) => {
+					const list = vans[van];
+					const rows = list.map((customer) => `<div class="summary-request"><strong>${customer.customerName}</strong><span>${money(customer.totalAmount)} · ${new Date(customer.createdAt).toLocaleDateString()}</span></div>`).join('');
+					return `<div class="summary-van"><h4>Van ${van}<small>${list.length} request${list.length === 1 ? '' : 's'} · ${money(amount(list))}</small></h4>${rows}</div>`;
+				}).join('');
+				return `<div class="summary-region"><h3>${region}<small>${regionList.length} ${summaryFilter} · ${money(amount(regionList))}</small></h3>${vanHtml}</div>`;
+			}).join('') || `<div class="empty">No ${summaryFilter} requests yet.</div>`;
 		}
 		function renderCustomers(customers) {
 			customerHistory = customers;
@@ -462,8 +570,28 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			$('historyList').innerHTML = filtered.length ? filtered.map((customer) => { const status = customer.status || 'pending'; const products = (customer.products || []).map((product) => `${product.product} · ${product.pieces} pieces · expires ${product.expiryDate}`).join('<br>'); return `<article class="history-item"><div><strong>${customer.customerName}</strong><span>${products}</span><span>Created ${new Date(customer.createdAt).toLocaleString()} · Total ${money(customer.totalAmount)}</span></div><span class="status-badge ${status}">${status}</span></article>`; }).join('') : '<div class="empty">No customer history matches this status.</div>';
 		}
 		function renderApprovals() {
+			const regionSelect = $('approvalRegionFilter');
+			const vanSelect = $('approvalVanFilter');
+			const region = regionSelect ? regionSelect.value : 'all';
 			const pending = customerHistory.filter((customer) => (customer.status || 'pending') === 'pending');
-			$('approvalList').innerHTML = pending.length ? pending.map((customer) => { const products = (customer.products || []).map((product) => `${product.product} · ${product.pieces} pieces · expires ${product.expiryDate}`).join('<br>'); return `<article class="approval-card"><h3>${customer.customerName}</h3><div class="approval-meta">${products}<br>Total ${money(customer.totalAmount)} · Requested ${new Date(customer.createdAt).toLocaleString()}</div><div class="approval-actions"><label>Operating deadline<input type="date" data-deadline="${customer.id}" required></label><button class="button" data-approve="${customer.id}" type="button">Approve</button><button class="button danger" data-decline="${customer.id}" type="button">Decline</button></div></article>`; }).join('') : '<div class="empty">There are no pending approval requests.</div>';
+			if (vanSelect) {
+				if (region === 'all') {
+					vanSelect.innerHTML = '<option value="all">All vans</option>';
+					vanSelect.value = 'all';
+					vanSelect.disabled = true;
+				} else {
+					const units = new Set(regionVans[region] || []);
+					pending.filter((customer) => (customer.region || 'Unassigned') === region).forEach((customer) => { if (customer.van) units.add(customer.van); });
+					const previous = vanSelect.value;
+					vanSelect.innerHTML = '<option value="all">All vans</option>' + [...units].sort().map((unit) => `<option value="${unit}">${unit}</option>`).join('');
+					vanSelect.disabled = false;
+					vanSelect.value = units.has(previous) ? previous : 'all';
+				}
+			}
+			if ($('approvalVanField')) $('approvalVanField').classList.toggle('hidden', region === 'all');
+			const van = vanSelect ? vanSelect.value : 'all';
+			const shown = pending.filter((customer) => (region === 'all' || (customer.region || 'Unassigned') === region) && (van === 'all' || (customer.van || 'Unassigned') === van));
+			$('approvalList').innerHTML = shown.length ? shown.map((customer) => { const products = (customer.products || []).map((product) => `${product.product} · ${product.pieces} pieces · expires ${product.expiryDate}`).join('<br>'); return `<article class="approval-card"><h3>${customer.customerName}</h3><div class="approval-meta">${customer.region || 'Unassigned'} · Van ${customer.van || 'Unassigned'}<br>${products}<br>Total ${money(customer.totalAmount)} · Requested ${new Date(customer.createdAt).toLocaleString()}</div><div class="approval-actions"><label>Operating deadline<input type="date" data-deadline="${customer.id}" required></label><button class="button" data-approve="${customer.id}" type="button">Approve</button><button class="button danger" data-decline="${customer.id}" type="button">Decline</button></div></article>`; }).join('') : '<div class="empty">There are no pending approval requests for this region and van.</div>';
 			document.querySelectorAll('[data-approve]').forEach((button) => button.addEventListener('click', () => reviewCustomer(button.dataset.approve, 'approved')));
 			document.querySelectorAll('[data-decline]').forEach((button) => button.addEventListener('click', () => reviewCustomer(button.dataset.decline, 'declined')));
 		}
@@ -471,23 +599,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			const deadline = document.querySelector(`[data-deadline="${id}"]`).value;
 			if (status === 'approved' && !deadline) { $('adminStatus').textContent = 'Set an operating deadline before approving a request.'; $('adminStatus').className = 'message error'; return; }
 			try { const response = await fetch(`${API_URL}/customers/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ status, operatingDeadline: deadline }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to update approval'); $('adminStatus').textContent = `Request ${status}.`; $('adminStatus').className = ''; loadCustomers(); } catch (error) { $('adminStatus').textContent = error.message; $('adminStatus').className = 'message error'; }
-		}
-		function createSkuRow() {
-			const row = document.createElement('div');
-			row.className = 'sku-row';
-			row.innerHTML = productFieldMarkup('', 'sku-product', 'sku-custom') + '<label>Pieces<input class="sku-pieces" type="number" min="1" step="1" placeholder="0" required></label><label>Price per item (KES)<input class="sku-price" type="number" min="0" step="0.01" placeholder="0" required></label><label>Expiry date<input class="sku-expiry" type="date" required></label><button class="button danger remove-sku" type="button" title="Remove this SKU">Remove</button>';
-			linkProductField(row, updateCustomerTotal);
-			row.querySelectorAll('input').forEach((input) => input.addEventListener('input', updateCustomerTotal));
-			row.querySelector('.remove-sku').addEventListener('click', () => { if (document.querySelectorAll('.sku-row').length > 1) { row.remove(); updateCustomerTotal(); } });
-			$('skuList').appendChild(row);
-		}
-		function collectProducts() {
-			return [...document.querySelectorAll('.sku-row')].map((row) => ({
-				product: productNameFromRow(row),
-				pieces: Number(row.querySelector('.sku-pieces').value),
-				pricePerItem: Number(row.querySelector('.sku-price').value),
-				expiryDate: row.querySelector('.sku-expiry').value
-			}));
 		}
 		async function loadAdminData() {
 			if (currentUser?.role !== 'admin') return;
@@ -514,24 +625,13 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 				$('customerStatus').textContent = error.message;
 			}
 		}
-		function updateCustomerTotal() { $('customerTotal').value = money(collectProducts().reduce((sum, item) => sum + ((item.pieces || 0) * (item.pricePerItem || 0)), 0)); }
-		async function addCustomer(event) {
-			event.preventDefault();
-			const message = $('customerMessage');
-			const customer = { customerName: $('customerName').value.trim(), products: collectProducts() };
-			try {
-				const response = await fetch(`${API_URL}/customers`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(customer) });
-				const data = await response.json();
-				if (!response.ok) throw new Error(data.message || 'Unable to save customer');
-				$('customerForm').reset(); $('skuList').innerHTML = ''; createSkuRow(); $('customerForm').classList.add('hidden'); message.textContent = ''; $('customerStatus').textContent = 'Live records from Dahlia Blue Band Sort API'; loadCustomers();
-			} catch (error) { message.textContent = error.message || 'Unable to save customer request.'; message.className = 'message error'; }
-		}
 
 		$('loginForm').addEventListener('submit', async (event) => {
 			event.preventDefault();
 			const message = $('loginMessage');
-			const body = { username: $('loginUsername').value.trim(), password: $('loginPassword').value, region: $('loginRegion').value };
-			if (authMode === 'register') { body.name = $('loginName').value.trim(); body.email = $('loginEmail').value.trim(); body.region = $('loginRegion').value; }
+			const adminMode = authMode === 'login' && $('loginRole').value === 'admin';
+			const body = { username: $('loginUsername').value.trim(), password: $('loginPassword').value, role: adminMode ? 'admin' : 'user', region: adminMode ? '' : $('loginRegion').value, van: adminMode ? '' : $('loginVan').value };
+			if (authMode === 'register') { body.name = $('loginName').value.trim(); body.email = $('loginEmail').value.trim(); body.role = 'user'; }
 			try {
 				const response = await fetch(`${API_URL}/auth/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 				const data = await response.json();
@@ -539,19 +639,34 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 				localStorage.setItem('newDayToken', data.token); setUser(data.user); message.textContent = ''; showApp();
 			} catch (error) { message.textContent = error.message; message.className = 'message error'; }
 		});
-		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Select your region, then create an account to access customer sales and records.' : 'Choose your region and sign in to manage customer sales and records.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / 2002'; $('loginMessage').textContent = ''; });
+		function populateLoginVans() {
+			const select = $('loginVan');
+			const region = $('loginRegion').value;
+			const vans = regionVans[region] || [];
+			select.innerHTML = '<option value="">Choose your van</option>' + vans.map((van) => '<option value="' + van + '">' + van + '</option>').join('');
+			$('vanField').classList.toggle('hidden', !vans.length);
+			$('loginVan').required = vans.length > 0;
+		}
+		function updateLoginRoleFields() {
+			const adminMode = authMode === 'login' && $('loginRole').value === 'admin';
+			$('regionField').classList.toggle('hidden', adminMode);
+			$('loginRegion').required = !adminMode;
+			if (adminMode) { $('loginRegion').value = ''; $('loginVan').value = ''; $('vanField').classList.add('hidden'); $('loginVan').required = false; return; }
+			populateLoginVans();
+		}
+		$('loginRole').addEventListener('change', updateLoginRoleFields);
+		$('loginRegion').addEventListener('change', populateLoginVans);
+		$('authToggle').addEventListener('click', () => { authMode = authMode === 'login' ? 'register' : 'login'; const registering = authMode === 'register'; $('nameField').classList.toggle('hidden', !registering); $('emailField').classList.toggle('hidden', !registering); $('loginName').required = registering; $('loginEmail').required = registering; const adminOption = $('loginRoleAdmin'); if (adminOption) { adminOption.disabled = registering; if (registering) $('loginRole').value = 'user'; } $('authSubmit').textContent = registering ? 'Create account' : 'Sign in to workspace'; $('authModeLabel').textContent = registering ? 'Already registered?' : 'Have an account?'; $('authToggle').textContent = registering ? 'Sign in' : 'Create one'; $('authIntro').textContent = registering ? 'Select your region and van, then create an account to access customer sales and records.' : 'Choose User or Admin, your region, and your van to manage customer sales and records.'; $('authHint').textContent = registering ? 'Use a unique username and a password with at least 6 characters.' : 'Existing account: Phillip / PHILO.01 (choose Admin)'; $('loginMessage').textContent = ''; updateLoginRoleFields(); });
 		$('logoutButton').addEventListener('click', () => { localStorage.removeItem('newDayToken'); localStorage.removeItem('newDayUser'); $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); $('loginForm').reset(); });
 		$('refreshButton').addEventListener('click', loadCustomers);
 		$('summaryRefreshButton').addEventListener('click', loadCustomers);
 		$('historyRefreshButton').addEventListener('click', loadCustomers);
 		$('adminRefreshButton').addEventListener('click', loadCustomers);
+		$('approvalRegionFilter').addEventListener('change', renderApprovals);
+		$('approvalVanFilter').addEventListener('change', renderApprovals);
 		$('settingsForm').addEventListener('submit', async (event) => { event.preventDefault(); const message = $('settingsMessage'); try { const response = await fetch(`${API_URL}/admin/settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ requestsOpen: $('requestsOpen').value === 'true', startDate: $('requestStart').value || null, endDate: $('requestEnd').value || null }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save request rules'); message.textContent = 'Request rules saved.'; message.className = 'message success'; } catch (error) { message.textContent = error.message; message.className = 'message error'; } });
 		document.querySelectorAll('[data-status-filter]').forEach((button) => button.addEventListener('click', () => { historyFilter = button.dataset.statusFilter; document.querySelectorAll('[data-status-filter]').forEach((tab) => tab.classList.toggle('active', tab === button)); renderHistory(); }));
-		$('addCustomerButton').addEventListener('click', () => { $('customerForm').classList.remove('hidden'); if (!document.querySelector('.sku-row')) createSkuRow(); $('customerName').focus(); });
-		$('addSkuButton').addEventListener('click', createSkuRow);
-		$('cancelCustomerButton').addEventListener('click', () => { $('customerForm').reset(); $('skuList').innerHTML = ''; createSkuRow(); $('customerForm').classList.add('hidden'); $('customerMessage').textContent = ''; });
-		$('customerForm').addEventListener('submit', addCustomer);
-		createSkuRow();
+		document.querySelectorAll('[data-summary-status]').forEach((button) => button.addEventListener('click', () => { summaryFilter = button.dataset.summaryStatus; document.querySelectorAll('[data-summary-status]').forEach((tab) => tab.classList.toggle('active', tab === button)); renderSummary(customerHistory); }));
 		function switchPage(page) {
 			const main = document.querySelector('main');
 			const buttons = document.querySelectorAll('[data-page]');
@@ -561,7 +676,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 			$('detailsPanel').classList.toggle('hidden', page !== 'details');
 			$('adminPanel').classList.toggle('hidden', page !== 'admin');
 			buttons.forEach((button) => button.classList.toggle('active', button.dataset.page === page));
-			if (page === 'customers') { $('customerForm').classList.remove('hidden'); $('customersPanel').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('customerName').focus(), 350); }
+			if (page === 'customers') { $('customersPanel').scrollIntoView({ behavior: 'smooth' }); }
 			if (page === 'details') { $('detailsPanel').scrollIntoView({ behavior: 'smooth' }); renderHistory(); }
 			if (page === 'admin') { $('adminPanel').scrollIntoView({ behavior: 'smooth' }); renderApprovals(); loadAdminData(); }
 			if (page === 'overview') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -573,12 +688,11 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
 <script>
 (() => {
   const style = document.createElement('style');
-  style.textContent = '.enhanced-tools{display:grid;grid-template-columns:1fr 180px auto;gap:10px;margin:14px 0}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.insight-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#f5faf6}.insight-card strong{display:block;font-size:21px;margin-top:6px}.inventory-list{display:grid;gap:8px;margin-top:12px}.inventory-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);font:12px Arial,sans-serif}.alert{color:#b24b38}.editor{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:6px;background:#fff}.editor .form-grid{grid-template-columns:1fr 1fr}.edit-form{display:grid;gap:14px}.edit-product{padding:14px;border:1px solid var(--line);border-radius:6px;background:#fbfcfa}.edit-product .remove-edit-product{justify-self:end;align-self:end}.notes{margin-top:8px;font:12px/1.45 Arial,sans-serif;color:var(--muted)}.user-actions{display:flex;gap:8px;align-items:center}.mini-button{padding:7px 9px;font-size:10px}@media(max-width:700px){.enhanced-tools,.insights,.editor .form-grid{grid-template-columns:1fr}.customer-row{grid-template-columns:1fr}.user-actions{flex-wrap:wrap}}';
+  style.textContent = '.enhanced-tools{display:grid;grid-template-columns:1fr 180px 180px auto;gap:10px;margin:14px 0}.approval-tools{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.approval-tools label{display:flex;flex-direction:column;gap:6px;font:12px Arial,sans-serif;color:var(--muted)}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.insight-card{border:1px solid var(--line);border-radius:6px;padding:14px;background:#f5faf6}.insight-card strong{display:block;font-size:21px;margin-top:6px}.inventory-list{display:grid;gap:8px;margin-top:12px}.inventory-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border-bottom:1px solid var(--line);font:12px Arial,sans-serif}.alert{color:#b24b38}.claim-meta{font-size:11px;color:var(--muted)}.editor{margin:14px 0;padding:18px;border:1px solid var(--line);border-radius:6px;background:#fff}.editor .form-grid{grid-template-columns:1fr 1fr}.edit-form{display:grid;gap:14px}.edit-product{padding:14px;border:1px solid var(--line);border-radius:6px;background:#fbfcfa}.edit-product .remove-edit-product{justify-self:end;align-self:end}.notes{margin-top:8px;font:12px/1.45 Arial,sans-serif;color:var(--muted)}.user-actions{display:flex;gap:8px;align-items:center}.mini-button{padding:7px 9px;font-size:10px}@media(max-width:700px){.enhanced-tools,.insights,.editor .form-grid{grid-template-columns:1fr}.customer-row{grid-template-columns:1fr}.user-actions{flex-wrap:wrap}}';
   document.head.appendChild(style);
 
-  const tools = '<div id="enhancedTools" class="enhanced-tools"><input id="customerSearch" type="search" placeholder="Search customers or products"><select id="customerFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option></select><select id="customerRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select></div><section id="insights" class="insights"></section><section class="panel"><div class="panel-heading"><div><h2>Stock & expiry watch</h2><small>Based on products in customer records.</small></div><label>Low-stock alert<input id="lowStockThreshold" type="number" min="1" value="20"></label></div><div id="inventoryList" class="inventory-list"></div></section><section id="customerEditor" class="editor hidden"></section><section id="customerNotesPanel" class="editor hidden"></section>';
+  const tools = '<div id="enhancedTools" class="enhanced-tools"><input id="customerSearch" type="search" placeholder="Search customers or products"><select id="customerFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option></select><select id="customerRegionFilter"><option value="all">All regions</option><option value="Kakamega">Kakamega</option><option value="Webuye">Webuye</option><option value="Busia">Busia</option><option value="Luanda">Luanda</option><option value="Unassigned">Unassigned</option></select><select id="customerVanFilter"><option value="all">All vans</option></select></div><section id="insights" class="insights"></section><section id="customerEditor" class="editor hidden"></section><section id="customerNotesPanel" class="editor hidden"></section>';
   document.querySelector('#customersPanel .panel-heading').insertAdjacentHTML('afterend', tools);
-  document.querySelector('#adminPanel .panel-heading').insertAdjacentHTML('beforeend', '<button id="adminExportCustomers" class="button secondary" type="button">Export customer CSV</button>');
 
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]));
   const currency = (value) => new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(Number(value) || 0);
@@ -590,21 +704,6 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     const pending = customers.filter((customer) => (customer.status || 'pending') === 'pending');
     const sales = customers.reduce((sum, customer) => sum + (Number(customer.totalAmount) || 0), 0);
     document.getElementById('insights').innerHTML = '<article class="insight-card"><span>Total sales</span><strong>' + currency(sales) + '</strong><small>All customer records</small></article><article class="insight-card"><span>Approved customers</span><strong>' + approved.length + '</strong><small>' + pending.length + ' awaiting review</small></article><article class="insight-card"><span>Products recorded</span><strong>' + customers.reduce((sum, customer) => sum + (customer.products || []).reduce((count, product) => count + (Number(product.pieces) || 0), 0), 0).toLocaleString() + '</strong><small>Units across all sales</small></article>';
-    const threshold = Number(document.getElementById('lowStockThreshold').value) || 20;
-    const products = {};
-    customers.forEach((customer) => (customer.products || []).forEach((product) => {
-      const key = product.product || 'Unnamed product';
-      products[key] = products[key] || { pieces: 0, dates: [] };
-      products[key].pieces += Number(product.pieces) || 0;
-      if (product.expiryDate) products[key].dates.push(product.expiryDate);
-    }));
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const list = Object.entries(products).sort((a, b) => a[1].pieces - b[1].pieces);
-    document.getElementById('inventoryList').innerHTML = list.length ? list.map(([name, info]) => {
-      const nearest = info.dates.sort()[0];
-      const expiry = nearest && new Date(nearest + 'T00:00:00') <= new Date(today.getTime() + 30 * 86400000);
-      return '<div class="inventory-item"><span><strong>' + esc(name) + '</strong><br><span class="' + (expiry ? 'alert' : '') + '">Nearest expiry: ' + day(nearest) + (expiry ? ' — check soon' : '') + '</span></span><strong class="' + (info.pieces <= threshold ? 'alert' : '') + '">' + info.pieces + ' units' + (info.pieces <= threshold ? ' · low' : '') + '</strong></div>';
-    }).join('') : '<div class="empty">Add customer products to see stock and expiry alerts.</div>';
   }
 
   function renderEnhancedCustomers(customers) {
@@ -613,14 +712,21 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     const query = document.getElementById('customerSearch').value.trim().toLowerCase();
     const status = document.getElementById('customerFilter').value;
     const region = document.getElementById('customerRegionFilter').value;
+    const van = document.getElementById('customerVanFilter').value;
+    const vanSelect = document.getElementById('customerVanFilter');
+    const knownVans = { all: true };
+    (typeof regionVans !== 'undefined' ? Object.values(regionVans).flat() : []).forEach((unit) => { knownVans[unit] = true; });
+    customers.forEach((customer) => { if (customer.van) knownVans[customer.van] = true; });
+    const vanOptions = Object.keys(knownVans).sort().map((unit) => '<option value="' + esc(unit) + '">' + (unit === 'all' ? 'All vans' : unit) + '</option>').join('');
+    if (vanSelect.innerHTML !== vanOptions) vanSelect.innerHTML = vanOptions;
     const shown = customers.filter((customer) => {
       const text = (customer.customerName + ' ' + (customer.products || []).map((product) => product.product).join(' ')).toLowerCase();
-      return (!query || text.includes(query)) && (status === 'all' || (customer.status || 'pending') === status) && (region === 'all' || (customer.region || 'Unassigned') === region);
+      return (!query || text.includes(query)) && (status === 'all' || (customer.status || 'pending') === status) && (region === 'all' || (customer.region || 'Unassigned') === region) && (van === 'all' || (customer.van || 'Unassigned') === van);
     });
     document.getElementById('customerCount').textContent = customers.length;
     document.getElementById('pieceCount').textContent = customers.reduce((sum, customer) => sum + (customer.totalPieces || 0), 0).toLocaleString();
     document.getElementById('salesTotal').textContent = currency(customers.reduce((sum, customer) => sum + (customer.totalAmount || 0), 0));
-    document.getElementById('customerList').innerHTML = shown.length ? shown.map((customer) => '<div class="customer-row"><div><strong>' + esc(customer.customerName) + '</strong><span>' + (customer.products || []).map((product) => esc(product.product) + ' · ' + product.pieces + ' pcs · exp ' + esc(product.expiryDate)).join('<br>') + '</span><span>' + esc(customer.region || 'Unassigned') + ' · ' + new Date(customer.createdAt).toLocaleDateString() + ' · ' + esc(customer.status || 'pending') + '</span></div><div><span>Units</span><strong>' + (customer.totalPieces || 0) + '</strong></div><div><span>Value</span><strong>' + currency(customer.totalAmount) + '</strong></div><div class="user-actions"><button class="button secondary mini-button" data-edit="' + customer.id + '" type="button">Edit</button><button class="button secondary mini-button" data-notes="' + customer.id + '" type="button">Notes</button><button class="button danger mini-button" data-delete="' + customer.id + '" type="button">Delete</button></div></div>').join('') : '<div class="empty">No customers match this search.</div>';
+    document.getElementById('customerList').innerHTML = shown.length ? shown.map((customer) => '<div class="customer-row"><div><strong>' + esc(customer.customerName) + '</strong><span>' + (customer.products || []).map((product) => esc(product.product) + ' · ' + product.pieces + ' pcs · exp ' + esc(product.expiryDate)).join('<br>') + '</span><span>' + esc(customer.region || 'Unassigned') + ' · Van ' + esc(customer.van || 'Unassigned') + ' · ' + new Date(customer.createdAt).toLocaleDateString() + ' · ' + esc(customer.status || 'pending') + '</span></div><div><span>Units</span><strong>' + (customer.totalPieces || 0) + '</strong></div><div><span>Value</span><strong>' + currency(customer.totalAmount) + '</strong></div><div class="user-actions"><button class="button secondary mini-button" data-edit="' + customer.id + '" type="button">Edit</button><button class="button secondary mini-button" data-notes="' + customer.id + '" type="button">Notes</button><button class="button danger mini-button" data-delete="' + customer.id + '" type="button">Delete</button></div></div>').join('') : '<div class="empty">No customers match this search.</div>';
     document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteCustomer(button.dataset.delete)));
     document.querySelectorAll('[data-edit]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.edit)));
     document.querySelectorAll('[data-notes]').forEach((button) => button.addEventListener('click', () => openNotes(button.dataset.notes)));
@@ -660,11 +766,29 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     document.getElementById('closeNotes').addEventListener('click', () => panel.classList.add('hidden'));
     document.getElementById('noteForm').addEventListener('submit', async (event) => { event.preventDefault(); try { const response = await fetch(API_URL + '/customers/' + id + '/notes', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ note: document.getElementById('newNote').value }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to save note'); openNotes(id); loadCustomers(); } catch (error) { document.getElementById('noteMessage').textContent = error.message; document.getElementById('noteMessage').className = 'message error'; } });
   }
-  function exportCustomers() {
-    const header = ['Customer','Region','Status','Products','Pieces','Total KES','Created'];
-    const rows = allCustomers.map((customer) => [customer.customerName, customer.region || 'Unassigned', customer.status || 'pending', (customer.products || []).map((product) => product.product + ' (' + product.pieces + ')').join('; '), customer.totalPieces, customer.totalAmount, customer.createdAt]);
-    const csv = [header, ...rows].map((row) => row.map((value) => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"').join(',')).join('\n');
-    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = 'new-day-customers.csv'; link.click(); URL.revokeObjectURL(link.href);
+  async function exportDecidedRequests() {
+    const status = document.getElementById('historyStatus');
+    try {
+      const response = await fetch(API_URL + '/customers/export', { headers: authHeaders() });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Unable to export requests');
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const filename = (disposition.match(/filename="?([^"]+)"?/i) || [])[1] || 'DAHLIA-BOTTLERS-REQUESTS.xlsx';
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      if (status) { status.className = 'message success'; status.textContent = 'Exported approved and declined requests to Excel.'; }
+    } catch (error) {
+      if (status) { status.className = 'message error'; status.textContent = error.message; }
+    }
   }
   function setConnectionStatus(online) {
     const badge = document.getElementById('connectionBadge');
@@ -698,14 +822,15 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     const list = document.getElementById('userList');
     if (!list) return;
     if (!overviewUsers.length) { list.innerHTML = '<div class="empty">No users registered yet.</div>'; return; }
-    list.innerHTML = '<table class="user-table"><thead><tr><th>User</th><th>Region</th><th>Status</th><th>Last sign-in</th><th>Actions</th></tr></thead><tbody>' + overviewUsers.map((user) => {
+    list.innerHTML = '<table class="user-table"><thead><tr><th>User</th><th>Region</th><th>Van</th><th>Status</th><th>Last sign-in</th><th>Actions</th></tr></thead><tbody>' + overviewUsers.map((user) => {
       const last = lastLoginFor(user.id);
       const lastText = last ? new Date(last).toLocaleString() : 'Never signed in';
-      return '<tr><td>' + esc(user.name) + '<br><span>' + esc(user.username) + '</span></td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + (isOnline(user.id) ? '<span class="status-badge approved">Online</span>' : '<span class="status-badge declined">Offline</span>') + '</td><td>' + esc(lastText) + '</td><td class="user-actions"><button class="button secondary mini-button" data-overview-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-overview-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-overview-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>';
+      return '<tr><td>' + esc(user.name) + '<br><span>' + esc(user.username) + '</span></td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + esc(user.van || '—') + '</td><td>' + (isOnline(user.id) ? '<span class="status-badge approved">Online</span>' : '<span class="status-badge declined">Offline</span>') + '</td><td>' + esc(lastText) + '</td><td class="user-actions"><button class="button secondary mini-button" data-overview-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-overview-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-overview-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button><button class="button danger mini-button" data-overview-delete="' + user.id + '" type="button">Delete</button></td></tr>';
     }).join('') + '</tbody></table>';
     document.querySelectorAll('[data-overview-edit]').forEach((button) => button.addEventListener('click', () => overviewEditAccount(button.dataset.overviewEdit)));
     document.querySelectorAll('[data-overview-password]').forEach((button) => button.addEventListener('click', () => overviewResetPassword(button.dataset.overviewPassword)));
     document.querySelectorAll('[data-overview-role]').forEach((button) => button.addEventListener('click', () => overviewToggleRole(button.dataset.overviewRole, button.dataset.role)));
+    document.querySelectorAll('[data-overview-delete]').forEach((button) => button.addEventListener('click', () => overviewDeleteAccount(button.dataset.overviewDelete)));
   }
   async function loadOverviewControls() {
     if (!currentUser || currentUser.role !== 'admin') return;
@@ -755,16 +880,41 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       setOverviewStatus(data.message, 'success');
     } catch (error) { setOverviewStatus(error.message, 'error'); }
   }
+  async function overviewDeleteAccount(id) {
+    const account = overviewUsers.find((item) => item.id === id);
+    if (!confirm('Delete the account for ' + (account ? account.name || account.username : 'this user') + '? This cannot be undone.')) return;
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id, { method: 'DELETE', headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to delete the account');
+      setOverviewStatus(data.message, 'success');
+      loadOverviewControls();
+    } catch (error) { setOverviewStatus(error.message, 'error'); }
+  }
   document.getElementById('overviewAdminRefreshButton').addEventListener('click', loadOverviewControls);
   document.getElementById('customerSearch').addEventListener('input', () => renderEnhancedCustomers(allCustomers));
   document.getElementById('customerFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
   document.getElementById('customerRegionFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
-  document.getElementById('lowStockThreshold').addEventListener('input', () => updateInsights(allCustomers));
-  document.getElementById('adminExportCustomers').addEventListener('click', exportCustomers);
+  document.getElementById('customerVanFilter').addEventListener('change', () => renderEnhancedCustomers(allCustomers));
+  document.getElementById('exportDecidedButton').addEventListener('click', exportDecidedRequests);
 
   let accounts = [];
   let accountEditingId = null;
 
+  function populateAccountVans() {
+    const field = document.getElementById('accountVanField');
+    const select = document.getElementById('accountVan');
+    const region = document.getElementById('accountRegion').value;
+    const role = document.getElementById('accountRole').value;
+    const isAdmin = role === 'admin';
+    field.classList.toggle('hidden', isAdmin);
+    if (isAdmin) { select.innerHTML = '<option value="">None</option>'; select.value = ''; return; }
+    const vans = (typeof regionVans !== 'undefined' ? regionVans[region] : null) || [];
+    const previous = select.value;
+    select.innerHTML = '<option value="">' + (region ? 'Choose a van' : 'Choose a region first') + '</option>' + vans.map((van) => '<option value="' + van + '">' + van + '</option>').join('');
+    select.value = vans.includes(previous) ? previous : '';
+    field.classList.remove('hidden');
+  }
   function resetAccountForm() {
     document.getElementById('accountForm').reset();
     document.getElementById('accountPassword').placeholder = 'At least 6 characters';
@@ -772,6 +922,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     document.getElementById('accountSubmit').textContent = 'Add account';
     document.getElementById('accountFormTitle').textContent = 'Add account';
     document.getElementById('accountMessage').textContent = '';
+    populateAccountVans();
   }
   function setAccountsStatus(message, className = '') {
     document.getElementById('accountsStatus').textContent = message || 'Create user accounts, set or reset passwords, and edit login names.';
@@ -784,10 +935,11 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       if (!response.ok) throw new Error(data.message || 'Unable to load accounts');
       accounts = data.users;
       const list = document.getElementById('accountList');
-      list.innerHTML = accounts.length ? '<table class="user-table"><thead><tr><th>Login name</th><th>Full name</th><th>Email</th><th>Region</th><th>Role</th><th>Actions</th></tr></thead><tbody>' + accounts.map((user) => '<tr><td>' + esc(user.username) + '</td><td>' + esc(user.name) + '</td><td>' + esc(user.email || '—') + '</td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + esc(user.role) + '</td><td class="user-actions"><button class="button secondary mini-button" data-account-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-account-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-account-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button></td></tr>').join('') + '</tbody></table>' : '<div class="empty">No accounts yet.</div>';
+      list.innerHTML = accounts.length ? '<table class="user-table"><thead><tr><th>Login name</th><th>Full name</th><th>Email</th><th>Region</th><th>Van</th><th>Role</th><th>Actions</th></tr></thead><tbody>' + accounts.map((user) => '<tr><td>' + esc(user.username) + '</td><td>' + esc(user.name) + '</td><td>' + esc(user.email || '—') + '</td><td>' + esc(user.region || 'Unassigned') + '</td><td>' + esc(user.van || '—') + '</td><td>' + esc(user.role) + '</td><td class="user-actions"><button class="button secondary mini-button" data-account-edit="' + user.id + '" type="button">Edit</button><button class="button secondary mini-button" data-account-password="' + user.id + '" type="button">Password</button><button class="button secondary mini-button" data-account-role="' + user.id + '" data-role="' + (user.role === 'admin' ? 'user' : 'admin') + '" type="button">Make ' + (user.role === 'admin' ? 'user' : 'admin') + '</button><button class="button danger mini-button" data-account-delete="' + user.id + '" type="button">Delete</button></td></tr>').join('') + '</tbody></table>' : '<div class="empty">No accounts yet.</div>';
       document.querySelectorAll('[data-account-edit]').forEach((button) => button.addEventListener('click', () => openAccountEdit(button.dataset.accountEdit)));
       document.querySelectorAll('[data-account-password]').forEach((button) => button.addEventListener('click', () => resetAccountPassword(button.dataset.accountPassword)));
       document.querySelectorAll('[data-account-role]').forEach((button) => button.addEventListener('click', () => toggleAccountRole(button.dataset.accountRole, button.dataset.role)));
+      document.querySelectorAll('[data-account-delete]').forEach((button) => button.addEventListener('click', () => deleteAccount(button.dataset.accountDelete)));
     } catch (error) {
       document.getElementById('accountList').innerHTML = '<div class="empty">' + esc(error.message) + '</div>';
       setAccountsStatus(error.message, 'error');
@@ -803,6 +955,8 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     document.getElementById('accountEmail').value = account.email || '';
     document.getElementById('accountRegion').value = account.region || '';
     document.getElementById('accountRole').value = account.role || 'user';
+    populateAccountVans();
+    document.getElementById('accountVan').value = account.van || '';
     document.getElementById('accountPassword').value = '';
     document.getElementById('accountPassword').placeholder = 'Leave blank to keep the current password';
     document.getElementById('accountCancel').classList.remove('hidden');
@@ -814,12 +968,21 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   async function submitAccount(event) {
     event.preventDefault();
     const message = document.getElementById('accountMessage');
+    const role = document.getElementById('accountRole').value;
+    const region = document.getElementById('accountRegion').value;
+    const van = role === 'admin' ? '' : document.getElementById('accountVan').value;
+    if (role === 'user' && (!region || !van)) {
+      message.textContent = 'Choose a region and a van for the user';
+      message.className = 'message error';
+      return;
+    }
     const payload = {
       name: document.getElementById('accountName').value.trim(),
       username: document.getElementById('accountUsername').value.trim(),
       email: document.getElementById('accountEmail').value.trim(),
-      region: document.getElementById('accountRegion').value,
-      role: document.getElementById('accountRole').value
+      region,
+      van,
+      role
     };
     const newPassword = document.getElementById('accountPassword').value;
     try {
@@ -861,6 +1024,19 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
       setAccountsStatus(error.message, 'error');
     }
   }
+  async function deleteAccount(id) {
+    const account = accounts.find((item) => item.id === id);
+    if (!confirm('Delete the account for ' + (account ? account.name || account.username : 'this user') + '? This cannot be undone.')) return;
+    try {
+      const response = await fetch(API_URL + '/admin/users/' + id, { method: 'DELETE', headers: authHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to delete the account');
+      setAccountsStatus(data.message, 'success');
+      loadAccounts();
+    } catch (error) {
+      setAccountsStatus(error.message, 'error');
+    }
+  }
   async function resetAccountPassword(id) {
     const account = accounts.find((item) => item.id === id);
     const newPassword = prompt('New password for ' + (account ? account.name || account.username : 'this account') + ' (at least 6 characters):');
@@ -879,6 +1055,9 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   document.getElementById('accountForm').addEventListener('submit', submitAccount);
   document.getElementById('accountCancel').addEventListener('click', cancelAccountEdit);
   document.getElementById('accountsRefreshButton').addEventListener('click', loadAccounts);
+  document.getElementById('accountRegion').addEventListener('change', populateAccountVans);
+  document.getElementById('accountRole').addEventListener('change', populateAccountVans);
+  populateAccountVans();
 
   const originalSwitchPageForAccounts = window.switchPage;
   window.switchPage = function switchAccountsPage(page) {
@@ -903,6 +1082,7 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   const CLAIMS_URL = '/api/claims';
   const CATALOG_OPTIONS_URL = '/api/catalog/options';
   const CATALOG_MANAGE_URL = '/api/catalog/manage';
+  const regionVanMap = (typeof regionVans !== 'undefined') ? regionVans : {};
 
   const escHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
   const claimMoney = (value) => Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -925,7 +1105,8 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     $('claimsAdminStatus').className = message ? `message ${className}` : 'message';
   }
   function updateClaimsNav() {
-    $('claimsAdminNav').classList.toggle('hidden', !(currentUser && currentUser.role === 'admin'));
+    const admin = !!(currentUser && currentUser.role === 'admin');
+    $('claimsAdminPanel').classList.toggle('hidden', !admin);
   }
 
   function createClaimRow() {
@@ -1047,23 +1228,97 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     return { claimNumber: 'DRAFT', customerId: customerSelect.value, customerName: customerSelect.selectedOptions[0].textContent, items, totalAmount, totalDiscount, createdBy: (currentUser && currentUser.username) || '', createdAt: new Date().toISOString() };
   }
   function buildClaimDocumentHtml(claim) {
-    const rows = claim.items.map((item) => `<tr><td class="sku">${escHtml(item.skuName)}</td><td class="num">${moneyLine(item.quantity)}</td><td class="num">${claimMoney(item.amount)}</td><td class="num">${claimMoney(item.discountAmount)}</td></tr>`).join('');
+    const mode = String(claim.approvalMode) === '100' ? '100' : '50';
+    const region = String(claim.region || 'Unassigned').toUpperCase();
+    const van = String(claim.van || '').toUpperCase();
+    const customerName = String(claim.customerName || '').toUpperCase();
+    const customerLine = van ? `${escHtml(customerName)} - ("${escHtml(van)}")` : escHtml(customerName);
+    const rows = (claim.items || []).map((item) => `<tr>
+      <td class="sku">${escHtml(item.skuName)}</td>
+      <td class="num">${moneyLine(item.quantity)}</td>
+      <td class="num">${claimMoney(item.amount)}</td>
+      <td class="num claimed">${claimMoney(item.discountAmount)}</td>
+      <td class="num"><span class="off-tag">${mode}% OFF</span></td>
+    </tr>`).join('');
+    const approvedLine = claim.status === 'approved' && (claim.approvedByName || claim.approvedBy)
+      ? `<br>Approved by ${escHtml(claim.approvedByName || claim.approvedBy)}${claim.approvedAt ? ' on ' + new Date(claim.approvedAt).toLocaleString() : ''}`
+      : '';
     return `<div class="claim-document">
-      <h1>DAHLIA BOTTLERS CLAIMS</h1>
-      <p class="cust">Customer name: <strong>${escHtml(claim.customerName)}</strong></p>
+      <div class="doc-band"></div>
+      <h1 class="doc-title">DAHLIA TRADING COMPANY ("${escHtml(region)}")</h1>
+      <p class="cust">${customerLine}</p>
+      <p class="doc-meta">Customer claim form · ${escHtml(claim.claimNumber)} · ${new Date(claim.createdAt).toLocaleDateString()}</p>
       <table>
-        <thead><tr><th>SKUS</th><th>QUANTITY (PCS)</th><th>PRICE</th><th>50% OFF</th></tr></thead>
-        <tbody>${rows}<tr class="total-row"><td>TOTAL</td><td class="num"></td><td class="num">${claimMoney(claim.totalAmount)}</td><td class="num">${claimMoney(claim.totalDiscount)}</td></tr></tbody>
+        <thead><tr><th>SKU</th><th>QUANTITY (PCS)</th><th>ORIGINAL PRICE (KES)</th><th>PRICE TO BE CLAIMED (KES)</th><th>DISCOUNT</th></tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="total-row"><td colspan="2">TOTAL</td><td class="num">${claimMoney(claim.totalAmount)}</td><td class="num claimed">${claimMoney(claim.totalDiscount)}</td><td class="num"></td></tr>
+        </tbody>
       </table>
-      <p class="foot">${escHtml(claim.claimNumber)} · Prepared by ${escHtml(claim.createdBy)} · ${new Date(claim.createdAt).toLocaleString()} · Prepared on ${new Date().toLocaleDateString()}</p>
+      <p class="claim-summary">Total price to be claimed: <strong>KES ${claimMoney(claim.totalDiscount)}</strong> (${mode}% off approved)</p>
+      <div class="sign-block">
+        <div class="sign-box"><span>Customer stamp / signature</span></div>
+        <div class="sign-box"><span>Verified by (stamp / signature)</span></div>
+      </div>
+      <p class="foot">Prepared by ${escHtml(claim.createdBy || '')} · Printed on ${new Date().toLocaleDateString()}${approvedLine}</p>
     </div>`;
   }
-  function printClaim(claim) {
-    $('printArea').innerHTML = buildClaimDocumentHtml(claim);
+  function printDocuments(claims) {
+    $('printArea').innerHTML = claims.map((claim, index) => buildClaimDocumentHtml(claim) + (index < claims.length - 1 ? '<div class="print-page-break"></div>' : '')).join('');
     document.body.classList.add('printing');
     window.print();
     document.body.classList.remove('printing');
     $('printArea').innerHTML = '';
+  }
+  function printDocument(claim) {
+    printDocuments([claim]);
+  }
+  function filteredApprovedClaims() {
+    const regionSelect = $('claimRegionFilter');
+    const vanSelect = $('claimVanFilter');
+    const region = regionSelect ? regionSelect.value : 'all';
+    const van = vanSelect ? vanSelect.value : 'all';
+    return (claimsCatalog || []).filter((claim) => claim.status === 'approved'
+      && (region === 'all' || (claim.region || 'Unassigned') === region)
+      && (van === 'all' || (claim.van || 'Unassigned') === van));
+  }
+  function renderClaimList() {
+    const regionSelect = $('claimRegionFilter');
+    const vanSelect = $('claimVanFilter');
+    if (!regionSelect || !vanSelect) return;
+    const approved = (claimsCatalog || []).filter((claim) => claim.status === 'approved');
+    const regions = new Set(['Kakamega', 'Webuye', 'Busia', 'Luanda', 'Unassigned']);
+    Object.keys(regionVanMap).forEach((name) => regions.add(name));
+    approved.forEach((claim) => regions.add(claim.region || 'Unassigned'));
+    const previousRegion = regionSelect.value;
+    regionSelect.innerHTML = '<option value="all">All regions</option>' + [...regions].sort().map((name) => `<option value="${escHtml(name)}">${escHtml(name)}</option>`).join('');
+    regionSelect.value = regions.has(previousRegion) ? previousRegion : 'all';
+    const region = regionSelect.value;
+    if (region === 'all') {
+      vanSelect.innerHTML = '<option value="all">All vans</option>';
+      vanSelect.value = 'all';
+      vanSelect.disabled = true;
+    } else {
+      const units = new Set(regionVanMap[region] || []);
+      approved.filter((claim) => (claim.region || 'Unassigned') === region).forEach((claim) => { if (claim.van) units.add(claim.van); });
+      const previousVan = vanSelect.value;
+      vanSelect.innerHTML = '<option value="all">All vans</option>' + [...units].sort().map((name) => `<option value="${escHtml(name)}">${escHtml(name)}</option>`).join('');
+      vanSelect.disabled = false;
+      vanSelect.value = units.has(previousVan) ? previousVan : 'all';
+    }
+    $('claimVanField').classList.toggle('hidden', region === 'all');
+    const shown = filteredApprovedClaims();
+    $('claimList').innerHTML = shown.length ? shown.map(claimListItem).join('') : '<div class="empty">No approved claims match this region and van yet.</div>';
+  }
+  function printApprovedClaims() {
+    const approved = filteredApprovedClaims();
+    if (!approved.length) { setClaimMessage('No approved claims match this region and van yet.', 'error'); return; }
+    printDocuments(approved);
+  }
+  function printAllApproved() {
+    const approved = (claimsCatalog || []).filter((claim) => claim.status === 'approved');
+    if (!approved.length) { claimsAdminMessage('No approved claims to print yet.', 'error'); return; }
+    printDocuments(approved);
   }
   function printClaimDraft() {
     const draft = claimFromForm();
@@ -1124,26 +1379,57 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
     }
   }
 
+  function claimStatusBadge(claim) {
+    if (claim.status === 'approved') return `<span class="status-badge approved">Approved ${claim.approvalMode || '50'}%</span>`;
+    if (claim.status === 'declined') return '<span class="status-badge declined">Declined</span>';
+    return '<span class="status-badge pending">Pending</span>';
+  }
+  function adminApprovalButtons(claim) {
+    if (!(currentUser && currentUser.role === 'admin')) return '';
+    if (claim.status === 'approved') return `<span class="claim-meta">Approved ${claim.approvalMode || '50'}% by ${escHtml(claim.approvedByName || claim.approvedBy || '')}</span>`;
+    if (claim.status === 'declined') return `<span class="claim-meta">Declined by ${escHtml(claim.approvedByName || claim.approvedBy || '')}</span>`;
+    return `<button class="button mini-button" data-approve-claim="${escHtml(claim.id)}" data-mode="50" type="button">Approve 50%</button><button class="button mini-button" data-approve-claim="${escHtml(claim.id)}" data-mode="100" type="button">Approve 100%</button><button class="button danger mini-button" data-decline-claim="${escHtml(claim.id)}" type="button">Decline</button>`;
+  }
   function claimListItem(claim) {
+    const mode = claim.approvalMode || '50';
+    const printable = claim.status === 'approved';
     return `<div class="claim-list-item">
-      <div><strong>${escHtml(claim.customerName)}</strong><span>${escHtml(claim.claimNumber)} · ${new Date(claim.createdAt).toLocaleDateString()}</span></div>
+      <div><strong>${escHtml(claim.customerName)}</strong><span>${escHtml(claim.claimNumber)} · ${new Date(claim.createdAt).toLocaleDateString()} · ${claim.van ? escHtml(claim.van) + ' · ' : ''}${claimStatusBadge(claim)}</span></div>
       <div><span>Total</span><strong>${claimMoney(claim.totalAmount)}</strong></div>
-      <div><span>50% off</span><strong>${claimMoney(claim.totalDiscount)}</strong></div>
-      <div class="user-actions">
-        <button class="button secondary mini-button" data-print-claim="${escHtml(claim.id)}" type="button">Print</button>
-        <button class="button secondary mini-button" data-excel-claim="${escHtml(claim.id)}" type="button">Excel</button>
-      </div>
+      <div><span>${mode}% off</span><strong>${claimMoney(claim.totalDiscount)}</strong></div>
+      <div class="user-actions">${printable ? `<button class="button secondary mini-button" data-print-claim="${escHtml(claim.id)}" type="button">Print</button><button class="button secondary mini-button" data-excel-claim="${escHtml(claim.id)}" type="button">Excel</button>` : '<span class="claim-meta">Only approved claims can be printed / exported.</span>'}${adminApprovalButtons(claim)}</div>
     </div>`;
+  }
+  async function approveClaim(id, mode) {
+    if (!(currentUser && currentUser.role === 'admin')) return;
+    const claim = claimsCatalog.find((item) => item.id === id);
+    const label = mode === 'declined' ? 'decline this claim' : 'approve this claim with ' + mode + '% off';
+    if (!confirm((claim ? claim.claimNumber + ' · ' + claim.customerName : 'This claim') + ' — ' + label + '?')) return;
+    try {
+      const response = await fetch(`${API_URL}${CLAIMS_URL}/${encodeURIComponent(id)}/approval`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(mode === 'declined' ? { status: 'declined' } : { status: 'approved', approvalMode: mode })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to update the claim');
+      claimsAdminMessage(data.message, 'success');
+      loadClaims();
+    } catch (error) {
+      claimsAdminMessage(error.message, 'error');
+    }
   }
   function wireClaimActions() {
     document.querySelectorAll('[data-print-claim]').forEach((button) => button.addEventListener('click', () => {
       const claim = claimsCatalog.find((item) => item.id === button.dataset.printClaim);
-      if (claim) printClaim(claim);
+      if (claim) printDocument(claim);
     }));
     document.querySelectorAll('[data-excel-claim]').forEach((button) => button.addEventListener('click', () => exportClaimExcel(button.dataset.excelClaim)));
+    document.querySelectorAll('[data-approve-claim]').forEach((button) => button.addEventListener('click', () => approveClaim(button.dataset.approveClaim, button.dataset.mode)));
+    document.querySelectorAll('[data-decline-claim]').forEach((button) => button.addEventListener('click', () => approveClaim(button.dataset.declineClaim, 'declined')));
   }
   function renderClaims(claims) {
-    $('claimList').innerHTML = claims.length ? claims.map(claimListItem).join('') : '<div class="empty">No claims yet — create your first claim on the left.</div>';
+    renderClaimList();
     if ($('claimAdminList')) $('claimAdminList').innerHTML = claims.length ? claims.map(claimListItem).join('') : '<div class="empty">No claims have been created yet.</div>';
     wireClaimActions();
   }
@@ -1307,6 +1593,10 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   $('printClaimDraftButton').addEventListener('click', printClaimDraft);
   $('exportClaimDraftButton').addEventListener('click', exportClaimDraft);
   $('claimsAdminRefreshButton').addEventListener('click', () => { loadAdminCatalog(); loadClaims(); });
+  $('printAllApprovedButton').addEventListener('click', printAllApproved);
+  $('printApprovedClaimsButton').addEventListener('click', printApprovedClaims);
+  $('claimRegionFilter').addEventListener('change', () => { renderClaimList(); wireClaimActions(); });
+  $('claimVanFilter').addEventListener('change', () => { renderClaimList(); wireClaimActions(); });
   $('addClaimCustomerButton').addEventListener('click', async () => {
     const name = $('claimNewCustomerName').value.trim();
     if (!name) return;
@@ -1348,17 +1638,12 @@ main:not(.customers-page):not(.details-page):not(.admin-page):not(.claims-page):
   window.switchPage = function switchClaimsPage(page) {
     const main = document.querySelector('main');
     main.classList.toggle('claims-page', page === 'claims');
-    main.classList.toggle('claims-admin-page', page === 'claims-admin');
     $('claimsPanel').classList.toggle('hidden', page !== 'claims');
-    $('claimsAdminPanel').classList.toggle('hidden', page !== 'claims-admin');
+    updateClaimsNav();
     if (page === 'claims') {
       claimsRefresh();
+      if (currentUser && currentUser.role === 'admin') { loadAdminCatalog(); }
       $('claimsPanel').scrollIntoView({ behavior: 'smooth' });
-    }
-    if (page === 'claims-admin') {
-      loadAdminCatalog();
-      loadClaims();
-      $('claimsAdminPanel').scrollIntoView({ behavior: 'smooth' });
     }
     originalSwitchPage(page);
   };

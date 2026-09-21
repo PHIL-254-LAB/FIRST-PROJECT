@@ -2,19 +2,37 @@
   {
     "id": "seed-phillip",
     "username": "phillip",
-    "passwordHash": "$2b$12$vJbZbws3yea.JKQt3SyIxumlIPrFwpDXvxwLVfMSiXb5ZRCaSx2MC",
+    "passwordHash": "$2b$12$UI58fyioMZzJhIOsLfqSf.hT3E6oig7ZGA9bXKdOL1awuUeLG7Zti",
     "name": "Phillip",
     "email": "phillip@newday.com",
-    "role": "user",
-    "createdAt": "2026-09-05T00:00:00.000Z"
+    "role": "admin",
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "region": "Kakamega",
+    "van": "",
+    "updatedAt": "2026-09-21T10:27:27.586Z",
+    "passwordChangedAt": "2026-09-21T10:20:36.766Z",
+    "roleChangedAt": "2026-09-21T10:20:36.786Z",
+    "updatedBy": "phillip"
   },
   {
     "id": "seed-admin",
     "username": "admin",
-    "passwordHash": "$2b$12$BWzxZFOIgT6Vba1t6RXck.hnfAoGcXVgB215qGp2pGf8J2N81SwU2",
+    "passwordHash": "$2b$12$F8y1ogl7nfSCtYGDlMU4au4VwDkowQwU3RGq0TXQN6s.E1awMWor2",
     "name": "Dahlia Administrator",
     "email": "admin@dahliabluebandsort.com",
     "role": "admin",
     "createdAt": "2026-09-05T00:00:00.000Z"
+  },
+  {
+    "id": "3837d407-76dc-417f-880c-4bf729a98e5f",
+    "username": "baraka",
+    "passwordHash": "$2b$12$f2P82Inc3ObtvNAk.gve2ecdeRQToyInvqadIt4ssCQa88S19nG.O",
+    "name": "baraka emmanuel",
+    "email": "baraka.newday@gmail.com",
+    "role": "user",
+    "region": "Kakamega",
+    "createdAt": "2026-09-21T09:42:12.960Z",
+    "van": "VAN D",
+    "updatedAt": "2026-09-21T10:53:28.535Z"
   }
 ]

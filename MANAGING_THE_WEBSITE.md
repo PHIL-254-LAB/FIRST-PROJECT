@@ -19,7 +19,7 @@ Regular users select **Create one** on the login screen and enter a username, na
 7. Open **Details** to see customer history and whether each request is pending, approved, or declined.
 8. Use **Edit** on a saved record to correct the customer name or any SKU row; choose **+ Add product** to add another product row while editing, or **Remove** to drop a product row.
 9. Use **Notes** to keep delivery, payment, or follow-up details on a record.
-10. Use **Search**, the status filter, and the region filter to find records. **Stock & expiry watch** flags products that are low on stock or expiring within 30 days.
+10. Use **Search**, the status filter, the region filter, and the van filter to find records.
 11. Open **Overview** to see the summary of total customers, units recorded, and approved / pending / declined amounts.
 
 Requests are shared with the administrator for review. A request cannot be created when the admin has closed the request window or the current date is outside the configured date range.
@@ -48,7 +48,7 @@ Below it, the admin-only **System controls** section lives on the same Overview 
 3. Select **Approve** or **Decline**.
 4. Open **Request window** (on the Overview tab) to choose Open or Closed and set the allowed start/end dates.
 5. Use **Registered users** (on the Overview tab) to see account names, usernames, roles, online/offline status, and last sign-in, and to promote or demote an account. You cannot change your own role, and the last remaining administrator cannot be demoted.
-6. Use **Export customer CSV** to download the customer register.
+6. Open the **Details** tab and use **Export approved & declined to Excel** to download an `.xlsx` of every approved and declined request (customer, region, van, status, products, a separate expiry-date column, pieces, total, and deadline).
 7. Use the **Accounts** tab to create accounts for staff (full name, login name, email, region, role, and an initial password), to edit a login name or other profile details, to reset a password at any time, and to promote or demote an account.
 8. Use the **Login audit** through the API (`GET /api/admin/login-log`) to review every successful
    and failed sign-in — username, user, role, region, IP address, browser, and time, newest first.
@@ -72,9 +72,24 @@ For a staff member:
    produce the A4 form, or **Save claim** to keep it in the system (it then appears in the list
    below with its claim number, e.g. `DC-0032`). Any saved claim can be printed or exported again.
 
-## Claim catalog (Claim Admin)
+### Approved claims (Claims tab)
 
-Administrators see an extra **Claim Admin** tab with three views:
+The **Claims** tab only lists **approved** claims. Use the two dropdowns above the list to narrow
+it: pick a **Region**, then a **Van** (the van list only fills in once a region is chosen). The list
+shows any approved claim that matches, and the **Print approved claims** button prints exactly what's
+in the list.
+
+Each printable approved claim uses the stamp-ready A4 template: the title
+`DAHLIA TRADING COMPANY ("REGION")` centered, then `CUSTOMER NAME - ("VAN")`, a table listing each
+SKU with its quantity, the **original price**, the **price to be claimed**, and a `50% OFF` / `100%
+OFF` tag matching how it was approved, a total of the amount to be claimed, and two signature boxes —
+one for the **customer** (stamp / signature) and one for **you** (verified by, stamp / signature).
+To keep a copy, choose **Save as PDF** in the print dialog.
+
+## Claim catalog (admin tools on the Claims tab)
+
+Administrators get an extra **admin tools** block at the bottom of the **Claims** tab with three
+views:
 
 - **Customers** — add a claim customer (name), edit its name, or deactivate/activate it. Inactive
   customers disappear from the Claims screen.
@@ -82,8 +97,9 @@ Administrators see an extra **Claim Admin** tab with three views:
   CHOCO 30G=17 · CHOCO 100G=62 · CHOCO 250G=169.6 · CHOCO 500G=321 · VANILLA 500G=267 ·
   VANILLA 1KG=522 · BB 20G=8 · BB 30G=15.9 · BB 100G=58 · BB 250G=142 · BB 500G=267 · BB 1KG=522
   (all KES). Edit a name or price with the inline edit button, or deactivate/activate a SKU.
-- **Claims** — every saved claim with its number, customer, totals, date, and saved-by user; open
-  one to print or export it to Excel.
+- **Claims** — any claim (pending, approved, or declined) with its number, customer, totals, date,
+  and saved-by user; open one to print or export it. Approve a pending claim here (choose **50%
+  off** or **100% off**) or decline it — approval is what makes it printable on the Claims tab.
 
 Changing a SKU's price only affects claims saved **after** the change. Already-saved claims keep the
 price they were created with, so historical exports never change.

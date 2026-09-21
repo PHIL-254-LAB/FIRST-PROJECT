@@ -1,4 +1,5 @@
 const crypto = require('node:crypto');
+const ExcelJS = require('exceljs');
 const customerModel = require('../models/customerModel');
 const settingsModel = require('../models/settingsModel');
 
@@ -76,7 +77,7 @@ async function createCustomer(request, response, next) {
       error.statusCode = 403;
       throw error;
     }
-    const customer = { ...validateAndBuildCustomer(request.body), region: request.user.region || 'Unassigned' };
+    const customer = { ...validateAndBuildCustomer(request.body), region: request.user.region || 'Unassigned', van: request.user.van || '' };
     const savedCustomer = await customerModel.create(customer);
 
     response.status(201).json({
@@ -203,6 +204,83 @@ async function updateCustomerStatus(request, response, next) {
   }
 }
 
+async function exportCustomers(request, response, next) {
+  try {
+    const decided = (await customerModel.getAll())
+      .filter((customer) => ['approved', 'declined'].includes(customer.status || 'pending'))
+      .sort((a, b) => new Date(b.reviewedAt || b.createdAt) - new Date(a.reviewedAt || a.createdAt));
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Dahlia Bottlers Requests';
+    const sheet = workbook.addWorksheet('REQUESTS');
+    sheet.columns = [
+      { key: 'customer', width: 26 },
+      { key: 'region', width: 16 },
+      { key: 'van', width: 14 },
+      { key: 'status', width: 12 },
+      { key: 'products', width: 40 },
+      { key: 'expiry', width: 16 },
+      { key: 'pieces', width: 12 },
+      { key: 'total', width: 16 },
+      { key: 'created', width: 22 },
+      { key: 'deadline', width: 20 }
+    ];
+
+    const titleFont = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FF17322F' } };
+    const headerFont = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    const bodyFont = { name: 'Calibri', size: 11 };
+    const fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF176B63' } };
+    const thinBorder = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+
+    sheet.mergeCells('A1:J1');
+    sheet.getCell('A1').value = 'DAHLIA BOTTLERS - APPROVED & DECLINED REQUESTS';
+    sheet.getCell('A1').font = titleFont;
+    sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+    sheet.getRow(1).height = 30;
+
+    const headerRow = sheet.addRow(['Customer', 'Region', 'Van', 'Status', 'Products', 'Expiry date', 'Pieces', 'Total (KES)', 'Reviewed', 'Operating deadline']);
+    headerRow.eachCell((cell) => {
+      cell.font = headerFont;
+      cell.fill = fill;
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = thinBorder;
+    });
+    headerRow.height = 22;
+
+    decided.forEach((customer) => {
+      const products = (customer.products || []).map((product) => `${product.product} (${product.pieces} pcs)`).join('\n');
+      const expiries = (customer.products || []).map((product) => product.expiryDate || 'n/a').join('\n');
+      const row = sheet.addRow([
+        customer.customerName,
+        customer.region || 'Unassigned',
+        customer.van || 'Unassigned',
+        customer.status || 'pending',
+        products,
+        expiries,
+        customer.totalPieces || 0,
+        customer.totalAmount || 0,
+        customer.reviewedAt ? new Date(customer.reviewedAt).toLocaleString('en-GB') : new Date(customer.createdAt).toLocaleString('en-GB'),
+        customer.operatingDeadline || ''
+      ]);
+      row.eachCell((cell) => { cell.font = bodyFont; cell.border = thinBorder; cell.alignment = { vertical: 'top' }; });
+      row.getCell(5).alignment = { vertical: 'top', wrapText: true };
+      row.getCell(6).alignment = { vertical: 'top', wrapText: true };
+      row.getCell(8).numFmt = '#,##0.00';
+    });
+
+    sheet.views = [{ state: 'frozen', ySplit: 2 }];
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    response.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="DAHLIA-BOTTLERS-REQUESTS.xlsx"'
+    });
+    response.send(Buffer.from(buffer));
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createCustomer,
   getRequestWindow,
@@ -211,5 +289,6 @@ module.exports = {
   updateCustomer,
   addCustomerNote,
   deleteCustomer,
-  updateCustomerStatus
+  updateCustomerStatus,
+  exportCustomers
 };

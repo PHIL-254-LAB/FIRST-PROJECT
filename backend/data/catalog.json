@@ -1,0 +1,144 @@
+{
+  "customers": [
+    {
+      "id": "seed-customer-bengwela",
+      "name": "BENGWELA",
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z"
+    },
+    {
+      "id": "seed-customer-wino-mart",
+      "name": "WINO MART",
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z"
+    },
+    {
+      "id": "seed-customer-ramula",
+      "name": "RAMULA",
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z"
+    },
+    {
+      "id": "seed-customer-tin-mart",
+      "name": "TIN MART",
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z"
+    },
+    {
+      "id": "seed-customer-mulambo",
+      "name": "MULAMBO",
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z"
+    }
+  ],
+  "skus": [
+    {
+      "id": "seed-sku-choco-30g",
+      "name": "CHOCO 30G",
+      "unitPrice": 17,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.681Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-choco-100g",
+      "name": "CHOCO 100G",
+      "unitPrice": 62,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-choco-250g",
+      "name": "CHOCO 250G",
+      "unitPrice": 169.6,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-choco-500g",
+      "name": "CHOCO 500G",
+      "unitPrice": 321,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-vanilla-500g",
+      "name": "VANILLA 500G",
+      "unitPrice": 267,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-vanilla-1kg",
+      "name": "VANILLA 1KG",
+      "unitPrice": 522,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-20g",
+      "name": "BB 20G",
+      "unitPrice": 8,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-30g",
+      "name": "BB 30G",
+      "unitPrice": 15.9,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-100g",
+      "name": "BB 100G",
+      "unitPrice": 58,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-250g",
+      "name": "BB 250G",
+      "unitPrice": 142,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-500g",
+      "name": "BB 500G",
+      "unitPrice": 267,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    },
+    {
+      "id": "seed-sku-bb-1kg",
+      "name": "BB 1KG",
+      "unitPrice": 522,
+      "active": true,
+      "createdAt": "2026-09-21T09:16:48.691Z",
+      "currency": "KES",
+      "updatedAt": "2026-09-21T11:06:46.356Z"
+    }
+  ]
+}

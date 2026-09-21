@@ -21,7 +21,7 @@ async function getOptions(request, response, next) {
     response.json({
       success: true,
       customers: customers.map((customer) => ({ id: customer.id, name: customer.name })),
-      skus: skus.map((sku) => ({ id: sku.id, name: sku.name, unitPrice: sku.unitPrice }))
+      skus: skus.map((sku) => ({ id: sku.id, name: sku.name, unitPrice: sku.unitPrice, currency: sku.currency || 'KES' }))
     });
   } catch (error) {
     next(error);
@@ -131,6 +131,7 @@ async function createSku(request, response, next) {
       id: crypto.randomUUID(),
       name,
       unitPrice: roundPrice(unitPrice),
+      currency: 'KES',
       active: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

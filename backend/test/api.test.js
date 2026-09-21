@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { once } = require('node:events');
 const bcrypt = require('bcryptjs');
+const ExcelJS = require('exceljs');
 const { describe, it, before, after } = require('node:test');
 
 const dataDir = path.join(os.tmpdir(), `dahlia-blueband-sort-test-${process.pid}`);
@@ -97,12 +98,13 @@ describe('Dahlia Blue Band Sort API', () => {
 
   it('creates a regular user account', async () => {
     const { status, data } = await api('POST', '/api/auth/register', {
-      body: { username: 'testuser', password: USER_PASSWORD, name: 'Test User', email: 'test@example.com', region: 'Kakamega' }
+      body: { username: 'testuser', password: USER_PASSWORD, name: 'Test User', email: 'test@example.com', region: 'Kakamega', van: 'VAN D' }
     });
 
     assert.equal(status, 201);
     assert.equal(data.user.role, 'user');
     assert.equal(data.user.region, 'Kakamega');
+    assert.equal(data.user.van, 'VAN D');
     assert.equal(data.user.passwordHash, undefined);
     assert.ok(data.token);
 
@@ -112,7 +114,7 @@ describe('Dahlia Blue Band Sort API', () => {
 
   it('rejects duplicate usernames and invalid registration data', async () => {
     const duplicate = await api('POST', '/api/auth/register', {
-      body: { username: 'testuser', password: USER_PASSWORD, name: 'Copy Cat', region: 'Busia' }
+      body: { username: 'testuser', password: USER_PASSWORD, name: 'Copy Cat', region: 'Busia', van: 'A001' }
     });
     assert.equal(duplicate.status, 409);
 
@@ -127,20 +129,45 @@ describe('Dahlia Blue Band Sort API', () => {
     });
     assert.equal(shortPassword.status, 400);
     assert.equal(shortPassword.data.field, 'password');
+
+    const noVan = await api('POST', '/api/auth/register', {
+      body: { username: 'otheruser', password: USER_PASSWORD, name: 'Other User', region: 'Busia' }
+    });
+    assert.equal(noVan.status, 400);
+    assert.equal(noVan.data.field, 'van');
+
+    const wantsAdmin = await api('POST', '/api/auth/register', {
+      body: { username: 'otheruser', password: USER_PASSWORD, name: 'Other User', region: 'Busia', van: 'A001', role: 'admin' }
+    });
+    assert.equal(wantsAdmin.status, 403);
+    assert.equal(wantsAdmin.data.field, 'role');
+    assert.equal(wantsAdmin.data.message, 'Administrator accounts must be created by an existing admin');
+
+    const badVan = await api('POST', '/api/auth/register', {
+      body: { username: 'otheruser', password: USER_PASSWORD, name: 'Other User', region: 'Busia', van: 'VAN D' }
+    });
+    assert.equal(badVan.status, 400);
+    assert.equal(badVan.data.field, 'van');
   });
 
   it('signs in and rejects a wrong password', async () => {
-    const wrong = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'wrong-password', region: 'Kakamega' } });
+    const wrong = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'wrong-password', role: 'user', region: 'Kakamega', van: 'VAN D' } });
     assert.equal(wrong.status, 401);
 
-    const ok = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: USER_PASSWORD, region: 'Kakamega' } });
+    const badVan = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: USER_PASSWORD, role: 'user', region: 'Kakamega', van: 'NOPE' } });
+    assert.equal(badVan.status, 400);
+    assert.equal(badVan.data.field, 'van');
+
+    const ok = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: USER_PASSWORD, role: 'user', region: 'Kakamega', van: 'VAN D' } });
     assert.equal(ok.status, 200);
     assert.equal(ok.data.user.username, 'testuser');
+    assert.equal(ok.data.user.van, 'VAN D');
     assert.ok(ok.data.token);
 
     const me = await api('GET', '/api/auth/me', { token: ok.data.token });
     assert.equal(me.status, 200);
     assert.equal(me.data.user.username, 'testuser');
+    assert.equal(me.data.user.van, 'VAN D');
   });
 
   it('saves a customer and calculates totals on the server', async () => {
@@ -160,6 +187,7 @@ describe('Dahlia Blue Band Sort API', () => {
     assert.equal(status, 201);
     assert.equal(data.customer.status, 'pending');
     assert.equal(data.customer.region, 'Kakamega');
+    assert.equal(data.customer.van, 'VAN D');
     assert.equal(data.customer.totalPieces, 25);
     assert.equal(data.customer.totalAmount, 6000);
     assert.equal(data.customer.products[0].total, 5000);
@@ -263,10 +291,10 @@ describe('Dahlia Blue Band Sort API', () => {
     });
     assert.equal(changed.status, 200);
 
-    const oldPassword = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: USER_PASSWORD, region: 'Kakamega' } });
+    const oldPassword = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: USER_PASSWORD, role: 'user', region: 'Kakamega', van: 'VAN D' } });
     assert.equal(oldPassword.status, 401);
 
-    const newPassword = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'brand-new-secret', region: 'Kakamega' } });
+    const newPassword = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'brand-new-secret', role: 'user', region: 'Kakamega', van: 'VAN D' } });
     assert.equal(newPassword.status, 200);
     userToken = newPassword.data.token;
   });
@@ -289,9 +317,10 @@ describe('Dahlia Blue Band Sort API', () => {
 
 describe('Administrator workflows', () => {
   it('signs in the seeded administrator', async () => {
-    const { status, data } = await api('POST', '/api/auth/login', { body: { username: 'admin', password: ADMIN_PASSWORD, region: 'Kakamega' } });
+    const { status, data } = await api('POST', '/api/auth/login', { body: { username: 'admin', password: ADMIN_PASSWORD, role: 'admin' } });
     assert.equal(status, 200);
     assert.equal(data.user.role, 'admin');
+    assert.equal(data.user.region, 'Unassigned');
     adminToken = data.token;
   });
 
@@ -319,6 +348,35 @@ describe('Administrator workflows', () => {
     assert.equal(status, 200);
     assert.equal(data.customer.status, 'declined');
     assert.equal(data.customer.operatingDeadline, null);
+  });
+
+  it('exports approved and declined requests as an Excel workbook for administrators', async () => {
+    const forbidden = await fetch(`${baseUrl}/api/customers/export`, { headers: { Authorization: `Bearer ${userToken}` } });
+    assert.equal(forbidden.status, 403);
+
+    const response = await fetch(`${baseUrl}/api/customers/export`, { headers: { Authorization: `Bearer ${adminToken}` } });
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type') || '', /spreadsheetml\.sheet/);
+    assert.match(response.headers.get('content-disposition') || '', /DAHLIA-BOTTLERS-REQUESTS\.xlsx/);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    assert.ok(buffer.length > 0, 'Expected a non-empty workbook');
+    assert.equal(buffer.subarray(0, 2).toString('utf8'), 'PK', 'Expected an xlsx (zip) file');
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const sheet = workbook.getWorksheet('REQUESTS');
+    assert.ok(sheet, 'Expected a REQUESTS sheet');
+    const header = sheet.getRow(2);
+    assert.equal(header.getCell(5).value, 'Products');
+    assert.equal(header.getCell(6).value, 'Expiry date', 'Expected an expiry-date column beside Products');
+    let bodyText = '';
+    sheet.eachRow((row, index) => {
+      if (index <= 2) return;
+      row.eachCell((cell) => { bodyText += String(cell.value || '') + '\n'; });
+    });
+    assert.match(bodyText, /Blue Band 1kg \(10 pcs\)/, 'Expected the product and pieces');
+    assert.match(bodyText, /2028-01-31/, 'Expected the expiry date in its own column');
+    assert.ok(!/exp 2028-01-31/.test(bodyText), 'Expected the expiry date to move out of the products cell');
   });
 
   it('validates review payloads and unknown customers', async () => {
@@ -378,7 +436,7 @@ describe('Administrator workflows', () => {
     assert.equal(self.status, 400);
     assert.equal(self.data.message, 'You cannot change your own role');
 
-    const promotedLogin = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'brand-new-secret', region: 'Kakamega' } });
+    const promotedLogin = await api('POST', '/api/auth/login', { body: { username: 'testuser', password: 'brand-new-secret', role: 'admin' } });
     assert.equal(promotedLogin.status, 200);
     assert.equal(promotedLogin.data.user.role, 'admin');
 
@@ -398,6 +456,7 @@ describe('Administrator workflows', () => {
     const users = JSON.parse(await fs.readFile(path.join(dataDir, 'users.json'), 'utf8'));
     const storedUser = users.find((user) => user.username === 'testuser');
     assert.equal(storedUser.role, 'admin');
+    assert.equal(storedUser.van, 'VAN D');
     assert.ok(storedUser.passwordHash.startsWith('$2'));
 
     const customers = JSON.parse(await fs.readFile(path.join(dataDir, 'customers.json'), 'utf8'));
@@ -449,24 +508,26 @@ describe('Account administration', () => {
   it('creates an account with a password and role', async () => {
     const created = await api('POST', '/api/admin/users', {
       token: adminToken,
-      body: { username: 'juma', password: 'juma-pass', name: 'Juma Otieno', email: 'juma@example.com', region: 'Busia', role: 'user' }
+      body: { username: 'juma', password: 'juma-pass', name: 'Juma Otieno', email: 'juma@example.com', region: 'Busia', van: 'A001', role: 'user' }
     });
     assert.equal(created.status, 201);
     assert.equal(created.data.user.username, 'juma');
     assert.equal(created.data.user.role, 'user');
     assert.equal(created.data.user.region, 'Busia');
+    assert.equal(created.data.user.van, 'A001');
     assert.equal(created.data.user.passwordHash, undefined);
     newAccountId = created.data.user.id;
 
-    const login = await api('POST', '/api/auth/login', { body: { username: 'juma', password: 'juma-pass', region: 'Busia' } });
+    const login = await api('POST', '/api/auth/login', { body: { username: 'juma', password: 'juma-pass', role: 'user', region: 'Busia', van: 'A001' } });
     assert.equal(login.status, 200);
     assert.equal(login.data.user.name, 'Juma Otieno');
+    assert.equal(login.data.user.van, 'A001');
   });
 
   it('rejects invalid new-account data and duplicate usernames', async () => {
     const duplicate = await api('POST', '/api/admin/users', {
       token: adminToken,
-      body: { username: 'juma', password: 'juma-pass', name: 'Copy Cat' }
+      body: { username: 'juma', password: 'juma-pass', name: 'Copy Cat', region: 'Busia', van: 'A001' }
     });
     assert.equal(duplicate.status, 409);
     assert.equal(duplicate.data.field, 'username');
@@ -477,6 +538,13 @@ describe('Account administration', () => {
     });
     assert.equal(shortPassword.status, 400);
     assert.equal(shortPassword.data.field, 'password');
+
+    const missingVan = await api('POST', '/api/admin/users', {
+      token: adminToken,
+      body: { username: 'another', password: 'secret123', name: 'Another', region: 'Busia' }
+    });
+    assert.equal(missingVan.status, 400);
+    assert.equal(missingVan.data.field, 'van');
 
     const badRegion = await api('POST', '/api/admin/users', {
       token: adminToken,
@@ -496,16 +564,18 @@ describe('Account administration', () => {
   it('edits a login name and profile details', async () => {
     const renamed = await api('PUT', `/api/admin/users/${newAccountId}`, {
       token: adminToken,
-      body: { username: 'juma.otieno', name: 'Juma Otieno Jnr', email: 'juma2@example.com', region: 'Kakamega' }
+      body: { username: 'juma.otieno', name: 'Juma Otieno Jnr', email: 'juma2@example.com', region: 'Kakamega', van: 'VAN G1' }
     });
     assert.equal(renamed.status, 200);
     assert.equal(renamed.data.user.username, 'juma.otieno');
     assert.equal(renamed.data.user.name, 'Juma Otieno Jnr');
+    assert.equal(renamed.data.user.region, 'Kakamega');
+    assert.equal(renamed.data.user.van, 'VAN G1');
 
-    const oldLogin = await api('POST', '/api/auth/login', { body: { username: 'juma', password: 'juma-pass', region: 'Kakamega' } });
+    const oldLogin = await api('POST', '/api/auth/login', { body: { username: 'juma', password: 'juma-pass', role: 'user', region: 'Kakamega', van: 'VAN G1' } });
     assert.equal(oldLogin.status, 401);
 
-    const newLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'juma-pass', region: 'Kakamega' } });
+    const newLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'juma-pass', role: 'user', region: 'Kakamega', van: 'VAN G1' } });
     assert.equal(newLogin.status, 200);
     assert.equal(newLogin.data.user.name, 'Juma Otieno Jnr');
   });
@@ -519,6 +589,23 @@ describe('Account administration', () => {
     assert.equal(taken.data.field, 'username');
   });
 
+  it('never stores a van on administrator accounts', async () => {
+    const created = await api('POST', '/api/admin/users', {
+      token: adminToken,
+      body: { username: 'hqadmin', password: 'secret123', name: 'HQ Admin', region: 'Kakamega', van: 'VAN D', role: 'admin' }
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.data.user.role, 'admin');
+    assert.equal(created.data.user.van, '');
+
+    const edited = await api('PUT', `/api/admin/users/${created.data.user.id}`, {
+      token: adminToken,
+      body: { username: 'hqadmin', name: 'HQ Admin', van: 'WEB 1', role: 'admin' }
+    });
+    assert.equal(edited.status, 200);
+    assert.equal(edited.data.user.van, '');
+  });
+
   it('resets a password and invalidates the old one', async () => {
     const reset = await api('PATCH', `/api/admin/users/${newAccountId}/password`, {
       token: adminToken,
@@ -526,10 +613,10 @@ describe('Account administration', () => {
     });
     assert.equal(reset.status, 200);
 
-    const oldLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'juma-pass', region: 'Kakamega' } });
+    const oldLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'juma-pass', role: 'user', region: 'Kakamega', van: 'VAN G1' } });
     assert.equal(oldLogin.status, 401);
 
-    const newLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'brand-new-pass', region: 'Kakamega' } });
+    const newLogin = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'brand-new-pass', role: 'user', region: 'Kakamega', van: 'VAN G1' } });
     assert.equal(newLogin.status, 200);
     assert.equal(newLogin.data.user.username, 'juma.otieno');
 
@@ -539,6 +626,33 @@ describe('Account administration', () => {
 
     const unknown = await api('PATCH', '/api/admin/users/unknown-id/password', { token: adminToken, body: { newPassword: 'six-chars' } });
     assert.equal(unknown.status, 404);
+  });
+
+  it('deletes an account with guard rails', async () => {
+    const denied = await api('DELETE', `/api/admin/users/${userId}`, { token: userToken });
+    assert.equal(denied.status, 403);
+
+    const list = await api('GET', '/api/admin/users', { token: adminToken });
+    const hqadmin = list.data.users.find((user) => user.username === 'hqadmin');
+    assert.ok(hqadmin, 'Expected the hqadmin account from the earlier test');
+
+    const deleted = await api('DELETE', `/api/admin/users/${hqadmin.id}`, { token: adminToken });
+    assert.equal(deleted.status, 200);
+    assert.ok(/deleted/.test(deleted.data.message));
+
+    const again = await api('DELETE', `/api/admin/users/${hqadmin.id}`, { token: adminToken });
+    assert.equal(again.status, 404);
+
+    const self = await api('DELETE', '/api/admin/users/test-admin', { token: adminToken });
+    assert.equal(self.status, 400);
+    assert.equal(self.data.message, 'You cannot delete your own account');
+
+    const lastAdmin = await api('DELETE', `/api/admin/users/${userId}`, { token: adminToken });
+    assert.equal(lastAdmin.status, 400);
+    assert.equal(lastAdmin.data.message, 'At least one administrator must remain');
+
+    const remaining = await api('GET', '/api/admin/users', { token: adminToken });
+    assert.ok(!remaining.data.users.some((user) => user.username === 'hqadmin'), 'Expected hqadmin to be gone from the user list');
   });
 });
 
@@ -642,6 +756,10 @@ describe('Customer claims', () => {
     const claim = data.claim;
     assert.equal(claim.customerName, 'BENGWELA');
     assert.equal(claim.claimNumber, 'DC-0001');
+    assert.equal(claim.region, 'Kakamega');
+    assert.equal(claim.van, 'VAN D');
+    assert.equal(claim.status, 'pending');
+    assert.equal(claim.approvalMode, null);
     assert.ok(claim.id);
 
     const bb250 = claim.items.find((item) => item.skuId === 'seed-sku-bb-250g');
@@ -712,6 +830,52 @@ describe('Customer claims', () => {
     assert.equal(fresh.data.claim.claimNumber, 'DC-0002');
   });
 
+  it('runs the approval workflow with 50% or 100% off and blocks printing until approved', async () => {
+    const pendingExport = await fetch(`${baseUrl}/api/claims/${totalClaim.id}/export`, {
+      headers: { Authorization: `Bearer ${userToken}` }
+    });
+    assert.equal(pendingExport.status, 403, 'Pending claims must not be printed or exported');
+
+    const forbidden = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: userToken, body: { status: 'approved', approvalMode: '50' } });
+    assert.equal(forbidden.status, 403, 'Only administrators can decide approvals');
+
+    const unknown = await api('PATCH', '/api/claims/no-such-claim/approval', { token: adminToken, body: { status: 'approved', approvalMode: '50' } });
+    assert.equal(unknown.status, 404);
+
+    const invalidStatus = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'wat', approvalMode: '50' } });
+    assert.equal(invalidStatus.status, 400);
+
+    const missingMode = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'approved' } });
+    assert.equal(missingMode.status, 400);
+    assert.equal(missingMode.data.field, 'approvalMode');
+
+    const badMode = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'approved', approvalMode: '75' } });
+    assert.equal(badMode.status, 400);
+
+    const approved50 = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'approved', approvalMode: '50' } });
+    assert.equal(approved50.status, 200);
+    assert.equal(approved50.data.claim.status, 'approved');
+    assert.equal(approved50.data.claim.approvalMode, '50');
+    assert.equal(approved50.data.claim.totalDiscount, 6816 + 678.4 + 1602);
+    assert.equal(approved50.data.claim.approvedBy, 'admin');
+    assert.ok(approved50.data.claim.approvedAt);
+
+    const approved100 = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'approved', approvalMode: '100' } });
+    assert.equal(approved100.status, 200);
+    assert.equal(approved100.data.claim.approvalMode, '100');
+    assert.equal(approved100.data.claim.totalDiscount, approved100.data.claim.totalAmount, '100% off must discount the full amount');
+
+    const declined = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'declined' } });
+    assert.equal(declined.status, 200);
+    assert.equal(declined.data.claim.status, 'declined');
+    assert.equal(declined.data.claim.approvalMode, null);
+
+    const reApproved = await api('PATCH', `/api/claims/${totalClaim.id}/approval`, { token: adminToken, body: { status: 'approved', approvalMode: '50' } });
+    assert.equal(reApproved.status, 200);
+    assert.equal(reApproved.data.claim.status, 'approved');
+    assert.equal(reApproved.data.claim.totalDiscount, 6816 + 678.4 + 1602, 'Re-approving with 50% must restore the half discount');
+  });
+
   it('lists claims and exports the Excel document', async () => {
     const list = await api('GET', '/api/claims', { token: userToken });
     assert.equal(list.status, 200);
@@ -734,12 +898,76 @@ describe('Customer claims', () => {
   });
 });
 
+describe('Product master catalog', () => {
+  const master = [
+    ['CHOCO 30G', 17, 170],
+    ['CHOCO 100G', 62, 620],
+    ['CHOCO 250G', 169.6, 1696],
+    ['CHOCO 500G', 321, 3210],
+    ['VANILLA 500G', 267, 2670],
+    ['VANILLA 1KG', 522, 5220],
+    ['BB 20G', 8, 80],
+    ['BB 30G', 15.9, 159],
+    ['BB 100G', 58, 580],
+    ['BB 250G', 142, 1420],
+    ['BB 500G', 267, 2670],
+    ['BB 1KG', 522, 5220]
+  ];
+  const round = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+
+  it('re-seeds idempotently and restores the master prices without duplicating products', async () => {
+    const catalogModel = require('../models/catalogModel');
+    await catalogModel.ensureSeedCatalog();
+    await catalogModel.ensureSeedCatalog();
+
+    const seedSkus = (await catalogModel.getSkus()).filter((sku) => String(sku.id).startsWith('seed-sku-'));
+    assert.equal(seedSkus.length, 12, 'Expected exactly 12 seeded products after re-seeding');
+    assert.equal(new Set(seedSkus.map((sku) => sku.name)).size, 12, 'Seeded product names must be unique');
+
+    for (const [name, price] of master) {
+      const sku = seedSkus.find((item) => item.name === name);
+      assert.equal(sku.unitPrice, price, `${name} price must be restored to the master value`);
+      assert.equal(sku.currency, 'KES');
+    }
+  });
+
+  it('serves the 12 master products with numeric KES prices', async () => {
+    const { status, data } = await api('GET', '/api/catalog/options', { token: userToken });
+    assert.equal(status, 200);
+    for (const [name, price] of master) {
+      const sku = data.skus.find((item) => item.name === name);
+      assert.ok(sku, `Expected master product ${name}`);
+      assert.equal(typeof sku.unitPrice, 'number', `${name} price must be numeric, not text`);
+      assert.equal(sku.unitPrice, price);
+      assert.equal(sku.currency, 'KES');
+    }
+  });
+
+  it('computes quantity x price_per_piece for all 12 products without rounding errors', () => {
+    for (const [name, price, total] of master) {
+      assert.equal(round(10 * price), total, `${name}: 10 x ${price} should be ${total}`);
+    }
+  });
+
+  it('uses the master price automatically when a claim is created', async () => {
+    const created = await api('POST', '/api/claims', {
+      token: userToken,
+      body: { customerId: 'seed-customer-bengwela', items: [{ skuId: 'seed-sku-bb-250g', quantity: 10, unitPrice: 1, amount: 1 }] }
+    });
+    assert.equal(created.status, 201);
+    const item = created.data.claim.items[0];
+    assert.equal(item.unitPrice, 142, 'Claim must use the catalog price, ignoring submitted values');
+    assert.equal(item.amount, 1420, '10 x 142 must be 1420');
+    assert.equal(created.data.claim.totalAmount, 1420);
+  });
+});
+
 describe('Login audit', () => {
   it('records failed and successful sign-ins newest-first', async () => {
-    const failed = await api('POST', '/api/auth/login', { body: { username: 'ghost-user', password: 'wrong-password', region: 'Kakamega' } });
+    const failed = await api('POST', '/api/auth/login', { body: { username: 'ghost-user', password: 'wrong-password', role: 'user', region: 'Kakamega', van: 'VAN D' } });
     assert.equal(failed.status, 401);
 
-    const ok = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'brand-new-pass', region: 'Kakamega' } });
+    const ok = await api('POST', '/api/auth/login', { body: { username: 'juma.otieno', password: 'brand-new-pass', role: 'user', region: 'Kakamega', van: 'VAN G1' } });
     assert.equal(ok.status, 200);
 
     const { status, data } = await api('GET', '/api/admin/login-log', { token: adminToken });
@@ -751,6 +979,8 @@ describe('Login audit', () => {
     assert.equal(newest.success, true);
     assert.equal(newest.userId, ok.data.user.id);
     assert.equal(newest.name, 'Juma Otieno Jnr');
+    assert.equal(newest.region, 'Kakamega');
+    assert.equal(newest.van, 'VAN G1');
     assert.ok(typeof newest.userAgent === 'string');
     assert.ok(typeof newest.ip === 'string');
     assert.ok(new Date(newest.createdAt).getTime() <= Date.now());

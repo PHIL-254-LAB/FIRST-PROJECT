@@ -87,7 +87,12 @@ async function createClaim(request, response, next) {
       items: payload.items,
       totalAmount: payload.totalAmount,
       totalDiscount: payload.totalDiscount,
+      status: 'pending',
+      approvalMode: null,
       createdBy: request.user.username,
+      createdByName: request.user.name || request.user.username,
+      region: request.user.region || 'Unassigned',
+      van: request.user.van || '',
       createdAt: new Date().toISOString()
     });
 
@@ -107,6 +112,9 @@ async function exportDraftClaim(request, response, next) {
       totalAmount: payload.totalAmount,
       totalDiscount: payload.totalDiscount,
       createdBy: request.user.username,
+      createdByName: request.user.name || request.user.username,
+      region: request.user.region || 'Unassigned',
+      van: request.user.van || '',
       createdAt: new Date().toISOString()
     };
     const workbook = await buildClaimWorkbook(draft);
@@ -141,10 +149,55 @@ async function getClaim(request, response, next) {
   }
 }
 
+async function approveClaim(request, response, next) {
+  try {
+    const status = typeof request.body?.status === 'string' ? request.body.status : '';
+    const approvalMode = typeof request.body?.approvalMode === 'string' ? request.body.approvalMode : '';
+
+    if (!['approved', 'declined'].includes(status)) throw validationError('Status must be approved or declined', 'status');
+
+    let mode = null;
+    if (status === 'approved') {
+      if (!['50', '100'].includes(approvalMode)) throw validationError('Choose 50% or 100% off for the approval', 'approvalMode');
+      mode = approvalMode;
+    }
+
+    const existing = await claimModel.getById(request.params.id);
+    if (!existing) return response.status(404).json({ success: false, message: 'Claim not found' });
+
+    const updates = {
+      status,
+      approvalMode: mode,
+      approvedBy: request.user.username,
+      approvedByName: request.user.name || request.user.username,
+      approvedAt: new Date().toISOString()
+    };
+
+    if (status === 'approved') {
+      updates.items = existing.items.map((item) => ({
+        ...item,
+        discountAmount: mode === '100' ? item.amount : roundCurrency(item.amount * 0.5)
+      }));
+      updates.totalDiscount = mode === '100'
+        ? existing.totalAmount
+        : roundCurrency((existing.items || []).reduce((sum, item) => sum + roundCurrency(item.amount * 0.5), 0));
+    }
+
+    const claim = await claimModel.updateApproval(existing.id, updates);
+    const label = status === 'approved' ? `approved with ${mode}% off` : 'declined';
+    response.json({ success: true, message: `Claim ${existing.claimNumber} ${label}`, claim });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function exportClaim(request, response, next) {
   try {
     const claim = await claimModel.getById(request.params.id);
     if (!claim) return response.status(404).json({ success: false, message: 'Claim not found' });
+    if (claim.status !== 'approved') {
+      return response.status(403).json({ success: false, message: 'Only approved claims can be exported or kept as records' });
+    }
 
     const workbook = await buildClaimWorkbook(claim);
     const buffer = await workbook.xlsx.writeBuffer();
@@ -246,4 +299,4 @@ async function buildClaimWorkbook(claim) {
   return workbook;
 }
 
-module.exports = { createClaim, exportDraftClaim, getClaims, getClaim, exportClaim, buildClaimWorkbook };
+module.exports = { createClaim, approveClaim, exportDraftClaim, getClaims, getClaim, exportClaim, buildClaimWorkbook };

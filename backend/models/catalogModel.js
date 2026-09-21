@@ -4,6 +4,8 @@ const path = require('node:path');
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(__dirname, '..', 'data');
 const dataFile = path.join(dataDir, 'catalog.json');
 
+const CURRENCY = 'KES';
+
 const seedSkus = [
   { name: 'CHOCO 30G', unitPrice: 17 },
   { name: 'CHOCO 100G', unitPrice: 62 },
@@ -20,6 +22,9 @@ const seedSkus = [
 ];
 
 const seedCustomers = ['BENGWELA', 'WINO MART', 'RAMULA', 'TIN MART', 'MULAMBO'];
+
+const slug = (value) => String(value).replace(/[^A-Za-z0-9]+/g, '-').toLowerCase();
+const seedSkuId = (name) => `seed-sku-${slug(name)}`;
 
 const emptyCatalog = () => ({ customers: [], skus: [] });
 
@@ -101,18 +106,35 @@ async function updateSku(id, updates) {
 async function ensureSeedCatalog() {
   const catalog = await readCatalog();
   let changed = false;
+  const now = new Date().toISOString();
 
-  if (catalog.skus.length === 0) {
-    for (const seed of seedSkus) {
+  // Idempotent product-master upsert: update prices in place, never duplicate.
+  for (const seed of seedSkus) {
+    const existing = catalog.skus.find((sku) => sku.id === seedSkuId(seed.name))
+      || catalog.skus.find((sku) => String(sku.name || '').toUpperCase() === seed.name.toUpperCase());
+
+    if (!existing) {
       catalog.skus.push({
-        id: `seed-sku-${seed.name.replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}`,
+        id: seedSkuId(seed.name),
         name: seed.name,
         unitPrice: seed.unitPrice,
+        currency: CURRENCY,
         active: true,
-        createdAt: new Date().toISOString()
+        createdAt: now,
+        updatedAt: now
       });
+      changed = true;
+      continue;
     }
-    changed = true;
+
+    if (existing.name !== seed.name) { existing.name = seed.name; changed = true; }
+    if (typeof existing.unitPrice !== 'number' || existing.unitPrice !== seed.unitPrice) {
+      existing.unitPrice = seed.unitPrice;
+      existing.updatedAt = now;
+      changed = true;
+    }
+    if (existing.currency !== CURRENCY) { existing.currency = CURRENCY; changed = true; }
+    if (!existing.updatedAt) { existing.updatedAt = now; changed = true; }
   }
 
   if (catalog.customers.length === 0) {
@@ -142,5 +164,6 @@ module.exports = {
   updateSku,
   ensureSeedCatalog,
   seedCustomers,
-  seedSkus
+  seedSkus,
+  CURRENCY
 };

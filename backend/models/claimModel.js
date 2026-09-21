@@ -42,6 +42,15 @@ async function create(claim) {
   return claim;
 }
 
+async function updateApproval(id, updates) {
+  const claims = await readClaims();
+  const claim = claims.find((item) => item.id === id);
+  if (!claim) return null;
+  Object.assign(claim, updates);
+  await writeClaims(claims);
+  return claim;
+}
+
 async function remove(id) {
   const claims = await readClaims();
   const remaining = claims.filter((claim) => claim.id !== id);
@@ -50,4 +59,4 @@ async function remove(id) {
   return true;
 }
 
-module.exports = { getAll, getById, nextClaimNumber, create, remove };
+module.exports = { getAll, getById, nextClaimNumber, create, updateApproval, remove };

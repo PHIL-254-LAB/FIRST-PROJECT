@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const loginModel = require('../models/loginModel');
 const { jwtSecret } = require('../middleware/auth');
-const allowedRegions = ['Kakamega', 'Webuye', 'Busia', 'Luanda'];
+const { allowedRegions, isValidVan } = require('../config/regions');
 
 function validationError(message, field) {
   const error = new Error(message);
@@ -18,7 +18,7 @@ function normalizeUsername(value) {
 }
 
 function publicUser(user) {
-  return { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role, region: user.region || 'Unassigned' };
+  return { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role, region: user.region || 'Unassigned', van: user.van || '' };
 }
 
 function createToken(user) {
@@ -32,11 +32,20 @@ async function register(request, response, next) {
     const name = typeof request.body?.name === 'string' ? request.body.name.trim() : username;
     const email = typeof request.body?.email === 'string' ? request.body.email.trim().toLowerCase() : '';
     const region = typeof request.body?.region === 'string' ? request.body.region.trim() : '';
+    const van = typeof request.body?.van === 'string' ? request.body.van.trim() : '';
 
     if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw validationError('Username must be 3-30 characters using letters, numbers, dots, underscores, or hyphens', 'username');
     if (password.length < 6) throw validationError('Password must be at least 6 characters', 'password');
     if (!name) throw validationError('Name cannot be empty', 'name');
     if (!allowedRegions.includes(region)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
+    if (!van) throw validationError('Choose a van for your region', 'van');
+    if (!isValidVan(region, van)) throw validationError(`"${van}" is not a van in ${region}`, 'van');
+    if (typeof request.body?.role === 'string' && request.body.role.trim().toLowerCase() === 'admin') {
+      const error = new Error('Administrator accounts must be created by an existing admin');
+      error.statusCode = 403;
+      error.field = 'role';
+      throw error;
+    }
 
     if (await userModel.findByUsername(username)) {
       const error = new Error('Username is already registered');
@@ -53,6 +62,7 @@ async function register(request, response, next) {
       email,
       role: 'user',
       region,
+      van,
       createdAt: new Date().toISOString()
     };
     await userModel.create(user);
@@ -71,6 +81,7 @@ async function recordLogin(entry) {
       name: entry.name || entry.username || '',
       role: entry.role || 'user',
       region: entry.region || 'Unassigned',
+      van: entry.van || '',
       success: entry.success,
       ip: entry.ip,
       userAgent: entry.userAgent,
@@ -85,19 +96,37 @@ async function login(request, response, next) {
   try {
     const username = normalizeUsername(request.body?.username);
     const password = typeof request.body?.password === 'string' ? request.body.password : '';
+    const selectedRole = typeof request.body?.role === 'string' ? request.body.role.trim().toLowerCase() : 'user';
     const selectedRegion = typeof request.body?.region === 'string' ? request.body.region.trim() : '';
-    if (!allowedRegions.includes(selectedRegion)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
+    const selectedVan = typeof request.body?.van === 'string' ? request.body.van.trim() : '';
+
+    if (!['user', 'admin'].includes(selectedRole)) throw validationError('Choose a role: User or Admin', 'role');
+    if (selectedRole === 'user') {
+      if (!allowedRegions.includes(selectedRegion)) throw validationError('Choose Kakamega, Webuye, Busia, or Luanda', 'region');
+      if (!selectedVan) throw validationError('Choose a van for your region', 'van');
+      if (!isValidVan(selectedRegion, selectedVan)) throw validationError(`"${selectedVan}" is not a van in ${selectedRegion}`, 'van');
+    }
+
     const user = await userModel.findByUsername(username);
     const ip = request.ip || request.socket?.remoteAddress || '';
     const userAgent = typeof request.headers?.['user-agent'] === 'string' ? request.headers['user-agent'].slice(0, 200) : '';
 
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      await recordLogin({ username, success: false, ip, userAgent });
+      await recordLogin({ username, success: false, ip, userAgent, region: selectedRegion || 'Unassigned', van: selectedRole === 'user' ? selectedVan : '' });
       return response.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
-    const sessionUser = { ...user, region: user.region || selectedRegion };
-    await recordLogin({ username, userId: user.id, name: user.name, role: user.role || 'user', region: sessionUser.region || 'Unassigned', success: true, ip, userAgent });
+    if ((user.role || 'user') !== selectedRole) {
+      return response.status(403).json({ success: false, message: user.role === 'admin' ? 'Choose Admin to sign in to this account' : 'Choose User to sign in to this account' });
+    }
+
+    let sessionUser = { ...user };
+    if (selectedRole === 'user') {
+      sessionUser = { ...user, region: selectedRegion, van: selectedVan };
+      await userModel.updateUser(user.id, { region: selectedRegion, van: selectedVan, updatedAt: new Date().toISOString() });
+    }
+
+    await recordLogin({ username, userId: user.id, name: user.name, role: user.role || 'user', region: sessionUser.region || 'Unassigned', van: sessionUser.van || '', success: true, ip, userAgent });
     response.json({ success: true, user: publicUser(sessionUser), token: createToken(sessionUser) });
   } catch (error) {
     next(error);

@@ -51,6 +51,19 @@ async function updateUser(id, updates) {
   return user;
 }
 
+async function removeUser(id) {
+  const users = await readUsers();
+  const index = users.findIndex((user) => user.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const [removed] = users.splice(index, 1);
+  await writeUsers(users);
+  return removed;
+}
+
 async function updatePassword(id, passwordHash) {
   return updateUser(id, { passwordHash, passwordChangedAt: new Date().toISOString() });
 }
@@ -87,6 +100,7 @@ module.exports = {
   getById,
   create,
   updateUser,
+  removeUser,
   updatePassword,
   updateRole,
   ensureSeedUsers,

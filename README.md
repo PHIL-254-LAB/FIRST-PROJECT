@@ -29,7 +29,8 @@ entries) that administrators can view through the API.
   customer and SKU up in the catalog, verifies they are active, uses the **current** server-side
   SKU price, rejects duplicate SKUs, and stores snapshot copies of the customer name and SKU
   name/price so historical exports stay accurate if prices change later.
-- Administrators open **Claim Admin** to add/edit/deactivate claim customers, and to
+- Administrators get an extra **admin tools** block at the bottom of the **Claims** tab to
+  add/edit/deactivate claim customers, and to
   add/edit/deactivate SKUs and change prices. New claims use the new price; saved claims keep
   the price they were created with.
 - Every claim can be **printed** (A4, matching the template layout) or **exported to Excel**

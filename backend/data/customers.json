@@ -1,42 +1,24 @@
 [
   {
-    "id": "cb5de4f8-42c3-48c4-883e-80ba4e179576",
-    "customerName": "clara",
+    "id": "875848d2-ef9d-481a-80c4-5db2d4181b15",
+    "customerName": "DAHLIA TESTING",
     "products": [
       {
-        "product": "Blue Band 1kg",
-        "pieces": 3,
-        "pricePerItem": 20,
-        "expiryDate": "2026-09-05",
-        "total": 60
+        "product": "CHOCO 100G",
+        "pieces": 100,
+        "pricePerItem": 62,
+        "expiryDate": "2026-07-10",
+        "total": 6200
       }
     ],
     "status": "approved",
-    "totalPieces": 3,
-    "totalAmount": 60,
-    "createdAt": "2026-09-07T13:15:03.782Z",
-    "operatingDeadline": "2026-09-04",
-    "reviewedAt": "2026-09-07T13:16:05.064Z",
-    "reviewedBy": "admin",
-    "updatedAt": "2026-09-17T13:22:06.717Z",
-    "updatedBy": "phillip"
-  },
-  {
-    "id": "57b14f69-d351-4ffc-b3cc-864f0811ed85",
-    "customerName": "phill b",
-    "products": [
-      {
-        "product": "choco 500g",
-        "pieces": 3,
-        "pricePerItem": 110,
-        "expiryDate": "2026-09-10",
-        "total": 330
-      }
-    ],
-    "status": "pending",
-    "totalPieces": 3,
-    "totalAmount": 330,
-    "createdAt": "2026-09-08T11:41:31.856Z",
-    "region": "Kakamega"
+    "totalPieces": 100,
+    "totalAmount": 6200,
+    "createdAt": "2026-09-21T11:13:43.344Z",
+    "region": "Kakamega",
+    "van": "VAN D",
+    "operatingDeadline": "2026-09-21",
+    "reviewedAt": "2026-09-21T11:15:51.386Z",
+    "reviewedBy": "phillip"
   }
 ]

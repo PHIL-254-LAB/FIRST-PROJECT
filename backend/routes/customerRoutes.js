@@ -7,7 +7,8 @@ const {
   addCustomerNote,
   deleteCustomer,
   updateCustomerStatus,
-  getRequestWindow
+  getRequestWindow,
+  exportCustomers
 } = require('../controllers/customerController');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(requireAuth);
 
 router.get('/request-window', getRequestWindow);
+router.get('/export', requireAdmin, exportCustomers);
 router.post('/', createCustomer);
 router.get('/', getCustomers);
 router.get('/:id', getCustomer);
